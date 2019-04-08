@@ -10,27 +10,8 @@ SET(CMAKE_MACOSX_RPATH 1)
 
 
 # The project name
-PROJECT(wolf)
+PROJECT(apriltagw)
 
-
-#string(COMPARE EQUAL "${CMAKE_BINARY_DIR}" "" result)
-#IF(result)
-#  SET(CMAKE_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-#ENDIF()
-#message(STATUS "Binary path : " ${CMAKE_BINARY_DIR})
-#
-
-#SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-#SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
-#
-# We'll set the install prefix only is it's empty
-# which shouldn't be the case ...
-#string(COMPARE EQUAL "${CMAKE_INSTALL_PREFIX}" "" result)
-#IF(result)
-  # This path is actually default on linux
-#  SET(CMAKE_INSTALL_PREFIX /usr/local)
-#ENDIF()
-#message(STATUS "Installation path : " ${CMAKE_INSTALL_PREFIX})
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
@@ -80,9 +61,7 @@ if(BUILD_TESTS)
     enable_testing()
 endif()
 
-#+START_SRC --------------------------------------------------------------------------------------------------------------------------------
-#Start WOLF build
-MESSAGE("Starting WOLF CMakeLists ...")
+MESSAGE("Starting ${PROJECT_NAME} CMakeLists ...")
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 #CMAKE modules
@@ -100,7 +79,6 @@ option(_WOLF_TRACE "Enable wolf tracing macro" ON)
 
 # option(BUILD_EXAMPLES "Build examples" OFF)
 set(BUILD_TESTS true)
-set(BUILD_EXAMPLES true)
 
 # Does this has any other interest
 # but for the examples ?
@@ -111,48 +89,37 @@ ENDIF(BUILD_EXAMPLES OR BUILD_TESTS)
 
 
 #find dependencies.
-
+# ============EXAMPLE==================
 FIND_PACKAGE(Eigen3 3.2.92 REQUIRED)
 
 FIND_PACKAGE(Threads REQUIRED)
 
+FIND_PACKAGE(wolf REQUIRED)
+
+FIND_PACKAGE(vision_utils REQUIRED)
+
+FIND_PACKAGE(OpenCV REQUIRED)
+
 FIND_PACKAGE(Ceres QUIET) #Ceres is not required
+
+FIND_PACKAGE(wolfvision REQUIRED)
+
+FIND_PACKAGE(vision_utils REQUIRED)
+
+FIND_PATH(APRILTAG_INCLUDE_DIR NAMES apriltag.h PATH_SUFFIXES "apriltag" ${APRILTAG_INCLUDE_PATH})
+FIND_LIBRARY(APRILTAGL_LIBRARY NAMES apriltag PATH_SUFFIXES "${CMAKE_LIBRARY_ARCHITECTURE}" "apriltag" ${APRILTAGL_LIBRARY_PATH})
+
+IF(APRILTAG_LIBRARY)
+    SET(Apriltag_FOUND TRUE)
+    MESSAGE("apriltag Library FOUND in ${APRILTAGL_LIBRARY}: apriltag related sources will be built.")
+ENDIF(APRILTAG_LIBRARY)
 IF(Ceres_FOUND)
     MESSAGE("Ceres Library FOUND: Ceres related sources will be built.")
 ENDIF(Ceres_FOUND)
 
-FIND_PACKAGE(faramotics QUIET) #faramotics is not required
-IF(faramotics_FOUND)
-	FIND_PACKAGE(GLUT REQUIRED)
-	FIND_PACKAGE(pose_state_time REQUIRED)
-    MESSAGE("Faramotics Library FOUND: Faramotics related sources will be built.")
-ENDIF(faramotics_FOUND)
+FIND_PATH(APRILTAG_INCLUDE_DIR NAMES apriltag.h PATH_SUFFIXES "apriltag" ${APRILTAG_INCLUDE_PATH})
+FIND_LIBRARY(APRILTAG_LIBRARY NAMES apriltag PATH_SUFFIXES "${CMAKE_LIBRARY_ARCHITECTURE}" "apriltag" ${APRILTAG_LIBRARY_PATH})
 
-FIND_PACKAGE(laser_scan_utils QUIET) #laser_scan_utils is not required
-IF(laser_scan_utils_FOUND)
-    MESSAGE("laser_scan_utils Library FOUND: laser_scan_utils related sources will be built.")
-ENDIF(laser_scan_utils_FOUND)
-
-FIND_PACKAGE(raw_gps_utils QUIET) #raw_gps_utils is not required
-IF(raw_gps_utils_FOUND)
-    MESSAGE("raw_gps_utils Library FOUND: raw_gps_utils related sources will be built.")
-ENDIF(raw_gps_utils_FOUND)
-
-# Vision Utils
-FIND_PACKAGE(vision_utils QUIET)
-IF (vision_utils_FOUND)
-	MESSAGE("vision_utils Library FOUND: vision related sources will be built.")
-	SET(PRINT_INFO_VU false)
-	FIND_PACKAGE(OpenCV QUIET)
-ENDIF(vision_utils_FOUND)
-
-# Cereal
-FIND_PACKAGE(cereal QUIET)
-IF(cereal_FOUND)
-    MESSAGE("cereal Library FOUND: cereal related sources will be built.")
-ENDIF(cereal_FOUND)
-
-# YAML with yaml-cpp
 INCLUDE (${PROJECT_SOURCE_DIR}/cmake_modules/FindYamlCpp.cmake)
 IF(YAMLCPP_FOUND)
     MESSAGE("yaml-cpp Library FOUND: yaml-cpp related sources will be built.")
@@ -160,17 +127,6 @@ ELSEIF(YAMLCPP_FOUND)
     MESSAGE("yaml-cpp Library NOT FOUND!")
 ENDIF(YAMLCPP_FOUND)
 
-#GLOG
-INCLUDE (${PROJECT_SOURCE_DIR}/cmake_modules/FindGlog.cmake)
-IF(GLOG_FOUND)
-    MESSAGE("glog Library FOUND: glog related sources will be built.")
-    MESSAGE(STATUS ${GLOG_INCLUDE_DIR})
-    MESSAGE(STATUS ${GLOG_LIBRARY})
-ELSEIF(GLOG_FOUND)
-    MESSAGE("glog Library NOT FOUND!")
-ENDIF(GLOG_FOUND)
-
-# SuiteSparse doesn't have find*.cmake:
 FIND_PATH(
     Suitesparse_INCLUDE_DIRS
     NAMES SuiteSparse_config.h
@@ -201,550 +157,124 @@ ENDIF()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/internal/config.h.in "${WOLF_CONFIG_DIR}/config.h")
 message("CONFIG DIRECTORY ${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_BINARY_DIR}/conf")
-# include spdlog (logging library)
-FIND_PATH(SPDLOG_INCLUDE_DIR spdlog.h /usr/local/include/spdlog /usr/include/spdlog)
-IF (SPDLOG_INCLUDE_DIR)
-  INCLUDE_DIRECTORIES(${SPDLOG_INCLUDE_DIR})
-  MESSAGE(STATUS "Found spdlog: ${SPDLOG_INCLUDE_DIR}")
-ELSE (SPDLOG_INCLUDE_DIR)
- MESSAGE(FATAL_ERROR "Could not find spdlog")
-ENDIF (SPDLOG_INCLUDE_DIR)  
-  
+
+#INCLUDES SECTION
+# ============EXAMPLE==================
 INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${wolf_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${wolf_vision_INCLUDE_DIRS})
 include_directories("include")
 include_directories(.)
-# include_directories("templinks")
+INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${vision_utils_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
 IF(Ceres_FOUND)
     INCLUDE_DIRECTORIES(${CERES_INCLUDE_DIRS})
 ENDIF(Ceres_FOUND)
 
-IF(faramotics_FOUND)
-    INCLUDE_DIRECTORIES(${faramotics_INCLUDE_DIRS})
-ENDIF(faramotics_FOUND)
 
-IF(laser_scan_utils_FOUND)
-    INCLUDE_DIRECTORIES(${laser_scan_utils_INCLUDE_DIRS})
-ENDIF(laser_scan_utils_FOUND)
-
-IF(raw_gps_utils_FOUND)
-    INCLUDE_DIRECTORIES(${raw_gps_utils_INCLUDE_DIRS})
-ENDIF(raw_gps_utils_FOUND)
-
-IF(vision_utils_FOUND)
-	INCLUDE_DIRECTORIES(${vision_utils_INCLUDE_DIR})
-	INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
-ENDIF(vision_utils_FOUND)
-
-# cereal
-IF(cereal_FOUND)
-    INCLUDE_DIRECTORIES(${cereal_INCLUDE_DIRS})
-ENDIF(cereal_FOUND)
-
-IF(Suitesparse_FOUND)
-    INCLUDE_DIRECTORIES(${Suitesparse_INCLUDE_DIRS})
-ENDIF(Suitesparse_FOUND)
-
-IF(YAMLCPP_FOUND)
-    INCLUDE_DIRECTORIES(${YAMLCPP_INCLUDE_DIR})
-ENDIF(YAMLCPP_FOUND)
-
-IF(GLOG_FOUND)
-INCLUDE_DIRECTORIES(${GLOG_INCLUDE_DIR})
-ENDIF(GLOG_FOUND)
 
 #HEADERS
 
 SET(HDRS_BASE
-  include/base/diff_drive_tools.h
-  include/base/diff_drive_tools.hpp
-  include/base/eigen_assert.h
-  include/base/eigen_predicates.h
-  include/base/factory.h
-  include/base/frame_base.h
-  include/base/hardware_base.h
-  include/base/IMU_tools.h
-  include/base/local_parametrization_angle.h
-  include/base/local_parametrization_base.h
-  include/base/local_parametrization_homogeneous.h
-  include/base/local_parametrization_polyline_extreme.h
-  include/base/local_parametrization_quaternion.h
-  include/base/logging.h
-  include/base/make_unique.h
-  include/base/map_base.h
-  include/base/motion_buffer.h
-  include/base/node_base.h
-  include/base/pinhole_tools.h
-  include/base/problem.h
-  include/base/rotations.h
-  include/base/singleton.h
-  include/base/state_angle.h
-  include/base/state_block.h
-  include/base/state_homogeneous_3D.h
-  include/base/state_quaternion.h
-  include/base/SE3.h
-  include/base/time_stamp.h
-  include/base/track_matrix.h
-  include/base/trajectory_base.h
-  include/base/wolf.h
-  include/base/IMU_tools.h
-  include/base/local_parametrization_polyline_extreme.h
   )
 SET(HDRS_CAPTURE
-  include/base/capture/capture_base.h
-  include/base/capture/capture_buffer.h
-  include/base/capture/capture_pose.h
-  include/base/capture/capture_void.h
-  include/base/capture/capture_motion.h
-  include/base/capture/capture_GPS_fix.h
-  include/base/capture/capture_IMU.h
-  include/base/capture/capture_odom_2D.h
-  include/base/capture/capture_odom_3D.h
-  include/base/capture/capture_GPS_fix.h
-  include/base/capture/capture_IMU.h
-  include/base/capture/capture_odom_2D.h
-  include/base/capture/capture_odom_3D.h
-  include/base/capture/capture_velocity.h
-  include/base/capture/capture_wheel_joint_position.h
   )
 SET(HDRS_FACTOR
-  include/base/factor/factor_block_absolute.h
-  include/base/factor/factor_container.h
-  include/base/factor/factor_corner_2D.h
-  include/base/factor/factor_AHP.h
-  include/base/factor/factor_epipolar.h
-  include/base/factor/factor_IMU.h
-  include/base/factor/factor_fix_bias.h
-  include/base/factor/factor_GPS_2D.h
-  include/base/factor/factor_GPS_pseudorange_3D.h
-  include/base/factor/factor_GPS_pseudorange_2D.h
-  include/base/factor/factor_odom_2D.h
-  include/base/factor/factor_odom_2D_analytic.h
-  include/base/factor/factor_odom_3D.h
-  include/base/factor/factor_point_2D.h
-  include/base/factor/factor_point_to_line_2D.h
-  include/base/factor/factor_pose_2D.h
-  include/base/factor/factor_pose_3D.h
-  include/base/factor/factor_quaternion_absolute.h
-  include/base/factor/factor_relative_2D_analytic.h
-  include/base/factor/factor_autodiff_trifocal.h
-  include/base/factor/factor_autodiff_distance_3D.h
-  include/base/factor/factor_AHP.h
-  include/base/factor/factor_block_absolute.h
-  include/base/factor/factor_container.h
-  include/base/factor/factor_corner_2D.h
-  include/base/factor/factor_diff_drive.h
-  include/base/factor/factor_epipolar.h
-  include/base/factor/factor_IMU.h
-  include/base/factor/factor_fix_bias.h
-  include/base/factor/factor_GPS_2D.h
-  include/base/factor/factor_GPS_pseudorange_3D.h
-  include/base/factor/factor_GPS_pseudorange_2D.h
-  include/base/factor/factor_odom_2D.h
-  include/base/factor/factor_odom_2D_analytic.h
-  include/base/factor/factor_odom_3D.h
-  include/base/factor/factor_point_2D.h
-  include/base/factor/factor_point_to_line_2D.h
-  include/base/factor/factor_pose_2D.h
-  include/base/factor/factor_pose_3D.h
-  include/base/factor/factor_quaternion_absolute.h
-  include/base/factor/factor_relative_2D_analytic.h
-  include/base/factor/factor_analytic.h
-  include/base/factor/factor_autodiff.h
-  include/base/factor/factor_base.h
+include/apriltag/factor/factor_autodiff_apriltag.h
   )
 SET(HDRS_FEATURE
-  include/base/feature/feature_corner_2D.h
-  include/base/feature/feature_GPS_fix.h
-  include/base/feature/feature_GPS_pseudorange.h
-  include/base/feature/feature_IMU.h
-  include/base/feature/feature_odom_2D.h
-  include/base/feature/feature_polyline_2D.h
-  include/base/feature/feature_corner_2D.h
-  include/base/feature/feature_diff_drive.h
-  include/base/feature/feature_GPS_fix.h
-  include/base/feature/feature_GPS_pseudorange.h
-  include/base/feature/feature_IMU.h
-  include/base/feature/feature_odom_2D.h
-  include/base/feature/feature_polyline_2D.h
-  include/base/feature/feature_base.h
-  include/base/feature/feature_match.h
-  include/base/feature/feature_pose.h
+include/apriltag/feature/feature_apriltag.h
   )
 SET(HDRS_LANDMARK
-  include/base/landmark/landmark_base.h
-  include/base/landmark/landmark_match.h
-  include/base/landmark/landmark_corner_2D.h
-  include/base/landmark/landmark_container.h
-  include/base/landmark/landmark_line_2D.h
-  include/base/landmark/landmark_polyline_2D.h
-  include/base/landmark/landmark_corner_2D.h
-  include/base/landmark/landmark_container.h
-  include/base/landmark/landmark_line_2D.h
-  include/base/landmark/landmark_polyline_2D.h
+include/apriltag/landmark/landmark_apriltag.h
   )
 SET(HDRS_PROCESSOR
-  include/base/processor/processor_capture_holder.h
-  include/base/processor/processor_diff_drive.h
-  include/base/processor/processor_frame_nearest_neighbor_filter.h
-  include/base/processor/processor_IMU.h
-  include/base/processor/processor_odom_2D.h
-  include/base/processor/processor_odom_3D.h
-  include/base/processor/processor_tracker_feature_dummy.h
-  include/base/processor/processor_tracker_landmark.h
-  include/base/processor/processor_tracker_landmark_dummy.h
-  include/base/processor/processor_frame_nearest_neighbor_filter.h
-  include/base/processor/processor_IMU.h
-  include/base/processor/processor_odom_2D.h
-  include/base/processor/processor_odom_3D.h
-  include/base/processor/processor_tracker_feature_dummy.h
-  include/base/processor/processor_tracker_landmark_dummy.h
-  include/base/processor/processor_factory.h
-  include/base/processor/processor_logging.h
-  include/base/processor/processor_base.h
-  include/base/processor/processor_factory.h
-  include/base/processor/processor_loopclosure_base.h
-  include/base/processor/processor_motion.h
-  include/base/processor/processor_tracker_feature.h
-  include/base/processor/processor_tracker.h
+include/apriltag/processor/processor_tracker_landmark_apriltag.h
+include/apriltag/processor/ippe.h
   )
 SET(HDRS_SENSOR
-  include/base/sensor/sensor_base.h
-  include/base/sensor/sensor_camera.h
-  include/base/sensor/sensor_diff_drive.h
-  include/base/sensor/sensor_GPS.h
-  include/base/sensor/sensor_GPS_fix.h
-  include/base/sensor/sensor_IMU.h
-  include/base/sensor/sensor_odom_2D.h
-  include/base/sensor/sensor_odom_3D.h
-  include/base/sensor/sensor_camera.h
-  include/base/sensor/sensor_GPS.h
-  include/base/sensor/sensor_GPS_fix.h
-  include/base/sensor/sensor_IMU.h
-  include/base/sensor/sensor_odom_2D.h
-  include/base/sensor/sensor_odom_3D.h
-  include/base/sensor/sensor_factory.h
   )
 SET(HDRS_SOLVER
-  include/base/solver/solver_manager.h
   )
-# [Add generic derived header before this line]
-
 SET(HDRS_DTASSC
-  include/base/track_matrix.h
-  include/base/association/association_solver.h
-  include/base/association/association_node.h
-  include/base/association/association_tree.h
-  include/base/association/association_nnls.h
-  )
-
-SET(HDRS_CORE 
-  include/base/capture/capture_base.h
-  include/base/capture/capture_buffer.h
-  include/base/capture/capture_pose.h
-  include/base/capture/capture_void.h
-  include/base/factor/factor_analytic.h
-  include/base/factor/factor_autodiff.h
-  include/base/factor/factor_base.h
-  include/base/processor/processor_factory.h
-  include/base/feature/feature_base.h
-  include/base/feature/feature_match.h
-  include/base/feature/feature_pose.h
-  include/base/frame_base.h
-  include/base/hardware_base.h
-  include/base/landmark/landmark_base.h
-  include/base/local_parametrization_angle.h
-  include/base/local_parametrization_base.h
-  include/base/local_parametrization_homogeneous.h
-  include/base/local_parametrization_quaternion.h
-  include/base/processor/processor_logging.h
-  include/base/map_base.h
-  include/base/motion_buffer.h
-  include/base/node_base.h
-  include/base/problem.h
-  include/base/processor/processor_base.h
-  include/base/processor/processor_loopclosure_base.h
-  include/base/processor/processor_motion.h
-  include/base/processor/processor_tracker_feature.h
-  include/base/processor/processor_tracker.h
-  include/base/rotations.h
-  include/base/sensor/sensor_base.h
-  include/base/processor/processor_factory.h
-  include/base/singleton.h
-  include/base/state_angle.h
-  include/base/state_block.h
-  include/base/state_homogeneous_3D.h
-  include/base/state_quaternion.h
-  include/base/SE3.h
-  include/base/time_stamp.h
-  include/base/track_matrix.h
-  include/base/trajectory_base.h
-  include/base/wolf.h
   )
 
 #SOURCES
-SET(SRCS_CORE 
-  src/capture/capture_base.cpp
-  src/capture/capture_pose.cpp
-  src/capture/capture_void.cpp
-  src/factor/factor_analytic.cpp
-  src/factor/factor_base.cpp
-  src/feature/feature_base.cpp
-  src/feature/feature_pose.cpp
-  src/frame_base.cpp
-  src/hardware_base.cpp
-  src/landmark/landmark_base.cpp
-  src/local_parametrization_base.cpp
-  src/local_parametrization_homogeneous.cpp
-  src/local_parametrization_quaternion.cpp
-  src/map_base.cpp
-  src/motion_buffer.cpp
-  src/node_base.cpp
-  src/problem.cpp
-  src/processor/processor_base.cpp
-  src/processor/processor_loopclosure_base.cpp
-  src/processor/processor_motion.cpp
-  src/processor/processor_tracker.cpp
-  src/sensor/sensor_base.cpp
-  src/state_block.cpp
-  src/time_stamp.cpp
-  src/track_matrix.cpp
-  src/trajectory_base.cpp
-  )
 
 SET(SRCS_BASE
-  src/capture/capture_motion.cpp
-  src/processor/processor_capture_holder.cpp
-  # examples/test_processor_tracker_landmark.cpp
-  )
-
-SET(SRCS
-  src/local_parametrization_polyline_extreme.cpp
-  test/processor_IMU_UnitTester.cpp
   )
 SET(SRCS_CAPTURE
-  src/capture/capture_GPS_fix.cpp
-  src/capture/capture_IMU.cpp
-  src/capture/capture_odom_2D.cpp
-  src/capture/capture_odom_3D.cpp
-  src/capture/capture_velocity.cpp
-  src/capture/capture_wheel_joint_position.cpp
+  )
+SET(SRCS_FACTOR
   )
 SET(SRCS_FEATURE
-  src/feature/feature_corner_2D.cpp
-  src/feature/feature_diff_drive.cpp
-  src/feature/feature_GPS_fix.cpp
-  src/feature/feature_GPS_pseudorange.cpp
-  src/feature/feature_IMU.cpp
-  src/feature/feature_odom_2D.cpp
-  src/feature/feature_polyline_2D.cpp
+src/feature/feature_apriltag.cpp
   )
 SET(SRCS_LANDMARK
-  src/landmark/landmark_corner_2D.cpp
-  src/landmark/landmark_container.cpp
-  src/landmark/landmark_line_2D.cpp
-  src/landmark/landmark_polyline_2D.cpp
+src/landmark/landmark_apriltag.cpp
   )
 SET(SRCS_PROCESSOR
-  src/processor/processor_frame_nearest_neighbor_filter.cpp
-  src/processor/processor_diff_drive.cpp
-  src/processor/processor_IMU.cpp
-  src/processor/processor_odom_2D.cpp
-  src/processor/processor_odom_3D.cpp
-  src/processor/processor_tracker_feature.cpp
-  src/processor/processor_tracker_feature_dummy.cpp
-  src/processor/processor_tracker_landmark_dummy.cpp
-  src/processor/processor_tracker_landmark.cpp
+src/processor/processor_tracker_landmark_apriltag.cpp
+src/processor/ippe.cpp
   )
 SET(SRCS_SENSOR
-  src/sensor/sensor_camera.cpp
-  src/sensor/sensor_diff_drive.cpp
-  src/sensor/sensor_GPS.cpp
-  src/sensor/sensor_GPS_fix.cpp
-  src/sensor/sensor_IMU.cpp
-  src/sensor/sensor_odom_2D.cpp
-  src/sensor/sensor_odom_3D.cpp
   )
 SET(SRCS_DTASSC
-  src/association/association_solver.cpp
-  src/association/association_node.cpp
-  src/association/association_tree.cpp
-  src/association/association_nnls.cpp
   )
 SET(SRCS_SOLVER
-  src/solver/solver_manager.cpp
+  )
+SET(SRCS_YAML
+src/yaml/processor_tracker_landmark_apriltag_yaml.cpp
   )
 #OPTIONALS
 #optional HDRS and SRCS
-IF (Ceres_FOUND)
-    SET(HDRS_WRAPPER
-      include/base/solver_suitesparse/sparse_utils.h
-      include/base/solver/solver_manager.h
-      include/base/ceres_wrapper/ceres_manager.h
-      #ceres_wrapper/qr_manager.h
-      include/base/ceres_wrapper/cost_function_wrapper.h
-      include/base/ceres_wrapper/create_numeric_diff_cost_function.h
-      include/base/ceres_wrapper/local_parametrization_wrapper.h 
-      )
-    SET(SRCS_WRAPPER
-      src/solver/solver_manager.cpp
-      src/ceres_wrapper/ceres_manager.cpp
-      #ceres_wrapper/qr_manager.cpp
-      src/ceres_wrapper/local_parametrization_wrapper.cpp 
-      )
-ELSE(Ceres_FOUND)
-  SET(HDRS_WRAPPER)
-  SET(SRCS_WRAPPER)
-ENDIF(Ceres_FOUND)
-
-IF (laser_scan_utils_FOUND)
-  SET(HDRS_CAPTURE ${HDRS_CAPTURE}
-    include/base/capture/capture_laser_2D.h
-    )
-  SET(HDRS_PROCESSOR ${HDRS_PROCESSOR}
-    include/base/processor/processor_tracker_feature_corner.h
-    include/base/processor/processor_tracker_landmark_corner.h
-    include/base/processor/processor_tracker_landmark_polyline.h
-    )
-  SET(HDRS_SENSOR ${HDRS_SENSOR}
-    include/base/sensor/sensor_laser_2D.h
-    )
-  SET(SRCS ${SRCS}
-    src/sensor/sensor_laser_2D.cpp
-    src/processor/processor_tracker_feature_corner.cpp
-    src/processor/processor_tracker_landmark_corner.cpp
-    src/processor/processor_tracker_landmark_polyline.cpp
-    )
-ENDIF(laser_scan_utils_FOUND)
-
-IF (raw_gps_utils_FOUND)
-  SET(HDRS_CAPTURE ${HDRS_CAPTURE}
-    include/base/capture/capture_GPS.h
-    )
-  SET(HDRS_PROCESSOR ${HDRS_PROCESSOR}
-    include/base/processor/processor_GPS.h
-    )
-  SET(SRCS ${SRCS}
-    src/capture/capture_GPS.cpp
-    src/processor/processor_GPS.cpp
-    )
-ENDIF(raw_gps_utils_FOUND)
-
-# Vision
-IF (vision_utils_FOUND)
-  SET(HDRS_CAPTURE ${HDRS_CAPTURE}
-    include/base/capture/capture_image.h
-    )
-  SET(HDRS_FEATURE ${HDRS_FEATURE}
-    include/base/feature/feature_point_image.h
-    )
-  SET(HDRS_PROCESSOR ${HDRS_PROCESSOR}
-    include/base/processor/processor_tracker_feature_trifocal.h
-    include/base/processor/processor_params_image.h
-    include/base/processor/processor_tracker_feature_image.h
-    include/base/processor/processor_tracker_landmark_image.h
-    )
-  SET(HDRS_LANDMARK ${HDRS_LANDMARK}
-    include/base/landmark/landmark_point_3D.h
-    include/base/landmark/landmark_AHP.h
-    )
-  SET(SRCS ${SRCS}
-    src/capture/capture_image.cpp
-    src/feature/feature_point_image.cpp
-    )
-  SET(SRCS_LANDMARK ${SRCS_LANDMARK}
-    src/landmark/landmark_point_3D.cpp
-    src/landmark/landmark_AHP.cpp
-    )
-  SET(SRCS_PROCESSOR ${SRCS_PROCESSOR}
-    src/processor/processor_tracker_feature_trifocal.cpp
-    src/processor/processor_tracker_feature_image.cpp
-    src/processor/processor_tracker_landmark_image.cpp
-    )
-ENDIF(vision_utils_FOUND)
-#SUBDIRECTORIES
-add_subdirectory(hello_wolf)
-IF (cereal_FOUND)
-  ADD_SUBDIRECTORY(serialization/cereal)
-ENDIF(cereal_FOUND)
-
-IF (Suitesparse_FOUND)
-  #DOES NOTHING?!    
-  #ADD_SUBDIRECTORY(solver_suitesparse)
-ENDIF(Suitesparse_FOUND)
-# LEAVE YAML FILES ALWAYS IN THE LAST POSITION !!
-IF(YAMLCPP_FOUND)
-  # headers
-  SET(HDRS ${HDRS}
-    include/base/yaml/yaml_conversion.h
-    )
-  SET(HDRS_YAML ${HDRS_YAML}
-    include/base/yaml/yaml_conversion.h
-    )
-  
-  # sources
-  SET(SRCS ${SRCS}
-    src/yaml/processor_odom_3D_yaml.cpp
-    src/yaml/processor_IMU_yaml.cpp
-    src/yaml/sensor_camera_yaml.cpp
-    src/yaml/sensor_odom_3D_yaml.cpp
-    src/yaml/sensor_IMU_yaml.cpp
-    )
-  IF(laser_scan_utils_FOUND)
-    SET(SRCS ${SRCS}
-      src/yaml/sensor_laser_2D_yaml.cpp
-      )
-  ENDIF(laser_scan_utils_FOUND)
-  IF(vision_utils_FOUND)
-    SET(SRCS ${SRCS}
-      src/yaml/processor_image_yaml.cpp
-      src/yaml/processor_tracker_feature_trifocal_yaml.cpp
-      )
-  ENDIF(vision_utils_FOUND)
-ENDIF(YAMLCPP_FOUND)
+# ==================EXAMPLE===============
+# IF (Ceres_FOUND)
+#     SET(HDRS_WRAPPER
+#       include/base/solver_suitesparse/sparse_utils.h
+#       include/base/solver/solver_manager.h
+#       include/base/ceres_wrapper/ceres_manager.h
+#       include/base/ceres_wrapper/cost_function_wrapper.h
+#       include/base/ceres_wrapper/create_numeric_diff_cost_function.h
+#       include/base/ceres_wrapper/local_parametrization_wrapper.h 
+#       )
+#     SET(SRCS_WRAPPER
+#       src/solver/solver_manager.cpp
+#       src/ceres_wrapper/ceres_manager.cpp
+#       src/ceres_wrapper/local_parametrization_wrapper.cpp 
+#       )
+# ELSE(Ceres_FOUND)
+#   SET(HDRS_WRAPPER)
+#   SET(SRCS_WRAPPER)
+# ENDIF(Ceres_FOUND)
 
 # create the shared library
-ADD_LIBRARY(${PROJECT_NAME} 
-  SHARED 
-  ${SRCS_BASE} 
-  ${SRCS_CORE}
-  ${SRCS}
+ADD_LIBRARY(${PROJECT_NAME}
+  SHARED
+  ${SRCS_BASE}
   ${SRCS_CAPTURE}
   ${SRCS_FACTOR}
   ${SRCS_FEATURE}
   ${SRCS_LANDMARK}
   ${SRCS_PROCESSOR}
   ${SRCS_SENSOR}
-  #${SRCS_DTASSC} 
+  ${SRCS_DTASSC}
   ${SRCS_SOLVER}
   ${SRCS_WRAPPER}
+  ${SRCS_YAML}
   )
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
-
+# set(wolf_vision_LIBRARY "/usr/local/lib/iri-algorithms/libvision.so")
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${wolf_LIBRARY} ${vision_LIBRARY} ${vision_utils_LIBRARY} ${APRILTAGL_LIBRARY}  ${CMAKE_THREAD_LIBS_INIT} ${OPENCV_LDFLAGS})
 #Link the created libraries
-#=============================================================
-IF (Ceres_FOUND)
-    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CERES_LIBRARIES})
-ENDIF(Ceres_FOUND)
+#===============EXAMPLE=========================
+# IF (Ceres_FOUND)
+#     TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CERES_LIBRARIES})
+# ENDIF(Ceres_FOUND)
 
-IF (laser_scan_utils_FOUND)
-    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${laser_scan_utils_LIBRARY})
-ENDIF (laser_scan_utils_FOUND)
 
-IF (raw_gps_utils_FOUND)
-    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${raw_gps_utils_LIBRARY})
-ENDIF (raw_gps_utils_FOUND)
-
-IF (OPENCV_FOUND)
-   	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenCV_LIBS})
-	IF (vision_utils_FOUND)
-    	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${vision_utils_LIBRARY})
-	ENDIF (vision_utils_FOUND)
-ENDIF (OPENCV_FOUND)
-
-IF (YAMLCPP_FOUND)
-    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${YAMLCPP_LIBRARY})
-ENDIF (YAMLCPP_FOUND)
-
+#Build tests
+#===============EXAMPLE=========================
 IF (GLOG_FOUND)
     TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${GLOG_LIBRARY})
 ENDIF (GLOG_FOUND)
@@ -754,13 +284,6 @@ IF (GLOG_FOUND)
         add_subdirectory(test)
     ENDIF(BUILD_TESTS)
 ENDIF (GLOG_FOUND)
-
-IF(BUILD_EXAMPLES)
-  #Build examples
-  MESSAGE("Building examples.")
-  ADD_SUBDIRECTORY(src/examples)
-ENDIF(BUILD_EXAMPLES)
-
 
 #install library
 
@@ -773,37 +296,37 @@ INSTALL(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
 install(EXPORT ${PROJECT_NAME}Targets DESTINATION lib/cmake/${PROJECT_NAME})
 #install headers
 INSTALL(FILES ${HDRS_BASE}
-    DESTINATION include/iri-algorithms/wolf/base)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME})
 INSTALL(FILES ${HDRS_DTASSC}
-   DESTINATION include/iri-algorithms/wolf/base/association)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/association)
 INSTALL(FILES ${HDRS_CAPTURE}
-    DESTINATION include/iri-algorithms/wolf/base/capture)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/capture)
 INSTALL(FILES ${HDRS_FACTOR}
-    DESTINATION include/iri-algorithms/wolf/base/factor)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/factor)
 INSTALL(FILES ${HDRS_FEATURE}
-    DESTINATION include/iri-algorithms/wolf/base/feature)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/feature)
 INSTALL(FILES ${HDRS_SENSOR}
-    DESTINATION include/iri-algorithms/wolf/base/sensor)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/sensor)
 INSTALL(FILES ${HDRS_PROCESSOR}
-    DESTINATION include/iri-algorithms/wolf/base/processor)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/processor)
 INSTALL(FILES ${HDRS_LANDMARK}
-    DESTINATION include/iri-algorithms/wolf/base/landmark)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/landmark)
 INSTALL(FILES ${HDRS_WRAPPER}
-    DESTINATION include/iri-algorithms/wolf/base/ceres_wrapper)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/ceres_wrapper)
 INSTALL(FILES ${HDRS_SOLVER_SUITESPARSE}
-   DESTINATION include/iri-algorithms/wolf/base/solver_suitesparse)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/solver_suitesparse)
 INSTALL(FILES ${HDRS_SOLVER}
-    DESTINATION include/iri-algorithms/wolf/base/solver)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/solver)
 INSTALL(FILES ${HDRS_SERIALIZATION}
-    DESTINATION include/iri-algorithms/wolf/base/serialization)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/serialization)
 INSTALL(FILES ${HDRS_YAML}
-    DESTINATION include/iri-algorithms/wolf/base/yaml)
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/yaml)
 INSTALL(FILES "${CMAKE_SOURCE_DIR}/cmake_modules/Findwolf.cmake"
-    DESTINATION "lib/cmake/${PROJECT_NAME}")
+  DESTINATION "lib/cmake/${PROJECT_NAME}")
 
 #install Find*.cmake
-configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/wolfConfig.cmake"
-               "${CMAKE_BINARY_DIR}/wolfConfig.cmake" @ONLY)
+configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/wolf${PROJECT_NAME}Config.cmake"
+               "${CMAKE_BINARY_DIR}/wolf${PROJECT_NAME}Config.cmake" @ONLY)
 
 INSTALL(FILES "${WOLF_CONFIG_DIR}/config.h"
 DESTINATION include/iri-algorithms/wolf/internal)
@@ -812,9 +335,8 @@ INSTALL(FILES "${CMAKE_BINARY_DIR}/wolfConfig.cmake" DESTINATION "lib/cmake/${PR
 
 INSTALL(DIRECTORY ${SPDLOG_INCLUDE_DIRS} DESTINATION "include/iri-algorithms/")
 
-export(PACKAGE ${PROJECT_NAME})
+export(PACKAGE wolf_${PROJECT_NAME})
 
-#-END_SRC --------------------------------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(Doxygen)
 
 FIND_PATH(IRI_DOC_DIR doxygen.conf ${CMAKE_SOURCE_DIR}/doc/iri_doc/)
@@ -856,19 +378,3 @@ ELSE(UNIX)
     TARGET  uninstall
   )
 ENDIF(UNIX)
-
-IF (UNIX)
-  SET(CPACK_PACKAGE_FILE_NAME "iri-${PROJECT_NAME}-dev-${CPACK_PACKAGE_VERSION}${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-  SET(CPACK_PACKAGE_NAME "iri-${PROJECT_NAME}-dev")
-  SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "...Enter something here...")
-  SET(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-  SET(CPACK_GENERATOR "DEB")
-  SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "galenya - labrobotica@iri.upc.edu")
-  SET(CPACK_SET_DESTDIR "ON")  # Necessary because of the absolute install paths
-  INCLUDE(CPack)
-ELSE(UNIX)
-  ADD_CUSTOM_COMMAND(
-    COMMENT "packaging only implemented in unix"
-    TARGET  uninstall)
-ENDIF(UNIX)
-
