@@ -1,0 +1,46 @@
+map name: "4 tags printed on a A4 sheet vertical recorded at IRI with logitech webcam."
+
+nlandmarks: 4          # This must match the number of landmarks in the list that follows. Otherwise it is an error.
+
+######################
+# World frame is considered to be the top left corner of tag id 0. Reference frame is corherent with a camera
+# looking straight at the sheet with RBF convention.
+######################
+landmarks:
+
+  - id : 0                    # use same as tag id
+    type: "APRILTAG"          # This must match the KEY used in the LandmarkFactory. Otherwise it is an error.
+    tag id: 0
+    tag width: 0.055
+    position: [0.0225, 0.0225, 0]
+    orientation: [0, 0, 0]    # roll pitch yaw in degrees
+    position fixed: true
+    orientation fixed: true
+
+  - id : 1                    # use same as tag id
+    type: "APRILTAG"          # This must match the KEY used in the LandmarkFactory. Otherwise it is an error.
+    tag id: 1
+    tag width: 0.055
+    position: [0.1525, 0.0225, 0]
+    orientation: [0, 0, 0]    # roll pitch yaw in degrees
+    position fixed: true
+    orientation fixed: true
+
+  - id : 2                    # use same as tag id
+    type: "APRILTAG"          # This must match the KEY used in the LandmarkFactory. Otherwise it is an error.
+    tag id: 2
+    tag width: 0.055
+    position: [0.0225, 0.2125, 0]
+    orientation: [0, 0, 0]    # roll pitch yaw in degrees
+    position fixed: true
+    orientation fixed: true
+
+  - id : 3                    # use same as tag id
+    type: "APRILTAG"          # This must match the KEY used in the LandmarkFactory. Otherwise it is an error.
+    tag id: 3
+    tag width: 0.055
+    position: [0.1525, 0.2125, 0]
+    orientation: [0, 0, 0]    # roll pitch yaw in degrees
+    position fixed: true
+    orientation fixed: true
+

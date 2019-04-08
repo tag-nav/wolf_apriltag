@@ -61,11 +61,27 @@ IF (vision_utils_FOUND)
 	FIND_PACKAGE(OpenCV QUIET)
 ENDIF(vision_utils_FOUND)
 
+# OpenCV
+FIND_PACKAGE(OpenCV QUIET)
+IF (OPENCV_FOUND)
+	MESSAGE("opencv Library FOUND: opencv related sources will be built.")
+ENDIF(OPENCV_FOUND)
+
 # Cereal
 FIND_PACKAGE(cereal QUIET)
 IF(cereal_FOUND)
     MESSAGE("cereal Library FOUND: cereal related sources will be built.")
 ENDIF(cereal_FOUND)
+
+# Apriltag
+# TODO: write proper files to be able to use find_package with apriltag library
+FIND_PATH(APRILTAG_INCLUDE_DIR NAMES apriltag.h PATH_SUFFIXES "apriltag" ${APRILTAG_INCLUDE_PATH})
+FIND_LIBRARY(APRILTAG_LIBRARY NAMES apriltag PATH_SUFFIXES "${CMAKE_LIBRARY_ARCHITECTURE}" "apriltag" ${APRILTAG_LIBRARY_PATH})
+
+IF(APRILTAG_LIBRARY)
+    SET(Apriltag_FOUND TRUE)
+    MESSAGE("apriltag Library FOUND in ${APRILTAG_LIBRARY}: apriltag related sources will be built.")
+ENDIF(APRILTAG_LIBRARY)
 
 # YAML with yaml-cpp
 INCLUDE (${PROJECT_SOURCE_DIR}/cmake_modules/FindYamlCpp.cmake)
@@ -157,6 +173,10 @@ IF(vision_utils_FOUND)
 	INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
 ENDIF(vision_utils_FOUND)
 
+IF(OPENCV_FOUND)
+	INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
+ENDIF(OPENCV_FOUND)
+
 # cereal
 IF(cereal_FOUND)
     INCLUDE_DIRECTORIES(${cereal_INCLUDE_DIRS})
@@ -171,8 +191,12 @@ IF(YAMLCPP_FOUND)
 ENDIF(YAMLCPP_FOUND)
 
 IF(GLOG_FOUND)
-INCLUDE_DIRECTORIES(${GLOG_INCLUDE_DIR})
+    INCLUDE_DIRECTORIES(${GLOG_INCLUDE_DIR})
 ENDIF(GLOG_FOUND)
+
+IF(APRILTAG_INCLUDE_DIR)
+    INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIR})
+ENDIF(APRILTAG_INCLUDE_DIR)
 
 #headers
 SET(HDRS_BASE
@@ -532,6 +556,15 @@ processor/processor_tracker_feature_trifocal.cpp
     )
 ENDIF(vision_utils_FOUND)
 
+IF (OPENCV_FOUND AND Apriltag_FOUND)
+    SET(HDRS ${HDRS}
+        landmark_apriltag.h
+        )
+    SET(SRCS ${SRCS}
+        landmark_apriltag.cpp
+        )
+ENDIF(OPENCV_FOUND AND Apriltag_FOUND)
+
 # Add the capture sub-directory
 # ADD_SUBDIRECTORY(captures)
 
@@ -586,6 +619,11 @@ IF(YAMLCPP_FOUND)
         	yaml/processor_image_yaml.cpp
         	yaml/processor_tracker_feature_trifocal_yaml.cpp
             )
+            IF(Apriltag_FOUND)
+                SET(SRCS ${SRCS}
+                    yaml/processor_tracker_landmark_apriltag_yaml.cpp
+                )
+            ENDIF(Apriltag_FOUND)
     ENDIF(vision_utils_FOUND)
 ENDIF(YAMLCPP_FOUND)
 
@@ -632,6 +670,10 @@ IF (OPENCV_FOUND)
 	ENDIF (vision_utils_FOUND)
 ENDIF (OPENCV_FOUND)
 
+IF (OPENCV_FOUND)
+   	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenCV_LIBS})
+ENDIF (OPENCV_FOUND)
+
 IF (YAMLCPP_FOUND)
     TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${YAMLCPP_LIBRARY})
 ENDIF (YAMLCPP_FOUND)
@@ -639,6 +681,12 @@ ENDIF (YAMLCPP_FOUND)
 IF (GLOG_FOUND)
     TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${GLOG_LIBRARY})
 ENDIF (GLOG_FOUND)
+
+#check if this is done correctly
+IF (OPENCV_FOUND AND Apriltag_FOUND)
+    LINK_LIBRARIES(apriltag m)
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${APRILTAG_LIBRARY}  ${CMAKE_THREAD_LIBS_INIT} ${OPENCV_LDFLAGS} m)
+ENDIF(OPENCV_FOUND AND Apriltag_FOUND)
 
 #install library
 install(TARGETS ${PROJECT_NAME}_core DESTINATION lib/iri-algorithms EXPORT ${PROJECT_NAME}_core-targets)

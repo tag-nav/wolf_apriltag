@@ -97,7 +97,7 @@ TEST(CaptureBase, addFeatureList)
 
     C->addFeatureList((fl));
     ASSERT_EQ(C->getFeatureList().size(), (unsigned int) 4);
-    ASSERT_EQ(fl.size(), (unsigned int) 0); // features have been moved, not copied
+//    ASSERT_EQ(fl.size(), (unsigned int) 0); // features have been moved, not copied // EDIT 02-2019: features have been copied
     ASSERT_EQ(C->getFeatureList().front(), f_first);
     ASSERT_EQ(C->getFeatureList().back(), f_last);
 }

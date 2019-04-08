@@ -15,6 +15,16 @@ SET(SRCS_PROCESSOR ${SRCS_PROCESSOR}
   )
 ENDIF (vision_utils_FOUND)
 
+IF (OPENCV_FOUND AND Apriltag_FOUND)
+  SET(HDRS_PROCESSOR ${HDRS_PROCESSOR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/processor_tracker_landmark_apriltag.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/ippe.h
+      )
+  SET(SRCS_PROCESSOR ${SRCS_PROCESSOR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/processor_tracker_landmark_apriltag.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ippe.cpp
+  )
+ENDIF(OPENCV_FOUND AND Apriltag_FOUND)
 #=========================================
 #=========================================
   

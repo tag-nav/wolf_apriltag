@@ -120,6 +120,11 @@ IF(vision_utils_FOUND)
 	    ADD_EXECUTABLE(test_simple_AHP test_simple_AHP.cpp)
 	    TARGET_LINK_LIBRARIES(test_simple_AHP ${PROJECT_NAME})
 
+	    IF (APRILTAG_LIBRARY)
+    		ADD_EXECUTABLE(test_apriltag test_apriltag.cpp)
+    		TARGET_LINK_LIBRARIES(test_apriltag ${PROJECT_NAME})
+    	ENDIF(APRILTAG_LIBRARY)
+
     ENDIF(Ceres_FOUND)
 
     # Testing OpenCV functions for projection of points

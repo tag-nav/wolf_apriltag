@@ -32,12 +32,29 @@ static IntrinsicsBasePtr createIntrinsicsCamera(const std::string & _filename_do
         using namespace Eigen;
         unsigned int width      = camera_config["image_width"]                      .as<unsigned int>();
         unsigned int height     = camera_config["image_height"]                     .as<unsigned int>();
+//<<<<<<< HEAD
+//        VectorXd intrinsic      = camera_config["camera_matrix"]["data"]            .as<VectorXd>();
+//        VectorXd projection     = camera_config["projection_matrix"]["data"]        .as<VectorXd>();
+//=======
+//>>>>>>> devel
         VectorXd distortion     = camera_config["distortion_coefficients"]["data"]  .as<VectorXd>();
         VectorXd intrinsic      = camera_config["camera_matrix"]["data"]            .as<VectorXd>();
         VectorXd projection     = camera_config["projection_matrix"]["data"]        .as<VectorXd>();
 
         // Eigen:: to wolf::
         std::shared_ptr<IntrinsicsCamera> intrinsics_cam = std::make_shared<IntrinsicsCamera>();
+//<<<<<<< HEAD
+//        intrinsics_cam->type = sensor_type;
+//        intrinsics_cam->name = sensor_name;
+////        intrinsics_cam->pinhole_model[0] = intrinsic[2];
+////        intrinsics_cam->pinhole_model[1] = intrinsic[5];
+////        intrinsics_cam->pinhole_model[2] = intrinsic[0];
+////        intrinsics_cam->pinhole_model[3] = intrinsic[4];
+//        intrinsics_cam->pinhole_model[0] = projection[2]; // u0
+//        intrinsics_cam->pinhole_model[1] = projection[6]; // v0
+//        intrinsics_cam->pinhole_model[2] = projection[0]; // au
+//        intrinsics_cam->pinhole_model[3] = projection[5]; // av
+//=======
 
         intrinsics_cam->width   = width;
         intrinsics_cam->height  = height;
@@ -52,6 +69,7 @@ static IntrinsicsBasePtr createIntrinsicsCamera(const std::string & _filename_do
         intrinsics_cam->pinhole_model_rectified[2] = projection[0];
         intrinsics_cam->pinhole_model_rectified[3] = projection[5];
 
+//>>>>>>> devel
         assert (distortion.size() == 5 && "Distortion size must be size 5!");
 
         WOLF_WARN_COND( distortion(2) != 0 || distortion(3) != 0 , "Wolf does not handle tangential distortion. Please consider re-calibrating without tangential distortion!");

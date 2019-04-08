@@ -6,7 +6,7 @@ namespace wolf {
 
 unsigned int FeatureBase::feature_id_count_ = 0;
 
-FeatureBase::FeatureBase(const std::string& _type, const Eigen::VectorXs& _measurement, const Eigen::MatrixXs& _meas_covariance) :
+FeatureBase::FeatureBase(const std::string& _type, const Eigen::VectorXs& _measurement, const Eigen::MatrixXs& _meas_uncertainty, UncertaintyType _uncertainty_type) :
 	NodeBase("FEATURE", _type),
     capture_ptr_(),
     feature_id_(++feature_id_count_),
@@ -14,8 +14,21 @@ FeatureBase::FeatureBase(const std::string& _type, const Eigen::VectorXs& _measu
     landmark_id_(0),
 	measurement_(_measurement)
 {
-    setMeasurementCovariance(_meas_covariance);
-//    std::cout << "constructed      +f" << id() << std::endl;
+    switch (_uncertainty_type)
+    {
+        case UNCERTAINTY_IS_INFO :
+            setMeasurementInformation(_meas_uncertainty);
+            break;
+        case UNCERTAINTY_IS_COVARIANCE :
+            setMeasurementCovariance(_meas_uncertainty);
+            break;
+        case UNCERTAINTY_IS_STDDEV :
+            WOLF_ERROR("STDEV case Not implemented yet");
+            break;
+        default :
+            break;
+    }
+    //    std::cout << "constructed      +f" << id() << std::endl;
 }
 
 FeatureBase::~FeatureBase()

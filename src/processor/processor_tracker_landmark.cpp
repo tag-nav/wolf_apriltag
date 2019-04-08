@@ -43,37 +43,55 @@ void ProcessorTrackerLandmark::advanceDerived()
     }
     matches_landmark_from_last_ = std::move(matches_landmark_from_incoming_);
     new_features_last_ = std::move(new_features_incoming_);
-    //    for (auto match : matches_landmark_from_last_)
-    //            std::cout << "\t" << match.first->id() << " to " << match.second->landmark_ptr_->id() << std::endl;
 }
 
 void ProcessorTrackerLandmark::resetDerived()
 {
-    //std::cout << "ProcessorTrackerLandmark::reset" << std::endl;
     for (auto match : matches_landmark_from_last_)
     {
         match.second.reset(); // TODO: Should we just remove the entries? What about match.first?
     }
     matches_landmark_from_last_ = std::move(matches_landmark_from_incoming_);
     new_features_last_ = std::move(new_features_incoming_);
-    //    for (auto match : matches_landmark_from_last_)
-    //            std::cout << "\t" << match.first->id() << " to " << match.second.landmark_ptr_->id() << std::endl;
+}
+
+unsigned int ProcessorTrackerLandmark::processKnown()
+{
+    // clear matches list
+    matches_landmark_from_incoming_.clear();
+
+    // Find landmarks in incoming_ptr_
+    FeatureBasePtrList known_features_list_incoming;
+    unsigned int n = findLandmarks(getProblem()->getMap()->getLandmarkList(),
+                                                 known_features_list_incoming, matches_landmark_from_incoming_);
+    // Append found incoming features
+    incoming_ptr_->addFeatureList(known_features_list_incoming);
+
+    return n;
 }
 
 unsigned int ProcessorTrackerLandmark::processNew(const unsigned int& _max_features)
 {
     /* Rationale: A keyFrame will be created using the last Capture.
+     *
      * First, we work on this Capture to detect new Features,
      * eventually create Landmarks with them,
      * and in such case create the new Factors feature-landmark.
      * When done, we need to track these new Features to the incoming Capture.
+     *
      * At the end, all new Features are appended to the lists of known Features in
      * the last and incoming Captures.
      */
 
-    // We first need to populate the \b incoming Capture with new Features
+    // clear new lists
+    new_features_last_.clear();
+    new_features_incoming_.clear();
+    new_landmarks_.clear();
+
+    // We first need to populate the \b last Capture with new Features
     unsigned int n = detectNewFeatures(_max_features, new_features_last_);
 
+    // create new landmarks with the new features discovered
     createNewLandmarks();
 
     // Find the new landmarks in incoming_ptr_ (if it's not nullptr)
@@ -81,11 +99,11 @@ unsigned int ProcessorTrackerLandmark::processNew(const unsigned int& _max_featu
     {
         findLandmarks(new_landmarks_, new_features_incoming_, matches_landmark_from_incoming_);
 
-        // Append all new Features to the Capture's list of Features
+        // Append all new Features to the incoming Capture's list of Features
         incoming_ptr_->addFeatureList(new_features_incoming_);
     }
 
-    // Append all new Features to the Capture's list of Features
+    // Append all new Features to the last Capture's list of Features
     last_ptr_->addFeatureList(new_features_last_);
 
     // Append new landmarks to the map
@@ -113,17 +131,17 @@ void ProcessorTrackerLandmark::createNewLandmarks()
     }
 }
 
-unsigned int ProcessorTrackerLandmark::processKnown()
-{
-    // Find landmarks in incoming_ptr_
-    FeatureBasePtrList known_features_list_incoming;
-    unsigned int n = findLandmarks(getProblem()->getMap()->getLandmarkList(),
-                                                 known_features_list_incoming, matches_landmark_from_incoming_);
-    // Append found incoming features
-    incoming_ptr_->addFeatureList(known_features_list_incoming);
+// unsigned int ProcessorTrackerLandmark::processKnown()
+// {
+//     // Find landmarks in incoming_ptr_
+//     FeatureBasePtrList known_features_list_incoming;
+//     unsigned int n = findLandmarks(getProblem()->getMap()->getLandmarkList(),
+//                                                  known_features_list_incoming, matches_landmark_from_incoming_);
+//     // Append found incoming features
+//     incoming_ptr_->addFeatureList(known_features_list_incoming);
 
-    return n;
-}
+//     return n;
+// }
 
 void ProcessorTrackerLandmark::establishFactors()
 {

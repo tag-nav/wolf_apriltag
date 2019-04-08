@@ -691,7 +691,9 @@ FrameBasePtr Problem::setPrior(const Eigen::VectorXs& _prior_state, const Eigen:
         // emplace feature and factor
         init_capture->emplaceFeatureAndFactor();
 
-        // Notify all processors about the prior KF
+        WOLF_DEBUG("Set prior callback: KF", origin_keyframe->id(), " Callback emitted with ts = ", origin_keyframe->getTimeStamp());
+
+        // Notify all motion processors about the prior KF
         for (auto sensor : hardware_ptr_->getSensorList())
             for (auto processor : sensor->getProcessorList())
                 if (processor->isMotion())

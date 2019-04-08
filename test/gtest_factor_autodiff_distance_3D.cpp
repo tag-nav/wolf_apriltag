@@ -76,7 +76,7 @@ TEST_F(FactorAutodiffDistance3D_Test, ground_truth)
 
     c2->operator ()(pos1.data(), pos2.data(), &res);
 
-    ASSERT_NEAR(res, 0.0, 1e-8);
+    ASSERT_NEAR(res, 0.0, 1e-5);
 }
 
 TEST_F(FactorAutodiffDistance3D_Test, expected_residual)
@@ -90,7 +90,7 @@ TEST_F(FactorAutodiffDistance3D_Test, expected_residual)
     Scalar res;
     c2->operator ()(pos1.data(), pos2.data(), &res);
 
-    ASSERT_NEAR(res, res_expected, 1e-8);
+    ASSERT_NEAR(res, res_expected, 1e-5);
 }
 
 TEST_F(FactorAutodiffDistance3D_Test, solve)

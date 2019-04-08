@@ -134,6 +134,12 @@ ENDIF(Ceres_FOUND)
 wolf_add_gtest(gtest_factor_absolute gtest_factor_absolute.cpp)
 target_link_libraries(gtest_factor_absolute ${PROJECT_NAME})
 
+IF (OPENCV_FOUND AND APRILTAG_LIBRARY)
+	# FactorAutodiffApriltag test
+	wolf_add_gtest(gtest_factor_autodiff_apriltag gtest_factor_autodiff_apriltag.cpp)
+	target_link_libraries(gtest_factor_autodiff_apriltag ${PROJECT_NAME})
+ENDIF(OPENCV_FOUND AND APRILTAG_LIBRARY)
+
 # FactorAutodiffDistance3D test
 wolf_add_gtest(gtest_factor_autodiff_distance_3D gtest_factor_autodiff_distance_3D.cpp)
 target_link_libraries(gtest_factor_autodiff_distance_3D ${PROJECT_NAME})
@@ -156,6 +162,12 @@ target_link_libraries(gtest_factor_pose_2D ${PROJECT_NAME})
 wolf_add_gtest(gtest_factor_pose_3D gtest_factor_pose_3D.cpp)
 target_link_libraries(gtest_factor_pose_3D ${PROJECT_NAME})
 
+IF (OPENCV_FOUND AND APRILTAG_LIBRARY)
+	# FeatureApriltag test
+	wolf_add_gtest(gtest_feature_apriltag gtest_feature_apriltag.cpp)
+	target_link_libraries(gtest_feature_apriltag ${PROJECT_NAME})
+ENDIF(OPENCV_FOUND AND APRILTAG_LIBRARY)
+
 # FeatureIMU test
 wolf_add_gtest(gtest_feature_IMU gtest_feature_IMU.cpp)
 target_link_libraries(gtest_feature_IMU ${PROJECT_NAME})
@@ -163,6 +175,12 @@ target_link_libraries(gtest_feature_IMU ${PROJECT_NAME})
 # IMUTest (Bias + estimation)
 wolf_add_gtest(gtest_IMU gtest_IMU.cpp)
 target_link_libraries(gtest_IMU ${PROJECT_NAME})
+
+IF (OPENCV_FOUND AND APRILTAG_LIBRARY)
+	# gtest_landmark_apriltag test
+	wolf_add_gtest(gtest_landmark_apriltag gtest_landmark_apriltag.cpp)
+	target_link_libraries(gtest_landmark_apriltag ${PROJECT_NAME})
+ENDIF(OPENCV_FOUND AND APRILTAG_LIBRARY)
 
 # MakePosDef function test
 wolf_add_gtest(gtest_make_posdef gtest_make_posdef.cpp)
@@ -205,6 +223,14 @@ target_link_libraries(gtest_odom_3D ${PROJECT_NAME})
 # SensorBase test
 wolf_add_gtest(gtest_sensor_camera gtest_sensor_camera.cpp)
 target_link_libraries(gtest_sensor_camera ${PROJECT_NAME})
+
+
+IF (OPENCV_FOUND AND APRILTAG_LIBRARY)
+	# ProcessorTrackerLandmarkApriltag test
+	wolf_add_gtest(gtest_processor_tracker_landmark_apriltag gtest_processor_tracker_landmark_apriltag.cpp)
+	target_link_libraries(gtest_processor_tracker_landmark_apriltag ${PROJECT_NAME})
+ENDIF(OPENCV_FOUND AND APRILTAG_LIBRARY)
+
 
 
 # ------- Now Core classes Serialization ----------

@@ -18,8 +18,8 @@ typedef std::map<FeatureBasePtr, LandmarkMatchPtr> LandmarkMatchMap;
  **/
 struct LandmarkMatch
 {
-    LandmarkBasePtr landmark_ptr_;
-    Scalar normalized_score_;
+    LandmarkBasePtr landmark_ptr_;  ///< Pointer to the matched landmark
+    Scalar normalized_score_;       ///< Similarity measure: 0: no match -- 1: perfect match
     
     LandmarkMatch() :
             landmark_ptr_(nullptr), normalized_score_(0)

@@ -30,6 +30,11 @@ unsigned int ProcessorTrackerFeature::processNew(const unsigned int& _max_new_fe
      * the last and incoming Captures.
      */
 
+    // clear lists of new features
+    new_features_last_.clear();
+    new_features_incoming_.clear();
+    matches_last_from_incoming_.clear();
+
     // Populate the last Capture with new Features. The result is in new_features_last_.
     unsigned int n = detectNewFeatures(_max_new_features, new_features_last_);
     for (auto ftr : new_features_last_)
@@ -60,6 +65,9 @@ unsigned int ProcessorTrackerFeature::processKnown()
             && "In ProcessorTrackerFeature::processKnown(): incoming_ptr_ feature list must be empty before processKnown()");
     assert(matches_last_from_incoming_.size() == 0
             && "In ProcessorTrackerFeature::processKnown(): match list from last to incoming must be empty before processKnown()");
+
+    // clear list of known features
+    known_features_incoming_.clear();
 
     if (!last_ptr_ || last_ptr_->getFeatureList().empty())
     {
@@ -97,13 +105,8 @@ unsigned int ProcessorTrackerFeature::processKnown()
         }
     }
 
-    // Add to wolf tree and clear
+    // Add to wolf tree
     incoming_ptr_->addFeatureList(known_features_incoming_);
-    known_features_incoming_.clear();
-
-    // Print resulting list of matches
-//    for (auto match : matches_last_from_incoming_)
-//        WOLF_DEBUG("Known track: ", match.first->trackId(), ", last: ", match.second->feature_ptr_->id(), ", inc: ", match.first->id());
 
     return matches_last_from_incoming_.size();
 }

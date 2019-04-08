@@ -1,0 +1,59 @@
+processor type: "TRACKER LANDMARK APRILTAG"
+processor name: "tracker landmark apriltag example"
+
+detector parameters: 
+    quad_decimate:  1.5      # doing quad detection at lower resolution to speed things up (see end of file)
+    quad_sigma:     0.8	     # gaussian blur good for noisy images, may be recommended with quad_decimate. Kernel size adapted (see end of this file) 
+    nthreads:       8       # how many thread during tag detection (does not change much?)
+    debug:          false    # write some debugging images
+    refine_edges:   true    # better edge detection if quad_decimate > 1 (quite inexpensive, almost no diff)
+    refine_decode:  false    # improve detection probability for small tags (quite expensive (~*3)
+    refine_pose:    false    # improves detection by maximizing local contrast so that future pose extraction works better (VERY expensive ~*10-20)
+    ippe_min_ratio:     3.0  	# quite arbitrary, always > 1 (to deactive, set at 0 for example)
+    ippe_max_rep_error: 2.0     # to deactivate, set at something big (100)
+
+tag widths:                    
+    0: 0.055
+    1: 0.055
+    2: 0.055
+    3: 0.055
+
+tag parameters:
+    tag_family:           "tag36h11" 
+    tag_black_border:     1
+    tag_width_default:    0.165   # used if tag width not specified
+
+    
+noise:
+    std_xy :          0.1 # m 
+    std_z :           0.1 # m 
+    std_rpy_degrees : 5   # degrees
+    std_pix:          20    # pixel error
+    
+vote:
+    voting active:              true
+    min_time_vote:              0 # s
+    max_time_vote:              0 # s
+    min_features_for_keyframe:  12
+    max_features_diff:          17
+    nb_vote_for_every_first:    50
+    enough_info_necessary:      true   # create kf if enough information to uniquely determine the KF position (necessary for apriltag_only slam)
+
+reestimate_last_frame: true   # for a better prior on the new keyframe: use only if no motion processor
+add_3D_cstr: true             # add 3D constraints between the KF so that they do not jump when using apriltag only
+
+
+# Annexes:
+### Quad decimate: the higher, the lower the resolution
+# Does nothing if <= 1.0
+# Only values taken into account:
+# 1.5, 2, 3, 4
+# 1.5 -> ~*2 speed up
+
+# Higher values use a "bad" code according to commentaries in the library, smaller do nothing
+### Gaussian blur table:
+# max sigma          kernel size
+# 0.499              1  (disabled)
+# 0.999              3
+# 1.499              5
+# 1.999              7

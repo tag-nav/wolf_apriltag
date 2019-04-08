@@ -111,8 +111,9 @@ void CaptureBase::addFeatureList(FeatureBasePtrList& _new_ft_list)
         feature_ptr->setCapture(shared_from_this());
         if (getProblem() != nullptr)
             feature_ptr->setProblem(getProblem());
+        feature_list_.push_back(feature_ptr);
     }
-    feature_list_.splice(feature_list_.end(), _new_ft_list);
+//    feature_list_.splice(feature_list_.end(), _new_ft_list);
 }
 
 void CaptureBase::getFactorList(FactorBasePtrList& _fac_list)

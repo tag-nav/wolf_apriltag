@@ -26,6 +26,16 @@ class FactorGPSPseudorange3D: public FactorAutodiff<FactorGPSPseudorange3D, 1, 3
 
     public:
 
+<<<<<<< HEAD:include/base/constraint/constraint_GPS_pseudorange_3D.h
+        ConstraintGPSPseudorange3D(FeatureBasePtr _ftr_ptr, const ProcessorBasePtr& _pr_ptr,
+                                   bool _apply_loss_function = false, 
+                                   ConstraintStatus _status = CTR_ACTIVE) :
+             ConstraintAutodiff<ConstraintGPSPseudorange3D, 1, 3, 4, 3, 1, 3, 4>("GPS PR 3D",
+                                                                                 nullptr, nullptr, nullptr, nullptr, _pr_ptr, _apply_loss_function, _status,
+                            _ftr_ptr->getFramePtr()->getPPtr(), // position of the vehicle's frame with respect to map frame
+                            _ftr_ptr->getFramePtr()->getOPtr(), // orientation of the vehicle's frame wrt map frame
+                            _ftr_ptr->getCapturePtr()->getSensorPPtr(), // position of the sensor (gps antenna) with respect to base frame
+=======
         FactorGPSPseudorange3D(FeatureBasePtr _ftr_ptr, const ProcessorBasePtr& _pr_ptr,
                                    bool _apply_loss_function = false, 
                                    FactorStatus _status = FAC_ACTIVE) :
@@ -34,6 +44,7 @@ class FactorGPSPseudorange3D: public FactorAutodiff<FactorGPSPseudorange3D, 1, 3
                             _ftr_ptr->getFrame()->getP(), // position of the vehicle's frame with respect to map frame
                             _ftr_ptr->getFrame()->getO(), // orientation of the vehicle's frame wrt map frame
                             _ftr_ptr->getCapture()->getSensorP(), // position of the sensor (gps antenna) with respect to base frame
+>>>>>>> devel:include/base/factor/factor_GPS_pseudorange_3D.h
                                                                         // orientation of antenna is not needed, because omnidirectional
                             _ftr_ptr->getCapture()->getSensor()->getIntrinsic(), //intrinsic parameter  = receiver time bias
                             (std::static_pointer_cast<SensorGPS>(_ftr_ptr->getCapture()->getSensor()))->getMapP(), // initial vehicle position wrt ecef frame

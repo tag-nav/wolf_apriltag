@@ -117,7 +117,13 @@ typedef Matrix<wolf::Scalar, 1, Dynamic> RowVectorXs;       ///< variable size r
 typedef Quaternion<wolf::Scalar> Quaternions;               ///< Quaternion of real Scalar type
 typedef AngleAxis<wolf::Scalar> AngleAxiss;                 ///< Angle-Axis of real Scalar type
 typedef Rotation2D<wolf::Scalar> Rotation2Ds;               ///< Rotation2D of real Scalar type
+typedef RotationBase<wolf::Scalar, 3> Rotation3Ds;          ///< Rotation3D of real Scalar type
 
+// 3. Translations
+typedef Translation<wolf::Scalar, 2> Translation2ds;
+typedef Translation<wolf::Scalar, 3> Translation3ds;
+
+// 4. Transformations
 typedef Transform<wolf::Scalar,2,Affine> Affine2ds;         ///< Affine2d of real Scalar type
 typedef Transform<wolf::Scalar,3,Affine> Affine3ds;         ///< Affine3d of real Scalar type
 

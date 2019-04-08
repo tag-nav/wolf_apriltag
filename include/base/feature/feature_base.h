@@ -36,12 +36,19 @@ class FeatureBase : public NodeBase, public std::enable_shared_from_this<Feature
         
     public:
 
+        typedef enum
+        {
+            UNCERTAINTY_IS_COVARIANCE,
+            UNCERTAINTY_IS_INFO,
+            UNCERTAINTY_IS_STDDEV
+        } UncertaintyType;
+
         /** \brief Constructor from capture pointer and measure
          * \param _tp type of feature -- see wolf.h
          * \param _measurement the measurement
          * \param _meas_covariance the noise of the measurement
          */
-        FeatureBase(const std::string& _type, const Eigen::VectorXs& _measurement, const Eigen::MatrixXs& _meas_covariance);
+        FeatureBase(const std::string& _type, const Eigen::VectorXs& _measurement, const Eigen::MatrixXs& _meas_uncertainty, UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
 
         virtual ~FeatureBase();
         virtual void remove();
