@@ -391,7 +391,7 @@ FactorBasePtr ProcessorTrackerLandmarkApriltag::createFactor(FeatureBasePtr _fea
             std::static_pointer_cast<LandmarkApriltag>(_landmark_ptr),
             std::static_pointer_cast<FeatureApriltag> (_feature_ptr ),
             true,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
     return constraint;
 }
@@ -719,8 +719,8 @@ void ProcessorTrackerLandmarkApriltag::resetDerived()
             CaptureBasePtr capt3D = std::make_shared<CaptureBase>("Dist", getLast()->getTimeStamp());
             getLast()->getFrame()->addCapture(capt3D);
             FeatureBasePtr feat_dist = capt3D->addFeature(std::make_shared<FeatureBase>("Dist", dist_meas, cov0));
-            // FactorAutodiffDistance3DPtr cstr = std::make_shared<FactorAutodiffDistance3D>(feat_dist, ori_frame, shared_from_this, false, CTR_ACTIVE);
-            FactorAutodiffDistance3DPtr cstr = std::make_shared<FactorAutodiffDistance3D>(feat_dist, ori_frame, nullptr, false, CTR_ACTIVE);
+            // FactorAutodiffDistance3DPtr cstr = std::make_shared<FactorAutodiffDistance3D>(feat_dist, ori_frame, shared_from_this, false, FAC_ACTIVE);
+            FactorAutodiffDistance3DPtr cstr = std::make_shared<FactorAutodiffDistance3D>(feat_dist, ori_frame, nullptr, false, FAC_ACTIVE);
             feat_dist->addFactor(cstr);
             ori_frame->addConstrainedBy(cstr);    
         }

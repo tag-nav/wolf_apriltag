@@ -198,7 +198,7 @@ TEST_F(FactorAutodiffApriltag_class, Constructor)
             lmk1,
             f1,
             false,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
 
     ASSERT_TRUE(constraint->getType() == "AUTODIFF APRILTAG");
@@ -212,7 +212,7 @@ TEST_F(FactorAutodiffApriltag_class, Check_tree)
             lmk1,
             f1,
             false,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
 
     FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
@@ -233,7 +233,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
             lmk1,
             f1,
             false,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
 
     FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
@@ -271,7 +271,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
             lmk1,
             f1,
             false,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
 
     FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
@@ -311,7 +311,7 @@ TEST_F(FactorAutodiffApriltag_class, Check_initialization)
             lmk1,
             f1,
             false,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
 
     FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
@@ -333,7 +333,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
             lmk1,
             f1,
             false,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
 
     FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
@@ -372,7 +372,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
             lmk1,
             f1,
             false,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
 
     FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
