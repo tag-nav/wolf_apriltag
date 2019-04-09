@@ -4,10 +4,12 @@
 #include "base/logging.h"
 
 #include "base/ceres_wrapper/ceres_manager.h"
-#include "base/processor/processor_tracker_landmark_apriltag.h"
-#include "base/capture/capture_image.h"
-#include "base/factor/factor_autodiff_apriltag.h"
 #include "base/processor/processor_factory.h"
+
+#include "vision/capture/capture_image.h"
+
+#include "apriltag/processor/processor_tracker_landmark_apriltag.h"
+#include "apriltag/factor/factor_autodiff_apriltag.h"
 
 #include <apriltag.h>
 

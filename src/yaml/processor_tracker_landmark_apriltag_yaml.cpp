@@ -7,7 +7,7 @@
 
 
 // wolf
-#include "base/processor/processor_tracker_landmark_apriltag.h"
+#include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "base/yaml/yaml_conversion.h"
 #include "base/factory.h"
 

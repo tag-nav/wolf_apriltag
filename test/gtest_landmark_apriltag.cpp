@@ -12,7 +12,7 @@
 #include "base/wolf.h"
 #include "base/logging.h"
 
-#include "base/landmark/landmark_apriltag.h"
+#include "apriltag/landmark/landmark_apriltag.h"
 
 using namespace Eigen;
 using namespace wolf;

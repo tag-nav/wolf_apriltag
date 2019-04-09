@@ -2,13 +2,12 @@
 
 #include "base/wolf.h"
 #include "base/logging.h"
-
-#include "base/processor/processor_tracker_landmark_apriltag.h"
-#include "base/feature/feature_apriltag.h"
-#include "base/landmark/landmark_apriltag.h"
 #include "base/capture/capture_pose.h"
 #include "base/processor/processor_factory.h"
 
+#include "apriltag/processor/processor_tracker_landmark_apriltag.h"
+#include "apriltag/feature/feature_apriltag.h"
+#include "apriltag/landmark/landmark_apriltag.h"
 using namespace Eigen;
 using namespace wolf;
 using std::static_pointer_cast;

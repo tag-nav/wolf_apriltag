@@ -8,7 +8,7 @@
 
 #include "utils_gtest.h"
 
-#include "base/feature/feature_apriltag.h"
+#include "apriltag/feature/feature_apriltag.h"
 
 using namespace wolf;
 

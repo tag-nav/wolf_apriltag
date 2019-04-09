@@ -1,11 +1,12 @@
-#include "base/processor/processor_tracker_landmark_apriltag.h"
+#include "apriltag/processor/processor_tracker_landmark_apriltag.h"
+#include "apriltag/feature/feature_apriltag.h"
+#include "apriltag/landmark/landmark_apriltag.h"
+#include "apriltag/factor/factor_autodiff_apriltag.h"
+#include "apriltag/processor/ippe.h"
 
-#include "base/capture/capture_image.h"
-#include "base/sensor/sensor_camera.h"
+#include "vision/capture/capture_image.h"
+
 #include "base/rotations.h"
-#include "base/feature/feature_apriltag.h"
-#include "base/factor/factor_autodiff_apriltag.h"
-#include "base/landmark/landmark_apriltag.h"
 #include "base/state_quaternion.h"
 #include "base/pinhole_tools.h"
 
@@ -19,7 +20,6 @@
 #include <tag25h9.h>
 #include <tag25h7.h>
 
-#include "base/processor/ippe.h"
 
 // #include "opencv2/opencv.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
