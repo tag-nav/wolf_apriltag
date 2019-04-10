@@ -1,6 +1,0 @@
-#!/bin/bash
-
-WOLF_SCRIPTS_PATH=`realpath "${BASH_SOURCE[0]}"`
-
-export WOLF_SCRIPTS_PATH=${WOLF_SCRIPTS_PATH%/*}
-export PATH=${PATH}:${WOLF_SCRIPTS_PATH}
