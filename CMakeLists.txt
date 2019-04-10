@@ -321,17 +321,24 @@ INSTALL(FILES ${HDRS_SERIALIZATION}
   DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/serialization)
 INSTALL(FILES ${HDRS_YAML}
   DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/yaml)
-INSTALL(FILES "${CMAKE_SOURCE_DIR}/cmake_modules/Findwolf.cmake"
-  DESTINATION "lib/cmake/${PROJECT_NAME}")
 
+INSTALL(FILES "${CMAKE_SOURCE_DIR}/cmake_modules/Findwolf${PROJECT_NAME}.cmake"
+  DESTINATION "lib/cmake/wolf${PROJECT_NAME}")
+FILE(WRITE vision.found "")
+INSTALL(FILES vision.found
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME})
 #install Find*.cmake
 configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/wolf${PROJECT_NAME}Config.cmake"
                "${CMAKE_BINARY_DIR}/wolf${PROJECT_NAME}Config.cmake" @ONLY)
+# configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/Findwolf${PROJECT_NAME}.cmake"
+#                "${CMAKE_BINARY_DIR}/Findwolf${PROJECT_NAME}.cmake" @ONLY)
 
 INSTALL(FILES "${WOLF_CONFIG_DIR}/config.h"
 DESTINATION include/iri-algorithms/wolf/internal)
 
-INSTALL(FILES "${CMAKE_BINARY_DIR}/wolfConfig.cmake" DESTINATION "lib/cmake/${PROJECT_NAME}")
+# INSTALL(FILES "${CMAKE_BINARY_DIR}/cmake_modules/Findwolf${PROJECT_NAME}.cmake"
+#   DESTINATION "lib/cmake/${PROJECT_NAME}")
+INSTALL(FILES "${CMAKE_BINARY_DIR}/wolf${PROJECT_NAME}Config.cmake" DESTINATION "lib/cmake/wolf${PROJECT_NAME}")
 
 INSTALL(DIRECTORY ${SPDLOG_INCLUDE_DIRS} DESTINATION "include/iri-algorithms/")
 
