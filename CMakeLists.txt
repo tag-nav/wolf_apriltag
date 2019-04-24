@@ -163,7 +163,7 @@ include_directories("${PROJECT_BINARY_DIR}/conf")
 INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${wolf_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${wolf_vision_INCLUDE_DIRS})
-include_directories("include")
+include_directories(BEFORE "include")
 include_directories(.)
 INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${vision_utils_INCLUDE_DIR})
@@ -175,8 +175,11 @@ ENDIF(Ceres_FOUND)
 
 
 #HEADERS
-
-SET(HDRS_BASE
+SET(HDRS_COMMON
+  )
+SET(HDRS_MATH
+  )
+SET(HDRS_UTILS
   )
 SET(HDRS_CAPTURE
   )
@@ -202,7 +205,11 @@ SET(HDRS_DTASSC
 
 #SOURCES
 
-SET(SRCS_BASE
+SET(SRCS_COMMON
+  )
+SET(SRCS_MATH
+  )
+SET(SRCS_UTILS
   )
 SET(SRCS_CAPTURE
   )
@@ -252,15 +259,17 @@ src/yaml/processor_tracker_landmark_apriltag_yaml.cpp
 # create the shared library
 ADD_LIBRARY(${PROJECT_NAME}
   SHARED
-  ${SRCS_BASE}
   ${SRCS_CAPTURE}
+  ${SRCS_COMMON}
+  ${SRCS_DTASSC}
   ${SRCS_FACTOR}
   ${SRCS_FEATURE}
   ${SRCS_LANDMARK}
+  ${SRCS_MATH}
   ${SRCS_PROCESSOR}
   ${SRCS_SENSOR}
-  ${SRCS_DTASSC}
   ${SRCS_SOLVER}
+  ${SRCS_UTILS}
   ${SRCS_WRAPPER}
   ${SRCS_YAML}
   )
@@ -295,8 +304,12 @@ INSTALL(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
 
 install(EXPORT ${PROJECT_NAME}Targets DESTINATION lib/cmake/${PROJECT_NAME})
 #install headers
-INSTALL(FILES ${HDRS_BASE}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME})
+INSTALL(FILES ${HDRS_COMMON}
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/common)
+INSTALL(FILES ${HDRS_MATH}
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/math)
+INSTALL(FILES ${HDRS_UTILS}
+  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/utils)
 INSTALL(FILES ${HDRS_DTASSC}
   DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/association)
 INSTALL(FILES ${HDRS_CAPTURE}
