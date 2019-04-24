@@ -9,10 +9,10 @@
 #include <iostream>
 
 //Wolf
-#include "base/wolf.h"
-#include "base/problem.h"
+#include "base/common/wolf.h"
+#include "base/problem/problem.h"
 #include "base/sensor/sensor_base.h"
-#include "base/state_block.h"
+#include "base/state_block/state_block.h"
 #include "base/processor/processor_tracker_landmark_dummy.h"
 #include "base/capture/capture_void.h"
 

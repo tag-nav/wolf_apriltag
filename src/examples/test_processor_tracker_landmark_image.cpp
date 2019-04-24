@@ -4,9 +4,9 @@
 #include "base/processor/processor_tracker_landmark_image.h"
 
 //Wolf
-#include "base/wolf.h"
-#include "base/problem.h"
-#include "base/state_block.h"
+#include "base/common/wolf.h"
+#include "base/problem/problem.h"
+#include "base/state_block/state_block.h"
 #include "base/processor/processor_odom_3D.h"
 #include "base/sensor/sensor_odom_3D.h"
 #include "base/sensor/sensor_camera.h"

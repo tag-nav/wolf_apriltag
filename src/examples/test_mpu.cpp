@@ -7,10 +7,10 @@
 
  //Wolf
 #include "base/capture/capture_IMU.h"
-#include "base/wolf.h"
-#include "base/problem.h"
-#include "base/state_block.h"
-#include "base/state_quaternion.h"
+#include "base/common/wolf.h"
+#include "base/problem/problem.h"
+#include "base/state_block/state_block.h"
+#include "base/state_block/state_quaternion.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>

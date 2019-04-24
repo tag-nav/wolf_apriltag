@@ -5,9 +5,9 @@
  *      \author: jsola
  */
 
-#include "base/frame_base.h"
-#include "base/state_quaternion.h"
-#include "base/time_stamp.h"
+#include "base/frame/frame_base.h"
+#include "base/state_block/state_quaternion.h"
+#include "base/common/time_stamp.h"
 
 #include <iostream>
 

@@ -5,10 +5,10 @@
  *      \author: jsola
  */
 
-#include "base/pinhole_tools.h"
+#include "base/math/pinhole_tools.h"
 #include "yaml/yaml_conversion.h"
 #include "processor_image_feature.h"
-#include "base/factory.h"
+#include "base/common/factory.h"
 
 #include <yaml-cpp/yaml.h>
 

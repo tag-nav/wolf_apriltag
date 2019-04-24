@@ -16,10 +16,10 @@
 #include "unistd.h"
 
 // wolf
-#include "base/wolf.h"
+#include "base/common/wolf.h"
 #include "base/feature/feature_base.h"
 #include "base/landmark/landmark_base.h"
-#include "base/state_block.h"
+#include "base/state_block/state_block.h"
 
 //faramotics includes
 #include "faramotics/dynamicSceneRender.h"

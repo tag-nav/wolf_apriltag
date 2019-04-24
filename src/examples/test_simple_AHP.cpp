@@ -5,11 +5,11 @@
  *      \author: jtarraso
  */
 
-#include "base/wolf.h"
-#include "base/frame_base.h"
-#include "base/pinhole_tools.h"
+#include "base/common/wolf.h"
+#include "base/frame/frame_base.h"
+#include "base/math/pinhole_tools.h"
 #include "base/sensor/sensor_camera.h"
-#include "base/rotations.h"
+#include "base/math/rotations.h"
 #include "base/capture/capture_image.h"
 #include "base/landmark/landmark_AHP.h"
 #include "base/factor/factor_AHP.h"

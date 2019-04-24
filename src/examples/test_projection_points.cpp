@@ -6,7 +6,7 @@
 #include <iostream>
 
 //wolf includes
-#include "base/pinhole_tools.h"
+#include "base/math/pinhole_tools.h"
 
 int main(int argc, char** argv)
 {

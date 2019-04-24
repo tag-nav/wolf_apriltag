@@ -5,12 +5,12 @@
  *      \author: jsola
  */
 
-#include "base/wolf.h"
-#include "base/problem.h"
-#include "base/map_base.h"
+#include "base/common/wolf.h"
+#include "base/problem/problem.h"
+#include "base/map/map_base.h"
 #include "base/landmark/landmark_polyline_2D.h"
 #include "base/landmark/landmark_AHP.h"
-#include "base/state_block.h"
+#include "base/state_block/state_block.h"
 #include "base/yaml/yaml_conversion.h"
 
 #include <iostream>

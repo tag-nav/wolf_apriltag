@@ -6,8 +6,8 @@
  */
 
 //Wolf
-#include "base/wolf.h"
-#include "base/problem.h"
+#include "base/common/wolf.h"
+#include "base/problem/problem.h"
 #include "base/sensor/sensor_diff_drive.h"
 #include "base/capture/capture_wheel_joint_position.h"
 #include "base/processor/processor_diff_drive.h"

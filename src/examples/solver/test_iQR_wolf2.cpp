@@ -17,7 +17,7 @@
 #include <queue>
 
 //Wolf includes
-#include "base/state_block.h"
+#include "base/state_block/state_block.h"
 #include "base/factor/factor_base.h"
 #include "base/sensor/sensor_laser_2D.h"
 #include "wolf_manager.h"

@@ -3,11 +3,11 @@
 #include "base/processor/processor_IMU.h"
 #include "base/sensor/sensor_IMU.h"
 #include "base/capture/capture_pose.h"
-#include "base/wolf.h"
-#include "base/problem.h"
+#include "base/common/wolf.h"
+#include "base/problem/problem.h"
 #include "base/factor/factor_odom_3D.h"
-#include "base/state_block.h"
-#include "base/state_quaternion.h"
+#include "base/state_block/state_block.h"
+#include "base/state_block/state_quaternion.h"
 #include "base/ceres_wrapper/ceres_manager.h"
 
 //#define DEBUG_RESULTS

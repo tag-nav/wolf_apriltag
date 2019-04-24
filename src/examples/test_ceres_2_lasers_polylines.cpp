@@ -17,7 +17,7 @@
 #include "glog/logging.h"
 
 //Wolf includes
-#include "base/problem.h"
+#include "base/problem/problem.h"
 #include "base/processor/processor_tracker_landmark_polyline.h"
 #include "base/processor/processor_odom_2D.h"
 #include "base/sensor/sensor_laser_2D.h"
