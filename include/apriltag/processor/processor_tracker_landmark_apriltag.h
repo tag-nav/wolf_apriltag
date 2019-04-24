@@ -99,7 +99,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
          * The function sets the member new_features_list_, the list of newly detected features
          * in last_ptr_ to be used for landmark initialization.
          */
-        virtual unsigned int detectNewFeatures(const unsigned int& _max_features, FeatureBasePtrList& _feature_list_out);
+        virtual unsigned int detectNewFeatures(const int& _max_features, FeatureBasePtrList& _feature_list_out);
 
         /** \brief Create one landmark
          *

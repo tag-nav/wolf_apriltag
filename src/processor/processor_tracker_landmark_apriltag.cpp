@@ -430,7 +430,7 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::createLandmark(FeatureBasePtr 
     return new_landmark;
 }
 
-unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const unsigned int& _max_features, FeatureBasePtrList& _new_features_last)
+unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max_features, FeatureBasePtrList& _new_features_last)
 {
     LandmarkBasePtrList& landmark_list = getProblem()->getMap()->getLandmarkList();
     for (auto feature_in_image : detections_last_)

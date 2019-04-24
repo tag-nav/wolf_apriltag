@@ -398,7 +398,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
             lmk1,
             f1,
             false,
-            CTR_ACTIVE
+            FAC_ACTIVE
     );
 
     f1->addFactor(constraint);
