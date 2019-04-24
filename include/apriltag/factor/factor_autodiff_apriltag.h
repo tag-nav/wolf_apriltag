@@ -101,7 +101,36 @@ FactorAutodiffApriltag::~FactorAutodiffApriltag()
 
 template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p_camera, const T* const _o_camera, const T* const _p_keyframe, const T* const _o_keyframe, const T* const _p_landmark, const T* const _o_landmark, T* _residuals) const
 {
-    //states
+    // Maps
+    Eigen::Map<const Eigen::Matrix<T,3,1>> p_r_c(_p_camera);
+    Eigen::Map<const Eigen::Quaternion<T>> q_r_c(_o_camera);
+    Eigen::Map<const Eigen::Matrix<T,3,1>> p_w_r(_p_keyframe);
+    Eigen::Map<const Eigen::Quaternion<T>> q_w_r(_o_keyframe);
+    Eigen::Map<const Eigen::Matrix<T,3,1>> p_w_l(_p_landmark);
+    Eigen::Map<const Eigen::Quaternion<T>> q_w_l(_o_landmark);
+    Eigen::Map<Eigen::Matrix<T,6,1>> residuals(_residuals);
+
+    // Expected measurement
+    Eigen::Quaternion<T> q_c_w = (q_w_r * q_r_c).conjugate();
+    Eigen::Quaternion<T> q_c_l = q_c_w * q_w_l;
+    Eigen::Matrix<T,3,1> p_c_l = q_c_w * (-(p_w_r + q_w_r * p_r_c) + p_w_l);
+
+    // Measurement
+    Eigen::Vector3s      p_c_l_meas(getMeasurement().head<3>());
+    Eigen::Quaternions   q_c_l_meas(getMeasurement().data() + 3 );
+    Eigen::Quaternion<T> q_l_c_meas = q_c_l_meas.conjugate().cast<T>();
+    //Eigen::Matrix<T,3,1> p_l_c_meas = -q_l_c_meas * p_c_l_meas.cast<T>();
+
+    // Error
+    Eigen::Matrix<T, 6, 1> err;
+    err.head(3) = q_l_c_meas * (p_c_l_meas.cast<T>() - p_c_l);
+    //err.tail(3) = wolf::log_q(q_l_c_meas * q_c_l);
+    err.tail(3) = T(2)*(q_l_c_meas * q_c_l).vec();
+
+    // Residual
+    residuals = getMeasurementSquareRootInformationUpper().cast<T>() * err;
+
+    /*//states
     Eigen::Translation<T,3> p_camera    (_p_camera[0]  , _p_camera[1]  , _p_camera[2]),
                             p_keyframe  (_p_keyframe[0], _p_keyframe[1], _p_keyframe[2]),
                             p_landmark  (_p_landmark[0], _p_landmark[1], _p_landmark[2]);
@@ -113,7 +142,7 @@ template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p
     Eigen::Translation3ds  p_measured(getMeasurement().head(3));
     Eigen::Quaternions     q_measured(getMeasurement().data() + 3 );
     // landmark wrt camera, measure
-    Eigen::Transform<T, 3, Eigen::Affine> c_M_l_meas = p_measured.cast<T>() * q_measured.cast<T>();
+    Eigen::Transform<T, 3, Eigen::Affine> c_M_l_meas = p_c_l_meas.cast<T>() * q_measured.cast<T>();
 
     // Create transformation matrices to compose
     // robot wrt world
@@ -152,7 +181,7 @@ template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p
     Eigen::Map<Eigen::Matrix<T, 6, 1>> res(_residuals);
 
     res = getFeature()->getMeasurementSquareRootInformationUpper().cast<T>() * err;
-
+    */
     return true;
 }
 

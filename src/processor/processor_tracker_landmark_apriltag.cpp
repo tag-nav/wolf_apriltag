@@ -457,8 +457,11 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const unsigned 
                     _new_features_last.erase(it);
                     break; //it should not be possible two detection with the same id before getting there so we can stop here.
                 }
+            // discard features that do not have orientation information
+            if (!std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getUserotation())
+                continue;
 
-            _new_features_last.push_back(feature_in_image); // If the feature is not in the map and not in the list of newly detected features yet then we add it.
+            _new_features_last.push_back(feature_in_image); // If the feature is not in the map & not in the list of newly detected features yet then we add it.
         } //otherwise we check the next feature
     }
 
@@ -762,6 +765,7 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
     if (last_feature_list.size() == 0 || ori_feature_list.size() == 0){
         return;
     }
+    
     // Among landmarks detected in origin and last, find the one that has the smallest error ratio (best confidence)
     Scalar lowest_ration = 1;  // rep_error1/rep_error2 cannot be higher than 1
     FeatureApriltagPtr best_feature;
@@ -771,9 +775,9 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
         for (auto it_ori = ori_feature_list.begin(); it_ori != ori_feature_list.end(); it_ori++){
             FeatureApriltagPtr ori_feat_ptr =  std::static_pointer_cast<FeatureApriltag>(*it_ori);
             if (ori_feat_ptr->getTagId() == last_feat_ptr->getTagId()){
-                Scalar ratio = ori_feat_ptr->getRepError1() / ori_feat_ptr->getRepError2(); 
-                if (ratio < lowest_ration){
-                // if (last_feat_ptr->getUserotation() && (ratio < lowest_ration)){
+                Scalar ratio = ori_feat_ptr->getRepError1() / ori_feat_ptr->getRepError2();
+                //if (ratio < lowest_ration){
+                if (last_feat_ptr->getUserotation() && (ratio < lowest_ration)){
                     useable_feature = true;
                     lowest_ration = ratio;
                     best_feature = last_feat_ptr;
@@ -787,12 +791,13 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
     if (!useable_feature){
         return;
     }
+    
     // std::cout << "Best feature id after: " << best_feature->getTagId() << std::endl;
     // Retrieve cam to landmark transform
     Eigen::Vector7s cam_pose_lmk = best_feature->getMeasurement();
     Eigen::Quaternions cam_q_lmk(cam_pose_lmk.segment<4>(3).data());
     Eigen::Affine3ds cam_M_lmk = Eigen::Translation3ds(cam_pose_lmk.head(3)) * cam_q_lmk;
-
+    
     // Get corresponding landmarks in origin/last landmark list
     Eigen::Affine3ds w_M_lmk;
     LandmarkBasePtrList lmk_list = getProblem()->getMap()->getLandmarkList();
@@ -803,7 +808,7 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
         if (lmk_ptr == nullptr){
             continue;
         }
-
+    
         if (lmk_ptr->getTagId() == best_feature->getTagId()){
             Eigen::Vector3s w_t_lmk = lmk_ptr->getP()->getState();
             Eigen::Quaternions w_q_lmk(lmk_ptr->getO()->getState().data());
@@ -819,7 +824,7 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
     Eigen::Quaternions quat_last(w_M_last.linear());
     getLast()->getFrame()->getP()->setState(pos_last);
     getLast()->getFrame()->getO()->setState(quat_last.coeffs());
-    
+
     // if (!best_feature->getUserotation()){
     //     return;
     // }

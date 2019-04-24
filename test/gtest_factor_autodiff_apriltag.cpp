@@ -217,12 +217,8 @@ TEST_F(FactorAutodiffApriltag_class, Check_tree)
             FAC_ACTIVE
     );
 
-    FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
+    f1->addFactor(constraint);
     lmk1->addConstrainedBy(constraint);
-    //check is returning true even without the lines below....
-    WOLF_WARN("I think the lines below are needed... to be checked !")
-    F1->addConstrainedBy(constraint);
-    f1->addConstrainedBy(constraint);
 
     ASSERT_TRUE(problem->check(0));
 }
@@ -238,10 +234,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
             FAC_ACTIVE
     );
 
-    FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
+    f1->addFactor(constraint);
     lmk1->addConstrainedBy(constraint);
-    F1->addConstrainedBy(constraint);
-    f1->addConstrainedBy(constraint);
 
     // unfix F1, perturbate state
     F1->unfix();
@@ -276,10 +270,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
             FAC_ACTIVE
     );
 
-    FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
+    f1->addFactor(constraint);
     lmk1->addConstrainedBy(constraint);
-    F1->addConstrainedBy(constraint);
-    f1->addConstrainedBy(constraint);
 
     // unfix F1, perturbate state
     F1->unfix();
@@ -316,10 +308,8 @@ TEST_F(FactorAutodiffApriltag_class, Check_initialization)
             FAC_ACTIVE
     );
 
-    FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
+    f1->addFactor(constraint);
     lmk1->addConstrainedBy(constraint);
-    F1->addConstrainedBy(constraint);
-    f1->addConstrainedBy(constraint);
 
     ASSERT_MATRIX_APPROX(F1->getState(), pose_robot, 1e-6);
     ASSERT_MATRIX_APPROX(f1->getMeasurement(), pose_landmark, 1e-6);
@@ -338,11 +328,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
             FAC_ACTIVE
     );
 
-    FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
+    f1->addFactor(constraint);
     lmk1->addConstrainedBy(constraint);
-    F1->addConstrainedBy(constraint);
-    f1->addConstrainedBy(constraint);
-
 
     // unfix lmk1, perturbate state
     lmk1->unfix();
@@ -377,10 +364,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
             FAC_ACTIVE
     );
 
-    FactorAutodiffApriltagPtr ctr0 = std::static_pointer_cast<FactorAutodiffApriltag>(f1->addFactor(constraint));
+    f1->addFactor(constraint);
     lmk1->addConstrainedBy(constraint);
-    F1->addConstrainedBy(constraint);
-    f1->addConstrainedBy(constraint);
 
     // unfix F1, perturbate state
     lmk1->unfix();
@@ -402,6 +387,87 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
     //WOLF_DEBUG(lmk1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState(), pose_robot, 1e-6);
     ASSERT_MATRIX_APPROX(lmk1->getState(), pose_landmark, 1e-6);
+
+}
+
+TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
+{
+    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
+            S,
+            F1,
+            lmk1,
+            f1,
+            false,
+            CTR_ACTIVE
+    );
+
+    f1->addFactor(constraint);
+    lmk1->addConstrainedBy(constraint);
+
+    // Change setup
+    Vector3s p_w_r, p_r_c, p_c_l, p_w_l;
+    Quaternions q_w_r, q_r_c, q_c_l, q_w_l;
+    p_w_r << 1, 2, 3;
+    p_r_c << 4, 5, 6;
+    p_c_l << 7, 8, 9;
+    q_w_r.coeffs() << 1, 2, 3, 4; q_w_r.normalize();
+    q_r_c.coeffs() << 4, 5, 6, 7; q_r_c.normalize();
+    q_c_l.coeffs() << 7, 8, 9, 0; q_c_l.normalize();
+
+    q_w_l = q_w_r * q_r_c * q_c_l;
+    p_w_l = p_w_r + q_w_r * (p_r_c + q_r_c * p_c_l);
+
+    // Change feature
+    Vector7s meas;
+    meas << p_c_l, q_c_l.coeffs();
+    f1->setMeasurement(meas);
+
+    // Change Landmark
+    lmk1->getP()->setState(p_w_l);
+    lmk1->getO()->setState(q_w_l.coeffs());
+    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), lmk1->getP()) != problem->getStateBlockPtrList().end());
+    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), lmk1->getO()) != problem->getStateBlockPtrList().end());
+    ASSERT_TRUE(lmk1->getP()->stateUpdated());
+    ASSERT_TRUE(lmk1->getO()->stateUpdated());
+
+    // Change Frame
+    F1->getP()->setState(p_w_r);
+    F1->getO()->setState(q_w_r.coeffs());
+    F1->fix();
+    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), F1->getP()) != problem->getStateBlockPtrList().end());
+    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), F1->getO()) != problem->getStateBlockPtrList().end());
+    ASSERT_TRUE(F1->getP()->stateUpdated());
+    ASSERT_TRUE(F1->getO()->stateUpdated());
+
+    // Change sensor extrinsics
+    S->getP()->setState(p_r_c);
+    S->getO()->setState(q_r_c.coeffs());
+    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), S->getP()) != problem->getStateBlockPtrList().end());
+    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), S->getO()) != problem->getStateBlockPtrList().end());
+    ASSERT_TRUE(S->getP()->stateUpdated());
+    ASSERT_TRUE(S->getO()->stateUpdated());
+
+    Vector7s t_w_r, t_w_l;
+    t_w_r << p_w_r, q_w_r.coeffs();
+    t_w_l << p_w_l, q_w_l.coeffs();
+    ASSERT_MATRIX_APPROX(F1->getState(), t_w_r, 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState(), t_w_l, 1e-6);
+
+    // unfix LMK, perturbate state
+    lmk1->unfix();
+    Vector3s e0_pos = p_w_l + Vector3s::Random() * 0.25;
+    Quaternions e0_quat = q_w_l * exp_q(Vector3s::Random() * 0.1);
+    lmk1->getP()->setState(e0_pos);
+    lmk1->getO()->setState(e0_quat.coeffs());
+    ASSERT_TRUE(lmk1->getP()->stateUpdated());
+    ASSERT_TRUE(lmk1->getO()->stateUpdated());
+
+//    solve
+    std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
+    //WOLF_DEBUG("Landmark state after solve: ");
+    //WOLF_DEBUG(lmk1->getState().transpose());
+    ASSERT_MATRIX_APPROX(F1->getState().transpose(), t_w_r.transpose(), 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState().transpose(), t_w_l.transpose(), 1e-6);
 
 }
 
