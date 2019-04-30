@@ -5,7 +5,7 @@
 //Wolf includes
 #include "base/landmark/landmark_base.h"
 
-#include "base/state_quaternion.h"
+#include "base/state_block/state_quaternion.h"
 
 // Std includes
 

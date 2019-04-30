@@ -2,8 +2,8 @@
 #define _FACTOR_AUTODIFF_APRILTAG_H_
 
 //Wolf includes
-#include "base/wolf.h"
-#include "base/rotations.h"
+#include "base/common/wolf.h"
+#include "base/math/rotations.h"
 #include "base/factor/factor_autodiff.h"
 #include "base/sensor/sensor_base.h"
 #include "apriltag/landmark/landmark_apriltag.h"

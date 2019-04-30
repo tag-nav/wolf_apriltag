@@ -6,9 +6,9 @@
 
 #include "vision/capture/capture_image.h"
 
-#include "base/rotations.h"
-#include "base/state_quaternion.h"
-#include "base/pinhole_tools.h"
+#include "base/math/rotations.h"
+#include "base/state_block/state_quaternion.h"
+#include "base/math/pinhole_tools.h"
 
 // April tags
 #include "common/homography.h"
@@ -722,7 +722,6 @@ void ProcessorTrackerLandmarkApriltag::resetDerived()
             CaptureBasePtr capt3D = std::make_shared<CaptureBase>("Dist", getLast()->getTimeStamp());
             getLast()->getFrame()->addCapture(capt3D);
             FeatureBasePtr feat_dist = capt3D->addFeature(std::make_shared<FeatureBase>("Dist", dist_meas, cov0));
-            // FactorAutodiffDistance3DPtr cstr = std::make_shared<FactorAutodiffDistance3D>(feat_dist, ori_frame, shared_from_this, false, FAC_ACTIVE);
             FactorAutodiffDistance3DPtr cstr = std::make_shared<FactorAutodiffDistance3D>(feat_dist, ori_frame, nullptr, false, FAC_ACTIVE);
             feat_dist->addFactor(cstr);
             ori_frame->addConstrainedBy(cstr);    
