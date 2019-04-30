@@ -2,7 +2,7 @@
 #define _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 
 //Wolf includes
-#include "base/wolf.h"
+#include "base/common/wolf.h"
 #include "base/processor/processor_tracker_landmark.h"
 #include "vision/sensor/sensor_camera.h"
 #include "base/factor/factor_autodiff_distance_3D.h"

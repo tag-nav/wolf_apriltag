@@ -1,7 +1,7 @@
 #include "utils_gtest.h"
 
-#include "base/wolf.h"
-#include "base/logging.h"
+#include "base/common/wolf.h"
+#include "base/utils/logging.h"
 #include "base/capture/capture_pose.h"
 #include "base/processor/processor_factory.h"
 
