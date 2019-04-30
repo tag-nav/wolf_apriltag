@@ -162,7 +162,8 @@ include_directories("${PROJECT_BINARY_DIR}/conf")
 # ============EXAMPLE==================
 INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${wolf_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${wolf_vision_INCLUDE_DIRS})
+# INCLUDE_DIRECTORIES(${wolf_vision_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${vision_INCLUDE_DIRS})
 include_directories(BEFORE "include")
 include_directories(.)
 INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIR})
@@ -305,41 +306,41 @@ INSTALL(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
 install(EXPORT ${PROJECT_NAME}Targets DESTINATION lib/cmake/${PROJECT_NAME})
 #install headers
 INSTALL(FILES ${HDRS_COMMON}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/common)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/common)
 INSTALL(FILES ${HDRS_MATH}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/math)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/math)
 INSTALL(FILES ${HDRS_UTILS}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/utils)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/utils)
 INSTALL(FILES ${HDRS_DTASSC}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/association)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/association)
 INSTALL(FILES ${HDRS_CAPTURE}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/capture)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/capture)
 INSTALL(FILES ${HDRS_FACTOR}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/factor)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/factor)
 INSTALL(FILES ${HDRS_FEATURE}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/feature)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/feature)
 INSTALL(FILES ${HDRS_SENSOR}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/sensor)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/sensor)
 INSTALL(FILES ${HDRS_PROCESSOR}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/processor)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/processor)
 INSTALL(FILES ${HDRS_LANDMARK}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/landmark)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/landmark)
 INSTALL(FILES ${HDRS_WRAPPER}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/ceres_wrapper)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/ceres_wrapper)
 INSTALL(FILES ${HDRS_SOLVER_SUITESPARSE}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/solver_suitesparse)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver_suitesparse)
 INSTALL(FILES ${HDRS_SOLVER}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/solver)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver)
 INSTALL(FILES ${HDRS_SERIALIZATION}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/serialization)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/serialization)
 INSTALL(FILES ${HDRS_YAML}
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME}/yaml)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/yaml)
 
+FILE(WRITE ${PROJECT_NAME}.found "")
+INSTALL(FILES ${PROJECT_NAME}.found
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME})
 INSTALL(FILES "${CMAKE_SOURCE_DIR}/cmake_modules/Findwolf${PROJECT_NAME}.cmake"
   DESTINATION "lib/cmake/wolf${PROJECT_NAME}")
-FILE(WRITE vision.found "")
-INSTALL(FILES vision.found
-  DESTINATION include/iri-algorithms/wolf/${PROJECT_NAME})
 #install Find*.cmake
 configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/wolf${PROJECT_NAME}Config.cmake"
                "${CMAKE_BINARY_DIR}/wolf${PROJECT_NAME}Config.cmake" @ONLY)

@@ -425,8 +425,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
     // Change Landmark
     lmk1->getP()->setState(p_w_l);
     lmk1->getO()->setState(q_w_l.coeffs());
-    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), lmk1->getP()) != problem->getStateBlockPtrList().end());
-    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), lmk1->getO()) != problem->getStateBlockPtrList().end());
+    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), lmk1->getP()) != problem->getStateBlockPtrList().end());
+    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), lmk1->getO()) != problem->getStateBlockPtrList().end());
     ASSERT_TRUE(lmk1->getP()->stateUpdated());
     ASSERT_TRUE(lmk1->getO()->stateUpdated());
 
@@ -434,16 +434,16 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
     F1->getP()->setState(p_w_r);
     F1->getO()->setState(q_w_r.coeffs());
     F1->fix();
-    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), F1->getP()) != problem->getStateBlockPtrList().end());
-    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), F1->getO()) != problem->getStateBlockPtrList().end());
+    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), F1->getP()) != problem->getStateBlockPtrList().end());
+    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), F1->getO()) != problem->getStateBlockPtrList().end());
     ASSERT_TRUE(F1->getP()->stateUpdated());
     ASSERT_TRUE(F1->getO()->stateUpdated());
 
     // Change sensor extrinsics
     S->getP()->setState(p_r_c);
     S->getO()->setState(q_r_c.coeffs());
-    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), S->getP()) != problem->getStateBlockPtrList().end());
-    ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), S->getO()) != problem->getStateBlockPtrList().end());
+    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), S->getP()) != problem->getStateBlockPtrList().end());
+    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), S->getO()) != problem->getStateBlockPtrList().end());
     ASSERT_TRUE(S->getP()->stateUpdated());
     ASSERT_TRUE(S->getO()->stateUpdated());
 

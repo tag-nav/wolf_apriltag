@@ -2,9 +2,9 @@
 FIND_PATH(
     vision_INCLUDE_DIRS
     NAMES vision.found
-    PATHS /usr/local/include/iri-algorithms/wolf/vision)
+    PATHS /usr/local/include/iri-algorithms/wolf/plugin_vision)
 #change INCLUDE_DIRS to its parent directory
-get_filename_component(vision_INCLUDE_DIRS ${vision_INCLUDE_DIRS} DIRECTORY)
+# get_filename_component(vision_INCLUDE_DIRS ${vision_INCLUDE_DIRS} DIRECTORY)
 IF(vision_INCLUDE_DIRS)
   MESSAGE("Found vision include dirs: ${vision_INCLUDE_DIRS}")
 ELSE(vision_INCLUDE_DIRS)
