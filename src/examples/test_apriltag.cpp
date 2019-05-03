@@ -6,14 +6,14 @@
  */
 
 //Wolf
-#include "base/wolf.h"
-#include "base/rotations.h"
-#include "base/problem.h"
-#include "base/ceres_wrapper/ceres_manager.h"
-#include "base/sensor/sensor_camera.h"
-#include "base/processor/processor_tracker_landmark_apriltag.h"
-#include "base/capture/capture_image.h"
-#include "base/feature/feature_apriltag.h"
+#include "core/wolf.h"
+#include "core/rotations.h"
+#include "core/problem.h"
+#include "core/ceres_wrapper/ceres_manager.h"
+#include "core/sensor/sensor_camera.h"
+#include "core/processor/processor_tracker_landmark_apriltag.h"
+#include "core/capture/capture_image.h"
+#include "core/feature/feature_apriltag.h"
 
 // opencv
 #include <opencv2/imgproc/imgproc.hpp>

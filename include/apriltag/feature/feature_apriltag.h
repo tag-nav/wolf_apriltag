@@ -2,7 +2,7 @@
 #define FEATURE_APRILTAG_H_
 
 //Wolf includes
-#include "base/feature/feature_base.h"
+#include "core/feature/feature_base.h"
 
 //std includes
 

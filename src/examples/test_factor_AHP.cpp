@@ -1,10 +1,10 @@
-#include "base/math/pinhole_tools.h"
-#include "base/landmark/landmark_AHP.h"
-#include "base/factor/factor_AHP.h"
-#include "base/state_block/state_block.h"
-#include "base/state_block/state_quaternion.h"
-#include "base/sensor/sensor_camera.h"
-#include "base/capture/capture_image.h"
+#include "core/math/pinhole_tools.h"
+#include "core/landmark/landmark_AHP.h"
+#include "core/factor/factor_AHP.h"
+#include "core/state_block/state_block.h"
+#include "core/state_block/state_quaternion.h"
+#include "core/sensor/sensor_camera.h"
+#include "core/capture/capture_image.h"
 
 int main()
 {

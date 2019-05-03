@@ -5,10 +5,10 @@
  *      Author: jsola
  */
 
-#include "base/sensor/sensor_odom_2D.h"
-#include "base/processor/processor_odom_2D.h"
-#include "base/processor/processor_tracker_feature_dummy.h"
-#include "base/capture/capture_void.h"
+#include "core/sensor/sensor_odom_2D.h"
+#include "core/processor/processor_odom_2D.h"
+#include "core/processor/processor_tracker_feature_dummy.h"
+#include "core/capture/capture_void.h"
 
 int main()
 {

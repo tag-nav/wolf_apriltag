@@ -2,10 +2,10 @@
 #define _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 
 //Wolf includes
-#include "base/common/wolf.h"
-#include "base/processor/processor_tracker_landmark.h"
+#include "core/common/wolf.h"
+#include "core/processor/processor_tracker_landmark.h"
 #include "vision/sensor/sensor_camera.h"
-#include "base/factor/factor_autodiff_distance_3D.h"
+#include "core/factor/factor_autodiff_distance_3D.h"
 
 // Apriltag
 #include <apriltag.h>

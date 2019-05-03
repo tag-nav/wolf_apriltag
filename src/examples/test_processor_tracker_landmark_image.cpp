@@ -1,18 +1,18 @@
 //std
 #include <iostream>
 
-#include "base/processor/processor_tracker_landmark_image.h"
+#include "core/processor/processor_tracker_landmark_image.h"
 
 //Wolf
-#include "base/common/wolf.h"
-#include "base/problem/problem.h"
-#include "base/state_block/state_block.h"
-#include "base/processor/processor_odom_3D.h"
-#include "base/sensor/sensor_odom_3D.h"
-#include "base/sensor/sensor_camera.h"
-#include "base/capture/capture_image.h"
-#include "base/capture/capture_pose.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/common/wolf.h"
+#include "core/problem/problem.h"
+#include "core/state_block/state_block.h"
+#include "core/processor/processor_odom_3D.h"
+#include "core/sensor/sensor_odom_3D.h"
+#include "core/sensor/sensor_camera.h"
+#include "core/capture/capture_image.h"
+#include "core/capture/capture_pose.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 // Vision utils includes
 #include <vision_utils.h>

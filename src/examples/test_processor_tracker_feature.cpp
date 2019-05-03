@@ -9,12 +9,12 @@
 #include <iostream>
 
 //Wolf
-#include "base/common/wolf.h"
-#include "base/problem/problem.h"
-#include "base/sensor/sensor_base.h"
-#include "base/state_block/state_block.h"
-#include "base/processor/processor_tracker_feature_dummy.h"
-#include "base/capture/capture_void.h"
+#include "core/common/wolf.h"
+#include "core/problem/problem.h"
+#include "core/sensor/sensor_base.h"
+#include "core/state_block/state_block.h"
+#include "core/processor/processor_tracker_feature_dummy.h"
+#include "core/capture/capture_void.h"
 
 int main()
 {

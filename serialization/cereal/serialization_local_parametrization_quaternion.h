@@ -1,7 +1,7 @@
 #ifndef WOLF_IO_SERIALIZATION_LOCAL_PARAMETRIZATION_QUATERNION_H_
 #define WOLF_IO_SERIALIZATION_LOCAL_PARAMETRIZATION_QUATERNION_H_
 
-#include "base/local_parametrization_quaternion.h"
+#include "core/local_parametrization_quaternion.h"
 
 #include "serialization_local_parametrization_base.h"
 

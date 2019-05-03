@@ -5,15 +5,15 @@
  *      \author: jtarraso
  */
 
-#include "base/common/wolf.h"
-#include "base/frame/frame_base.h"
-#include "base/math/pinhole_tools.h"
-#include "base/sensor/sensor_camera.h"
-#include "base/math/rotations.h"
-#include "base/capture/capture_image.h"
-#include "base/landmark/landmark_AHP.h"
-#include "base/factor/factor_AHP.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/common/wolf.h"
+#include "core/frame/frame_base.h"
+#include "core/math/pinhole_tools.h"
+#include "core/sensor/sensor_camera.h"
+#include "core/math/rotations.h"
+#include "core/capture/capture_image.h"
+#include "core/landmark/landmark_AHP.h"
+#include "core/factor/factor_AHP.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 // Vision utils
 #include <vision_utils/vision_utils.h>

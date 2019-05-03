@@ -5,21 +5,21 @@
  *      \author: Dinesh Atchuthan
  */
 
-#include "base/processor/processor_IMU.h"
-#include "base/sensor/sensor_IMU.h"
-#include "base/common/wolf.h"
-#include "base/problem/problem.h"
-#include "base/ceres_wrapper/ceres_manager.h"
-#include "base/sensor/sensor_odom_3D.h"
-#include "base/processor/processor_odom_3D.h"
+#include "core/processor/processor_IMU.h"
+#include "core/sensor/sensor_IMU.h"
+#include "core/common/wolf.h"
+#include "core/problem/problem.h"
+#include "core/ceres_wrapper/ceres_manager.h"
+#include "core/sensor/sensor_odom_3D.h"
+#include "core/processor/processor_odom_3D.h"
 
 //Factors headers
-#include "base/factor/factor_fix_bias.h"
+#include "core/factor/factor_fix_bias.h"
 
 //std
 #include <iostream>
 #include <fstream>
-#include "base/factor/factor_pose_3D.h"
+#include "core/factor/factor_pose_3D.h"
 
 #define OUTPUT_RESULTS
 //#define ADD_KF3

@@ -14,10 +14,10 @@
 #include <queue>
 
 //Wolf includes
-#include "base/capture/capture_void.h"
-#include "base/feature/feature_odom_2D.h"
-#include "base/factor/factor_base.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/capture/capture_void.h"
+#include "core/feature/feature_odom_2D.h"
+#include "core/factor/factor_base.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 // EIGEN
 //#include <Eigen/CholmodSupport>

@@ -5,13 +5,13 @@
  *      \author: jsola
  */
 
-#include "base/capture/capture_IMU.h"
-#include "base/problem/problem.h"
-#include "base/sensor/sensor_odom_2D.h"
-#include "base/processor/processor_odom_3D.h"
-#include "base/map/map_base.h"
-#include "base/landmark/landmark_base.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/capture/capture_IMU.h"
+#include "core/problem/problem.h"
+#include "core/sensor/sensor_odom_2D.h"
+#include "core/processor/processor_odom_3D.h"
+#include "core/map/map_base.h"
+#include "core/landmark/landmark_base.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 #include <cstdlib>
 

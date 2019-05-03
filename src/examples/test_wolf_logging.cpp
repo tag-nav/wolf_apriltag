@@ -5,8 +5,8 @@
  * \author: Jeremie Deray
  */
 
-#include "base/common/wolf.h"
-#include "base/utils/logging.h"
+#include "core/common/wolf.h"
+#include "core/utils/logging.h"
 
 int main(int, char*[])
 {

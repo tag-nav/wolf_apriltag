@@ -17,8 +17,8 @@
 
 //Wolf includes
 #include "wolf_manager.h"
-#include "base/sensor/sensor_laser_2D.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/sensor/sensor_laser_2D.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 //C includes for sleep, time and main args
 #include "unistd.h"

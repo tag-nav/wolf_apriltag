@@ -6,9 +6,9 @@
 
 #include "vision/capture/capture_image.h"
 
-#include "base/math/rotations.h"
-#include "base/state_block/state_quaternion.h"
-#include "base/math/pinhole_tools.h"
+#include "core/math/rotations.h"
+#include "core/state_block/state_quaternion.h"
+#include "core/math/pinhole_tools.h"
 
 // April tags
 #include "common/homography.h"
@@ -862,7 +862,7 @@ std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
 } // namespace wolf
 
 // Register in the SensorFactory
-#include "base/processor/processor_factory.h"
+#include "core/processor/processor_factory.h"
 
 namespace wolf
 {

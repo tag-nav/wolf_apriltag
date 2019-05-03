@@ -5,7 +5,7 @@
  *      \author: jsola
  */
 
-#include "base/yaml/yaml_conversion.h"
+#include "core/yaml/yaml_conversion.h"
 
 #include <yaml-cpp/yaml.h>
 

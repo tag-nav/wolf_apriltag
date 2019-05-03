@@ -5,7 +5,7 @@
  *      Author: Jeremie Deray
  */
 
-#include "base/common/wolf.h"
+#include "core/common/wolf.h"
 #include "../../utils_gtest.h"
 
 #include "../../../serialization/cereal/serialization_eigen_sparse.h"

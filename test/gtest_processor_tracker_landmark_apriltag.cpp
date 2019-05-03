@@ -1,9 +1,9 @@
 #include "utils_gtest.h"
 
-#include "base/common/wolf.h"
-#include "base/utils/logging.h"
-#include "base/capture/capture_pose.h"
-#include "base/processor/processor_factory.h"
+#include "core/common/wolf.h"
+#include "core/utils/logging.h"
+#include "core/capture/capture_pose.h"
+#include "core/processor/processor_factory.h"
 
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag.h"

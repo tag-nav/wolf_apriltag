@@ -6,10 +6,10 @@
  */
 
 // Wolf includes
-#include "base/common/wolf.h"
-#include "base/problem/problem.h"
-#include "base/frame/frame_base.h"
-#include "base/trajectory/trajectory_base.h"
+#include "core/common/wolf.h"
+#include "core/problem/problem.h"
+#include "core/frame/frame_base.h"
+#include "core/trajectory/trajectory_base.h"
 
 // STL includes
 #include <list>

@@ -5,21 +5,21 @@
  *      \author: jsola
  */
 
-#include "base/processor/processor_IMU.h"
-#include "base/sensor/sensor_GPS_fix.h"
-#include "base/hardware/hardware_base.h"
-#include "base/sensor/sensor_camera.h"
-#include "base/sensor/sensor_odom_2D.h"
+#include "core/processor/processor_IMU.h"
+#include "core/sensor/sensor_GPS_fix.h"
+#include "core/hardware/hardware_base.h"
+#include "core/sensor/sensor_camera.h"
+#include "core/sensor/sensor_odom_2D.h"
 #include "../sensor_imu.h"
 //#include "../sensor_gps.h"
 
-#include "base/processor/processor_odom_2D.h"
-#include "base/processor/processor_odom_3D.h"
+#include "core/processor/processor_odom_2D.h"
+#include "core/processor/processor_odom_3D.h"
 #include "../processor_image_feature.h"
 
-#include "base/problem/problem.h"
+#include "core/problem/problem.h"
 
-#include "base/common/factory.h"
+#include "core/common/factory.h"
 
 #include <iostream>
 #include <iomanip>

@@ -12,8 +12,8 @@
 
 //Wolf includes
 #include "wolf_manager.h"
-#include "base/capture/capture_void.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/capture/capture_void.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 // EIGEN
 //#include <Eigen/CholmodSupport>

@@ -1,15 +1,15 @@
 //Wolf
-#include "base/capture/capture_IMU.h"
-#include "base/processor/processor_IMU.h"
-#include "base/sensor/sensor_IMU.h"
-#include "base/common/wolf.h"
-#include "base/problem/problem.h"
-#include "base/sensor/sensor_odom_3D.h"
-#include "base/factor/factor_odom_3D.h"
-#include "base/state_block/state_block.h"
-#include "base/state_block/state_quaternion.h"
-#include "base/processor/processor_odom_3D.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/capture/capture_IMU.h"
+#include "core/processor/processor_IMU.h"
+#include "core/sensor/sensor_IMU.h"
+#include "core/common/wolf.h"
+#include "core/problem/problem.h"
+#include "core/sensor/sensor_odom_3D.h"
+#include "core/factor/factor_odom_3D.h"
+#include "core/state_block/state_block.h"
+#include "core/state_block/state_quaternion.h"
+#include "core/processor/processor_odom_3D.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 //std
 #include <iostream>

@@ -2,7 +2,7 @@
 #define _WOLF_IO_CEREAL_NODE_BASE_H_
 
 // Wolf includes
-#include "base/node_base.h"
+#include "core/node_base.h"
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>
