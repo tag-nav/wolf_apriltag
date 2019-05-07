@@ -1,14 +1,14 @@
 //Wolf
-#include "base/capture/capture_IMU.h"
-#include "base/processor/processor_IMU.h"
-#include "base/sensor/sensor_IMU.h"
-#include "base/capture/capture_pose.h"
-#include "base/common/wolf.h"
-#include "base/problem/problem.h"
-#include "base/factor/factor_odom_3D.h"
-#include "base/state_block/state_block.h"
-#include "base/state_block/state_quaternion.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/capture/capture_IMU.h"
+#include "core/processor/processor_IMU.h"
+#include "core/sensor/sensor_IMU.h"
+#include "core/capture/capture_pose.h"
+#include "core/common/wolf.h"
+#include "core/problem/problem.h"
+#include "core/factor/factor_odom_3D.h"
+#include "core/state_block/state_block.h"
+#include "core/state_block/state_quaternion.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 //#define DEBUG_RESULTS
 
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
     //create FrameIMU
     ts = wolf_problem_ptr_->getProcessorMotion()->getBuffer().get().back().ts_;
     state_vec = wolf_problem_ptr_->getProcessorMotion()->getCurrentState();
-    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY_FRAME, ts, state_vec);
+    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY, ts, state_vec);
     wolf_problem_ptr_->getTrajectory()->addFrame(last_frame);
 
         //create a feature
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
     //create FrameIMU
     ts = wolf_problem_ptr_->getProcessorMotion()->getBuffer().get().back().ts_;
     state_vec = wolf_problem_ptr_->getProcessorMotion()->getCurrentState();
-    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY_FRAME, ts, state_vec);
+    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY, ts, state_vec);
     wolf_problem_ptr_->getTrajectory()->addFrame(last_frame);
 
         //create a feature
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
         //create FrameIMU
     ts = wolf_problem_ptr_->getProcessorMotion()->getBuffer().get().back().ts_;
     state_vec = wolf_problem_ptr_->getProcessorMotion()->getCurrentState();
-    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY_FRAME, ts, state_vec);
+    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY, ts, state_vec);
     wolf_problem_ptr_->getTrajectory()->addFrame(last_frame);
 
         //create a feature

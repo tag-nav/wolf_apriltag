@@ -1,10 +1,10 @@
 #include "utils_gtest.h"
 
-#include "base/common/wolf.h"
-#include "base/utils/logging.h"
+#include "core/common/wolf.h"
+#include "core/utils/logging.h"
 
-#include "base/ceres_wrapper/ceres_manager.h"
-#include "base/processor/processor_factory.h"
+#include "core/ceres_wrapper/ceres_manager.h"
+#include "core/processor/processor_factory.h"
 
 #include "vision/capture/capture_image.h"
 

@@ -2,10 +2,10 @@
 #define _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 
 //Wolf includes
-#include "base/common/wolf.h"
-#include "base/processor/processor_tracker_landmark.h"
+#include "core/common/wolf.h"
+#include "core/processor/processor_tracker_landmark.h"
 #include "vision/sensor/sensor_camera.h"
-#include "base/factor/factor_autodiff_distance_3D.h"
+#include "core/factor/factor_autodiff_distance_3D.h"
 
 // Apriltag
 #include <apriltag.h>
@@ -23,7 +23,6 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
 {
     //tag parameters
     std::string tag_family_;
-    int tag_black_border_;
 
     // tag sizes
     Scalar tag_width_default_;
@@ -35,8 +34,6 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
     unsigned int nthreads_;
     bool debug_;
     bool refine_edges_;
-    bool refine_decode_;
-    bool refine_pose_;
 
     Scalar std_xy_, std_z_, std_rpy_;
     Scalar std_pix_;

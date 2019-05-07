@@ -2,7 +2,7 @@
 #define _WOLF_SERIALIZATION_CEREAL_SENSOR_ODOM2D_INTRINSIC_H_
 
 // Wolf includes
-#include "base/sensor/sensor_odom_2D.h"
+#include "core/sensor/sensor_odom_2D.h"
 
 #include "serialization_sensor_intrinsic_base.h"
 

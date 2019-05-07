@@ -11,7 +11,7 @@
 #include <matchers/bruteforce_hamming_2/matcher_bruteforce_hamming_2.h>
 
 //Wolf
-#include "base/processor/processor_tracker_landmark_image.h"
+#include "core/processor/processor_tracker_landmark_image.h"
 
 int main(int argc, char** argv)
 {

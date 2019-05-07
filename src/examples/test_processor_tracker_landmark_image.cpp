@@ -1,18 +1,18 @@
 //std
 #include <iostream>
 
-#include "base/processor/processor_tracker_landmark_image.h"
+#include "core/processor/processor_tracker_landmark_image.h"
 
 //Wolf
-#include "base/common/wolf.h"
-#include "base/problem/problem.h"
-#include "base/state_block/state_block.h"
-#include "base/processor/processor_odom_3D.h"
-#include "base/sensor/sensor_odom_3D.h"
-#include "base/sensor/sensor_camera.h"
-#include "base/capture/capture_image.h"
-#include "base/capture/capture_pose.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/common/wolf.h"
+#include "core/problem/problem.h"
+#include "core/state_block/state_block.h"
+#include "core/processor/processor_odom_3D.h"
+#include "core/sensor/sensor_odom_3D.h"
+#include "core/sensor/sensor_camera.h"
+#include "core/capture/capture_image.h"
+#include "core/capture/capture_pose.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 // Vision utils includes
 #include <vision_utils.h>
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 
     //=====================================================
     // Wolf problem
-    ProblemPtr problem = Problem::create("PO 3D");
+    ProblemPtr problem = Problem::create("PO", 3);
 
     // ODOM SENSOR AND PROCESSOR
     SensorBasePtr sensor_base        = problem->installSensor("ODOM 3D", "odom", (Vector7s()<<0,0,0,0,0,0,1).finished(), wolf_root + "/src/examples/sensor_odom_3D.yaml");
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
     //=====================================================
     // Origin Key Frame is fixed
     TimeStamp t = 0;
-    FrameBasePtr origin_frame = problem->emplaceFrame(KEY_FRAME, (Vector7s()<<1,0,0,0,0,0,1).finished(), t);
+    FrameBasePtr origin_frame = problem->emplaceFrame(KEY, (Vector7s()<<1,0,0,0,0,0,1).finished(), t);
     problem->getProcessorMotion()->setOrigin(origin_frame);
     origin_frame->fix();
 

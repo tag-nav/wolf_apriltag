@@ -17,9 +17,9 @@
 #include <queue>
 
 //Wolf includes
-#include "base/state_block/state_block.h"
-#include "base/factor/factor_base.h"
-#include "base/sensor/sensor_laser_2D.h"
+#include "core/state_block/state_block.h"
+#include "core/factor/factor_base.h"
+#include "core/sensor/sensor_laser_2D.h"
 #include "wolf_manager.h"
 
 // wolf solver
@@ -35,7 +35,7 @@
 
 //Ceres includes
 #include "glog/logging.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 //laser_scan_utils
 #include "iri-algorithms/laser_scan_utils/corner_detector.h"

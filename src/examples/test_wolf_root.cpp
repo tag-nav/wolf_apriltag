@@ -6,7 +6,7 @@
  */
 
 //Wolf
-#include "base/common/wolf.h"
+#include "core/common/wolf.h"
 
 //std
 #include <iostream>

@@ -3,9 +3,9 @@
 #define LANDMARK_APRILTAG_H_
 
 //Wolf includes
-#include "base/landmark/landmark_base.h"
+#include "core/landmark/landmark_base.h"
 
-#include "base/state_block/state_quaternion.h"
+#include "core/state_block/state_quaternion.h"
 
 // Std includes
 

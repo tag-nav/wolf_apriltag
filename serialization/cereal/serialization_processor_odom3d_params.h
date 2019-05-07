@@ -2,7 +2,7 @@
 #define _WOLF_SERIALIZATION_CEREAL_PROCESSOR_ODOM3D_PARAMS_H_
 
 // Wolf includes
-#include "base/processor/processor_odom_3D.h"
+#include "core/processor/processor_odom_3D.h"
 #include "serialization_processor_params_base.h"
 
 namespace cereal {

@@ -5,10 +5,10 @@
  *      Author: jsola
  */
 
-#include "base/sensor/sensor_odom_2D.h"
-#include "base/processor/processor_odom_2D.h"
-#include "base/processor/processor_tracker_feature_dummy.h"
-#include "base/capture/capture_void.h"
+#include "core/sensor/sensor_odom_2D.h"
+#include "core/processor/processor_odom_2D.h"
+#include "core/processor/processor_tracker_feature_dummy.h"
+#include "core/capture/capture_void.h"
 
 int main()
 {
@@ -16,7 +16,7 @@ int main()
     using namespace Eigen;
     using namespace std;
 
-    ProblemPtr problem = Problem::create("PO 2D");
+    ProblemPtr problem = Problem::create("PO", 2);
 
     SensorBasePtr sen_odo    = problem->installSensor   ("ODOM 2D", "main odometer", (Vector3s()<<0,0,0).finished(),"");
     ProcessorParamsOdom2DPtr params_odo = std::make_shared<ProcessorParamsOdom2D>();

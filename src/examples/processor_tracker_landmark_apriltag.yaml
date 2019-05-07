@@ -7,8 +7,6 @@ detector parameters:
     nthreads:       8       # how many thread during tag detection (does not change much?)
     debug:          false    # write some debugging images
     refine_edges:   true    # better edge detection if quad_decimate > 1 (quite inexpensive, almost no diff)
-    refine_decode:  false    # improve detection probability for small tags (quite expensive (~*3)
-    refine_pose:    false    # improves detection by maximizing local contrast so that future pose extraction works better (VERY expensive ~*10-20)
     ippe_min_ratio:     3.0  	# quite arbitrary, always > 1 (to deactive, set at 0 for example)
     ippe_max_rep_error: 2.0     # to deactivate, set at something big (100)
 
@@ -20,7 +18,7 @@ tag widths:
 
 tag parameters:
     tag_family:           "tag36h11" 
-    tag_black_border:     1
+    # tag_black_border:     1
     tag_width_default:    0.165   # used if tag width not specified
 
     

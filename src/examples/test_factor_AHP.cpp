@@ -1,10 +1,10 @@
-#include "base/math/pinhole_tools.h"
-#include "base/landmark/landmark_AHP.h"
-#include "base/factor/factor_AHP.h"
-#include "base/state_block/state_block.h"
-#include "base/state_block/state_quaternion.h"
-#include "base/sensor/sensor_camera.h"
-#include "base/capture/capture_image.h"
+#include "core/math/pinhole_tools.h"
+#include "core/landmark/landmark_AHP.h"
+#include "core/factor/factor_AHP.h"
+#include "core/state_block/state_block.h"
+#include "core/state_block/state_quaternion.h"
+#include "core/sensor/sensor_camera.h"
+#include "core/capture/capture_image.h"
 
 int main()
 {
@@ -21,7 +21,7 @@ int main()
     //=====================================================
 
     // Wolf problem
-    ProblemPtr wolf_problem_ptr_ = Problem::create("PO 3D");
+    ProblemPtr wolf_problem_ptr_ = Problem::create("PO", 3);
 
     /* Do this while there aren't extrinsic parameters on the yaml */
     Eigen::Vector7s extrinsic_cam;

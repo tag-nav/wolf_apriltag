@@ -5,7 +5,7 @@
  *      Author: jsola
  */
 
-#include "base/factor/factor_odom_3D.h"
+#include "core/factor/factor_odom_3D.h"
 
 namespace wolf
 {

@@ -1,9 +1,9 @@
 #include "utils_gtest.h"
 
-#include "base/common/wolf.h"
-#include "base/utils/logging.h"
-#include "base/capture/capture_pose.h"
-#include "base/processor/processor_factory.h"
+#include "core/common/wolf.h"
+#include "core/utils/logging.h"
+#include "core/capture/capture_pose.h"
+#include "core/processor/processor_factory.h"
 
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag.h"
@@ -125,25 +125,46 @@ TEST(ProcessorTrackerLandmarkApriltag, Constructor)
     std::string s2;
 
     ProcessorParamsTrackerLandmarkApriltagPtr params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
-    params->tag_family_ = "tag36h11";
-    ProcessorTrackerLandmarkApriltagPtr p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
-    ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
 
-    params->tag_family_ = "tag36h10";
+    ProcessorTrackerLandmarkApriltagPtr p;
+
+    params->tag_family_ = "tag16h5";
     p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
     ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
-
-    params->tag_family_ = "tag36artoolkit";
-    p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
-    ASSERT_TRUE(p->getTagFamily() == "artoolkit"); // This tagfamily is stored differently by apriltag library
 
     params->tag_family_ = "tag25h9";
     p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
     ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
 
-    params->tag_family_ = "tag25h7";
+    params->tag_family_ = "tag36h11";
     p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
     ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+
+    params->tag_family_ = "tagCircle21h7";
+    p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
+    ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+
+    params->tag_family_ = "tagStandard41h12";
+    p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
+    ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+
+    // ! At the time of this test rewriting, Apriltag3 bugs on the creation of the 
+    // subsequent family's detector 
+
+    // NOPE
+    // params->tag_family_ = "tagCircle49h12";
+    // p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
+    // ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+
+    // NOPE
+    // params->tag_family_ = "tagCustom48h12";
+    // p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
+    // ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+
+    // NOPE
+    // params->tag_family_ = "tagStandard52h13";
+    // p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
+    // ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
 
     params->tag_family_ = "wrong_family";
     WOLF_INFO("The following runtime error \"Unrecognized tag family name. Use e.g. \"tag36h11\".\" is expected and does not imply a failed test:");

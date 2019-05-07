@@ -1,5 +1,5 @@
 //std includes
-#include "base/sensor/sensor_GPS_fix.h"
+#include "core/sensor/sensor_GPS_fix.h"
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -17,12 +17,12 @@
 #include "glog/logging.h"
 
 //Wolf includes
-#include "base/problem/problem.h"
-#include "base/processor/processor_tracker_landmark_polyline.h"
-#include "base/processor/processor_odom_2D.h"
-#include "base/sensor/sensor_laser_2D.h"
-#include "base/sensor/sensor_odom_2D.h"
-#include "base/ceres_wrapper/ceres_manager.h"
+#include "core/problem/problem.h"
+#include "core/processor/processor_tracker_landmark_polyline.h"
+#include "core/processor/processor_odom_2D.h"
+#include "core/sensor/sensor_laser_2D.h"
+#include "core/sensor/sensor_odom_2D.h"
+#include "core/ceres_wrapper/ceres_manager.h"
 
 // laserscanutils
 #include "laser_scan_utils/line_finder_iterative.h"
@@ -31,7 +31,7 @@
 //C includes for sleep, time and main args
 #include "unistd.h"
 
-#include "base/capture/capture_pose.h"
+#include "core/capture/capture_pose.h"
 //faramotics includes
 #include "faramotics/dynamicSceneRender.h"
 #include "faramotics/rangeScan2D.h"
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
     odom_trajectory.head(3) = ground_truth_pose;
 
     // Origin Key Frame
-    FrameBasePtr origin_frame = problem.createFrame(KEY_FRAME, ground_truth_pose, ts);
+    FrameBasePtr origin_frame = problem.createFrame(KEY, ground_truth_pose, ts);
 
     // Prior covariance
     CapturePose* initial_covariance = new CapturePose(ts, gps_sensor, ground_truth_pose, Eigen::Matrix3s::Identity() * 0.1);

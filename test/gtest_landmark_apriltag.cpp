@@ -9,8 +9,8 @@
 #include "utils_gtest.h"
 
 
-#include "base/common/wolf.h"
-#include "base/utils/logging.h"
+#include "core/common/wolf.h"
+#include "core/utils/logging.h"
 
 #include "apriltag/landmark/landmark_apriltag.h"
 

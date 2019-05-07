@@ -6,11 +6,11 @@
  */
 
 //Wolf
-#include "base/common/wolf.h"
-#include "base/problem/problem.h"
-#include "base/sensor/sensor_diff_drive.h"
-#include "base/capture/capture_wheel_joint_position.h"
-#include "base/processor/processor_diff_drive.h"
+#include "core/common/wolf.h"
+#include "core/problem/problem.h"
+#include "core/sensor/sensor_diff_drive.h"
+#include "core/capture/capture_wheel_joint_position.h"
+#include "core/processor/processor_diff_drive.h"
 
 //std
 #include <iostream>
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
   }
 
   // Wolf problem
-  ProblemPtr wolf_problem_ptr_ = Problem::create("PO 2D");
+  ProblemPtr wolf_problem_ptr_ = Problem::create("PO", 2);
 
   const std::string sensor_name("Main Odometer");
   Eigen::VectorXs extrinsics(3);
