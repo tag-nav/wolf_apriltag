@@ -163,7 +163,7 @@ int main(int argc, char** argv)
   }
 
   // Wolf problem
-  ProblemPtr wolf_problem_ptr_ = Problem::create("PO 2D");
+  ProblemPtr wolf_problem_ptr_ = Problem::create("PO", 2);
 
   const std::string sensor_name("Main Odometer");
   Eigen::VectorXs extrinsics(3);

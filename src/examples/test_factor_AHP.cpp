@@ -21,7 +21,7 @@ int main()
     //=====================================================
 
     // Wolf problem
-    ProblemPtr wolf_problem_ptr_ = Problem::create("PO 3D");
+    ProblemPtr wolf_problem_ptr_ = Problem::create("PO", 3);
 
     /* Do this while there aren't extrinsic parameters on the yaml */
     Eigen::Vector7s extrinsic_cam;

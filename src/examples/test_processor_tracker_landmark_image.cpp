@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 
     //=====================================================
     // Wolf problem
-    ProblemPtr problem = Problem::create("PO 3D");
+    ProblemPtr problem = Problem::create("PO", 3);
 
     // ODOM SENSOR AND PROCESSOR
     SensorBasePtr sensor_base        = problem->installSensor("ODOM 3D", "odom", (Vector7s()<<0,0,0,0,0,0,1).finished(), wolf_root + "/src/examples/sensor_odom_3D.yaml");
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
     //=====================================================
     // Origin Key Frame is fixed
     TimeStamp t = 0;
-    FrameBasePtr origin_frame = problem->emplaceFrame(KEY_FRAME, (Vector7s()<<1,0,0,0,0,0,1).finished(), t);
+    FrameBasePtr origin_frame = problem->emplaceFrame(KEY, (Vector7s()<<1,0,0,0,0,0,1).finished(), t);
     problem->getProcessorMotion()->setOrigin(origin_frame);
     origin_frame->fix();
 

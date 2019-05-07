@@ -26,7 +26,7 @@ int main()
     std::cout << std::endl << "==================== processor tracker feature test ======================" << std::endl;
 
     // Wolf problem
-    ProblemPtr wolf_problem_ptr_ = Problem::create("PO 2D");
+    ProblemPtr wolf_problem_ptr_ = Problem::create("PO", 2);
     SensorBasePtr sensor_ptr_ = make_shared<SensorBase>("ODOM 2D", std::make_shared<StateBlock>(Eigen::VectorXs::Zero(2)),
                                              std::make_shared<StateBlock>(Eigen::VectorXs::Zero(1)),
                                              std::make_shared<StateBlock>(Eigen::VectorXs::Zero(2)), 2);

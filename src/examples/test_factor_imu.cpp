@@ -80,7 +80,7 @@ int main(int argc, char** argv)
     //create FrameIMU
     ts = wolf_problem_ptr_->getProcessorMotion()->getBuffer().get().back().ts_;
     state_vec = wolf_problem_ptr_->getProcessorMotion()->getCurrentState();
-    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY_FRAME, ts, state_vec);
+    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY, ts, state_vec);
     wolf_problem_ptr_->getTrajectory()->addFrame(last_frame);
 
         //create a feature
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
     //create FrameIMU
     ts = wolf_problem_ptr_->getProcessorMotion()->getBuffer().get().back().ts_;
     state_vec = wolf_problem_ptr_->getProcessorMotion()->getCurrentState();
-    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY_FRAME, ts, state_vec);
+    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY, ts, state_vec);
     wolf_problem_ptr_->getTrajectory()->addFrame(last_frame);
 
         //create a feature
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
         //create FrameIMU
     ts = wolf_problem_ptr_->getProcessorMotion()->getBuffer().get().back().ts_;
     state_vec = wolf_problem_ptr_->getProcessorMotion()->getCurrentState();
-    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY_FRAME, ts, state_vec);
+    FrameIMUPtr last_frame = std::make_shared<FrameIMU>(KEY, ts, state_vec);
     wolf_problem_ptr_->getTrajectory()->addFrame(last_frame);
 
         //create a feature

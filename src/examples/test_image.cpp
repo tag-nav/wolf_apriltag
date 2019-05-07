@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     std::string wolf_root = _WOLF_ROOT_DIR;
     std::cout << "Wolf root: " << wolf_root << std::endl;
 
-    ProblemPtr wolf_problem_ = Problem::create("PO 3D");
+    ProblemPtr wolf_problem_ = Problem::create("PO", 3);
 
     //=====================================================
     // Method 1: Use data generated here for sensor and processor

@@ -75,7 +75,7 @@ int main()
     std::string wolf_config     = wolf_root + "/src/examples";
     std::cout << "\nWolf directory for configuration files: " << wolf_config << std::endl;
 
-    ProblemPtr problem = Problem::create("PO 2D");
+    ProblemPtr problem = Problem::create("PO", 2);
     filename = wolf_config + "/map_polyline_example.yaml";
     std::cout << "Reading map from file: " << filename << std::endl;
     problem->loadMap(filename);

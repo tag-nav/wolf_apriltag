@@ -61,19 +61,22 @@ int main()
     std::cout << std::endl << "==================== processor tracker landmark test ======================" << std::endl;
 
     // Wolf problem
-    ProblemPtr wolf_problem_ptr_ = Problem::create("PO 2D");
-    SensorBasePtr sensor_ptr_ = std::make_shared< SensorBase>("ODOM 2D", std::make_shared<StateBlock>(Eigen::VectorXs::Zero(2)),
-                                             std::make_shared<StateBlock>(Eigen::VectorXs::Zero(1)),
-                                             std::make_shared<StateBlock>(Eigen::VectorXs::Zero(2)), 2);
-
+    ProblemPtr wolf_problem_ptr_ = Problem::create("PO", 2);
+    // SensorBasePtr sensor_ptr_ = std::make_shared< SensorBase>("ODOM 2D", std::make_shared<StateBlock>(Eigen::VectorXs::Zero(2)),
+    //                                          std::make_shared<StateBlock>(Eigen::VectorXs::Zero(1)),
+    //                                          std::make_shared<StateBlock>(Eigen::VectorXs::Zero(2)), 2);
+    auto sensor_ptr_ = SensorBase::emplace<SensorBase>(wolf_problem_ptr_->getHardware(), "ODOM 2D", std::make_shared<StateBlock>(Eigen::VectorXs::Zero(2)),
+                                                       std::make_shared<StateBlock>(Eigen::VectorXs::Zero(1)),
+                                                       std::make_shared<StateBlock>(Eigen::VectorXs::Zero(2)), 2);
     ProcessorParamsTrackerLandmarkPtr params_trk = std::make_shared<ProcessorParamsTrackerLandmark>();
     params_trk->max_new_features = 5;
     params_trk->min_features_for_keyframe = 7;
     params_trk->time_tolerance = 0.25;
-    std::shared_ptr<ProcessorTrackerLandmarkDummy> processor_ptr_ = std::make_shared< ProcessorTrackerLandmarkDummy>(params_trk);
-
-    wolf_problem_ptr_->addSensor(sensor_ptr_);
-    sensor_ptr_->addProcessor(processor_ptr_);
+    // std::shared_ptr<ProcessorTrackerLandmarkDummy> processor_ptr_ = std::make_shared< ProcessorTrackerLandmarkDummy>(params_trk);
+    std::shared_ptr<ProcessorTrackerLandmarkDummy> processor_ptr_ =
+        std::static_pointer_cast<ProcessorTrackerLandmarkDummy>(ProcessorBase::emplace<ProcessorTrackerLandmarkDummy>(sensor_ptr_, params_trk));
+    // wolf_problem_ptr_->addSensor(sensor_ptr_);
+    // sensor_ptr_->addProcessor(processor_ptr_);
 
     std::cout << "sensor & processor created and added to wolf problem" << std::endl;
 

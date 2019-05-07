@@ -95,13 +95,13 @@ int main(int argc, char** argv)
 
     // ============================================================================================================
     /* 1 */
-    ProblemPtr problem = Problem::create("PO 3D");
+    ProblemPtr problem = Problem::create("PO", 3);
     // One anchor frame to define the lmk, and a copy to make a factor
-    FrameBasePtr kf_1 = problem->emplaceFrame(KEY_FRAME,(Vector7s()<<0,0,0,0,0,0,1).finished(), TimeStamp(0));
-    FrameBasePtr kf_2 = problem->emplaceFrame(KEY_FRAME,(Vector7s()<<0,0,0,0,0,0,1).finished(), TimeStamp(0));
+    FrameBasePtr kf_1 = problem->emplaceFrame(KEY,(Vector7s()<<0,0,0,0,0,0,1).finished(), TimeStamp(0));
+    FrameBasePtr kf_2 = problem->emplaceFrame(KEY,(Vector7s()<<0,0,0,0,0,0,1).finished(), TimeStamp(0));
     // and two other frames to observe the lmk
-    FrameBasePtr kf_3 = problem->emplaceFrame(KEY_FRAME,(Vector7s()<<0,-1,0,0,0,0,1).finished(), TimeStamp(0));
-    FrameBasePtr kf_4 = problem->emplaceFrame(KEY_FRAME,(Vector7s()<<0,+1,0,0,0,0,1).finished(), TimeStamp(0));
+    FrameBasePtr kf_3 = problem->emplaceFrame(KEY,(Vector7s()<<0,-1,0,0,0,0,1).finished(), TimeStamp(0));
+    FrameBasePtr kf_4 = problem->emplaceFrame(KEY,(Vector7s()<<0,+1,0,0,0,0,1).finished(), TimeStamp(0));
 
     kf_1->fix();
     kf_2->fix();

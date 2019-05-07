@@ -247,7 +247,7 @@ int main(int argc, char** argv)
     odom_trajectory.head(3) = ground_truth_pose;
 
     // Origin Key Frame
-    FrameBasePtr origin_frame = problem.createFrame(KEY_FRAME, ground_truth_pose, ts);
+    FrameBasePtr origin_frame = problem.createFrame(KEY, ground_truth_pose, ts);
 
     // Prior covariance
     CapturePose* initial_covariance = new CapturePose(ts, gps_sensor, ground_truth_pose, Eigen::Matrix3s::Identity() * 0.1);
