@@ -1,0 +1,8 @@
+cov_det: 100
+unmeasured_perturbation_std: 100
+angle_turned: 100
+dist_traveled: 100
+max_buff_length: 100
+max_time_span: 100
+time_tolerance: 100
+voting_active: false 

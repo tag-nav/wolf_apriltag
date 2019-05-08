@@ -156,7 +156,6 @@ list(APPEND EIGEN_INCLUDE_DIR_HINTS /usr/include/eigen3)
 # match and reject with an explanation below.
 
 find_package(Eigen3 ${wolf_EIGEN_VERSION} QUIET)
-
 # Flag set with currently found Eigen version.
 set(EIGEN_VERSION @EIGEN_VERSION@)
 if (EIGEN3_FOUND)

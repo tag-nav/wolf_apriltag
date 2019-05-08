@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
     std::string wolf_root = _WOLF_ROOT_DIR;
     // Wolf problem
-    ProblemPtr problem              = Problem::create("PO 3D");
+    ProblemPtr problem              = Problem::create("PO", 3);
     ceres::Solver::Options options;
     options.function_tolerance = 1e-6;
     options.max_num_iterations = 100;

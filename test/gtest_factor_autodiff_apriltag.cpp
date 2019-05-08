@@ -137,7 +137,7 @@ class FactorAutodiffApriltag_class : public testing::Test{
             pose_landmark   << pos_landmark, vquat_landmark;
 
             // Build problem
-            problem = Problem::create("PO 3D");
+            problem = Problem::create("PO", 3);
             ceres::Solver::Options options;
             ceres_manager = std::make_shared<CeresManager>(problem, options);
 

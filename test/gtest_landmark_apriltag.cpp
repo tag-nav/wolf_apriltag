@@ -23,7 +23,7 @@ class LandmarkApriltag_class : public testing::Test{
         virtual void SetUp()
         {
             wolf_root = _WOLF_ROOT_DIR;
-            problem = Problem::create("PO 3D");
+            problem = Problem::create("PO", 3);
         }
     public:
         std::string wolf_root;
