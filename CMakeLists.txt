@@ -10,7 +10,7 @@ SET(CMAKE_MACOSX_RPATH 1)
 
 
 # The project name
-PROJECT(apriltagw)
+PROJECT(apriltag)
 
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)

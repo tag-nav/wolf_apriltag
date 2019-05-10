@@ -32,4 +32,4 @@ src/examples/map_apriltag_save.yaml
 \.vscode/
 build_release/
 
-apriltagw.found
+apriltag.found
