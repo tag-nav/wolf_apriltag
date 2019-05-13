@@ -142,7 +142,7 @@ class FactorAutodiffApriltag_class : public testing::Test{
             ceres_manager = std::make_shared<CeresManager>(problem, options);
 
             // Install sensor and processor
-            S      = problem->installSensor("CAMERA", "canonical", pose_camera, wolf_root + "/src/examples/camera_params_canonical.yaml");
+            S      = problem->installSensor("CAMERA", "canonical", pose_camera, wolf_root + "/demos/camera_params_canonical.yaml");
             camera = std::static_pointer_cast<SensorCamera>(S);
 
             ProcessorParamsTrackerLandmarkApriltagPtr params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
