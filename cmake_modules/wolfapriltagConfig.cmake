@@ -58,7 +58,7 @@ macro(wolf_report_not_found REASON_MSG)
 endmacro(wolf_report_not_found)
 
 if(NOT wolfapriltag_FOUND)
-  wolf_report_not_found("TROUBLE DUDE.")
+  wolf_report_not_found("Something went wrong while setting up wolf apriltag.")
 endif(NOT wolfapriltag_FOUND)
 # Set the include directories for wolf (itself).
 set(wolfapriltag_FOUND TRUE)

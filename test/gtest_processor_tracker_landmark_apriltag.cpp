@@ -73,8 +73,8 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
 
             // configure wolf problem
             problem = Problem::create("PO", 3);
-            sen = problem->installSensor("CAMERA", "camera", (Vector7s()<<0,0,0,0,0,0,1).finished(), wolf_root + "/src/examples/camera_params_canonical.yaml");
-            prc     = problem->installProcessor("TRACKER LANDMARK APRILTAG WRAPPER", "apriltags_wrapper", "camera", wolf_root + "/src/examples/processor_tracker_landmark_apriltag.yaml");
+            sen = problem->installSensor("CAMERA", "camera", (Vector7s()<<0,0,0,0,0,0,1).finished(), wolf_root + "/demos/camera_params_canonical.yaml");
+            prc     = problem->installProcessor("TRACKER LANDMARK APRILTAG WRAPPER", "apriltags_wrapper", "camera", wolf_root + "/demos/processor_tracker_landmark_apriltag.yaml");
             prc_apr = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(prc);
 
             // set prior
