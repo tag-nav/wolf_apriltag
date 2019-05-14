@@ -85,6 +85,7 @@ set(BUILD_TESTS true)
 # but for the examples ?
 # yes, for the tests !
 IF(BUILD_EXAMPLES OR BUILD_TESTS)
+  string(TOUPPER ${PROJECT_NAME} UPPER_NAME)
   set(_WOLF_ROOT_DIR ${CMAKE_SOURCE_DIR})
 ENDIF(BUILD_EXAMPLES OR BUILD_TESTS)
 
@@ -143,7 +144,7 @@ ELSE (Suitesparse_INCLUDE_DIRS)
 ENDIF (Suitesparse_INCLUDE_DIRS)
 
 # Define the directory where will be the configured config.h
-SET(WOLF_CONFIG_DIR ${PROJECT_BINARY_DIR}/conf/internal)
+SET(WOLF_CONFIG_DIR ${PROJECT_BINARY_DIR}/conf/${PROJECT_NAME}/internal)
 
 # Create the specified output directory if it does not exist.
 IF(NOT EXISTS "${WOLF_CONFIG_DIR}")
@@ -166,7 +167,6 @@ INCLUDE_DIRECTORIES(${wolf_INCLUDE_DIRS})
 # INCLUDE_DIRECTORIES(${wolf_vision_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${wolfvision_INCLUDE_DIR})
 include_directories(BEFORE "include")
-include_directories(.)
 INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${vision_utils_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
@@ -342,7 +342,7 @@ INSTALL(FILES ${PROJECT_NAME}.found
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME})
 
 INSTALL(FILES "${WOLF_CONFIG_DIR}/config.h"
-DESTINATION include/iri-algorithms/wolf/internal)
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/internal)
 
 INSTALL(FILES "${CMAKE_SOURCE_DIR}/cmake_modules/${PLUGIN_NAME}Config.cmake" DESTINATION "lib/cmake/${PLUGIN_NAME}")
 
