@@ -282,9 +282,9 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::createLandmark(FeatureBasePtr 
     FeatureApriltagPtr feat_april = std::static_pointer_cast<FeatureApriltag>(_feature_ptr);
     int tag_id = feat_april->getTagId();
 
-    LandmarkApriltagPtr new_landmark = std::make_shared<LandmarkApriltag>(w_pose_t, tag_id, getTagWidth(tag_id));
-
-    return new_landmark;
+    // LandmarkApriltagPtr new_landmark = std::make_shared<LandmarkApriltag>(w_pose_t, tag_id, getTagWidth(tag_id));
+    // LandmarkApriltagPtr new_landmark = std::static_pointer_cast<LandmarkApriltag>(LandmarkBase::emplace<LandmarkApriltag>(nullptr, w_pose_t, tag_id, getTagWidth(tag_id)));
+    return LandmarkBase::emplace<LandmarkApriltag>(nullptr, w_pose_t, tag_id, getTagWidth(tag_id));
 }
 
 unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max_features, FeatureBasePtrList& _new_features_last)
