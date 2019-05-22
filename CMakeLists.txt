@@ -128,19 +128,19 @@ ELSEIF(YAMLCPP_FOUND)
     MESSAGE("yaml-cpp Library NOT FOUND!")
 ENDIF(YAMLCPP_FOUND)
 
-FIND_PATH(
-    Suitesparse_INCLUDE_DIRS
-    NAMES SuiteSparse_config.h
-    PATHS /usr/include/suitesparse /usr/local/include/suitesparse)
-MESSAGE("Found suitesparse_INCLUDE_DIRS:" ${Suitesparse_INCLUDE_DIRS})
+#FIND_PATH(
+#    Suitesparse_INCLUDE_DIRS
+#    NAMES SuiteSparse_config.h
+#    PATHS /usr/include/suitesparse /usr/local/include/suitesparse)
+#MESSAGE("Found suitesparse_INCLUDE_DIRS:" ${Suitesparse_INCLUDE_DIRS})
 
-IF(Suitesparse_INCLUDE_DIRS)
-   SET(Suitesparse_FOUND TRUE)
-   MESSAGE("Suitesparse FOUND: wolf_solver will be built.")
-ELSE (Suitesparse_INCLUDE_DIRS)
-   SET(Suitesparse_FOUND FALSE)
-   MESSAGE(FATAL_ERROR "Suitesparse NOT FOUND")
-ENDIF (Suitesparse_INCLUDE_DIRS)
+#IF(Suitesparse_INCLUDE_DIRS)
+#   SET(Suitesparse_FOUND TRUE)
+#   MESSAGE("Suitesparse FOUND: wolf_solver will be built.")
+#ELSE (Suitesparse_INCLUDE_DIRS)
+#   SET(Suitesparse_FOUND FALSE)
+#   MESSAGE(FATAL_ERROR "Suitesparse NOT FOUND")
+#ENDIF (Suitesparse_INCLUDE_DIRS)
 
 # Define the directory where will be the configured config.h
 SET(WOLF_CONFIG_DIR ${PROJECT_BINARY_DIR}/conf/${PROJECT_NAME}/internal)
@@ -334,8 +334,8 @@ INSTALL(FILES ${HDRS_LANDMARK}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/landmark)
 INSTALL(FILES ${HDRS_WRAPPER}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/ceres_wrapper)
-INSTALL(FILES ${HDRS_SOLVER_SUITESPARSE}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver_suitesparse)
+#INSTALL(FILES ${HDRS_SOLVER_SUITESPARSE}
+#  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver_suitesparse)
 INSTALL(FILES ${HDRS_SOLVER}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver)
 INSTALL(FILES ${HDRS_SERIALIZATION}
