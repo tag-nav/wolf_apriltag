@@ -10,7 +10,7 @@ ELSE(wolfapriltag_INCLUDE_DIR)
 ENDIF(wolfapriltag_INCLUDE_DIR)
 FIND_LIBRARY(
     wolfapriltag_LIBRARY
-    NAMES libwolfapriltag.so
+    NAMES libwolfapriltag.so libwolfapriltag.dylib
     PATHS /usr/local/lib/iri-algorithms)
 IF(wolfapriltag_LIBRARY)
   MESSAGE("Found wolf apriltag lib: ${wolfapriltag_LIBRARY}")
