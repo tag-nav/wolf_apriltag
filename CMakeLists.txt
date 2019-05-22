@@ -276,6 +276,8 @@ ADD_LIBRARY(${PLUGIN_NAME}
   )
 # set(wolf_vision_LIBRARY "/usr/local/lib/iri-algorithms/libvision.so")
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolf_LIBRARY} ${wolfvision_LIBRARY} ${vision_utils_LIBRARY} ${APRILTAGL_LIBRARY}  ${CMAKE_THREAD_LIBS_INIT} ${OPENCV_LDFLAGS})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${YAMLCPP_LIBRARY})
+
 #Link the created libraries
 #===============EXAMPLE=========================
 # IF (Ceres_FOUND)
