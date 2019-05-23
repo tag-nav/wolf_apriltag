@@ -33,3 +33,4 @@ src/examples/map_apriltag_save.yaml
 build_release/
 
 apriltag.found
+apriltagw.found
