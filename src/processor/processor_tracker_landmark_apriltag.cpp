@@ -421,7 +421,7 @@ Eigen::Matrix6s ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vect
     Eigen::Vector3s p3; p3 <<  s, -s, 0; // top right
     Eigen::Vector3s p4; p4 << -s, -s, 0; // top left
     std::vector<Eigen::Vector3s> pvec = {p1, p2, p3, p4};
-    std::vector<Eigen::Vector2s> proj_pix_vec; proj_pix_vec.resize(4);
+    std::vector<Eigen::Vector2s> proj_pix_vec(4); //proj_pix_vec.resize(4);
 
     // Initialize jacobian matrices
     Eigen::Matrix<Scalar, 8, 6> J_u_TR = Eigen::Matrix<Scalar, 8, 6>::Zero();  // 2N x 6 jac
