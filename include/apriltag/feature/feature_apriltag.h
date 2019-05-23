@@ -7,8 +7,8 @@
 //std includes
 
 //external library incudes
-#include "apriltag.h"
-#include "common/zarray.h"
+#include "apriltag/apriltag.h"
+#include "apriltag/common/zarray.h"
 
 // opencv
 #include <opencv2/features2d.hpp>

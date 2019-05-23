@@ -11,7 +11,7 @@
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/factor/factor_autodiff_apriltag.h"
 
-#include <apriltag.h>
+#include <apriltag/apriltag.h>
 
 using namespace Eigen;
 using namespace wolf;

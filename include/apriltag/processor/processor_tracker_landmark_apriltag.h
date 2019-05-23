@@ -8,7 +8,7 @@
 #include "core/factor/factor_autodiff_distance_3D.h"
 
 // Apriltag
-#include <apriltag.h>
+#include <apriltag/apriltag.h>
 
 // open cv
 #include <opencv/cv.h>
