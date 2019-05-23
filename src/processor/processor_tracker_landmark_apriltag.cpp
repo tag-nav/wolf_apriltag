@@ -8,7 +8,7 @@
 
 #include "core/math/rotations.h"
 #include "core/state_block/state_quaternion.h"
-#include "core/math/pinhole_tools.h"
+#include "vision/math/pinhole_tools.h"
 
 // April tags
 #include "common/homography.h"
