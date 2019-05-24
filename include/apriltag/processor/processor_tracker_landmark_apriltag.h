@@ -125,12 +125,12 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         Eigen::Vector6s getVarVec();
         FeatureBasePtrList getIncomingDetections() const;
         FeatureBasePtrList getLastDetections() const;
-        Eigen::Affine3d opencvPoseEstimation(apriltag_detection_t *_det, cv::Mat_<Scalar>, double _tag_width);
-        Eigen::Affine3d umichPoseEstimation(apriltag_detection_t *_det, cv::Mat_<Scalar>, double _tag_width);
+        Eigen::Isometry3d opencvPoseEstimation(apriltag_detection_t *_det, cv::Mat_<Scalar>, double _tag_width);
+        Eigen::Isometry3d umichPoseEstimation(apriltag_detection_t *_det, cv::Mat_<Scalar>, double _tag_width);
         void ippePoseEstimation(apriltag_detection_t *_det, cv::Mat_<Scalar>, double _tag_width,
-                                    Eigen::Affine3d &_M1,
+                                    Eigen::Isometry3d &_M1,
                                     double &_rep_error1,
-                                    Eigen::Affine3d &_M2,
+                                    Eigen::Isometry3d &_M2,
                                     double &_rep_error2);
         Eigen::Matrix6s computeInformation(Eigen::Vector3s const &_t, Eigen::Matrix3s const &_R, Eigen::Matrix3s const &_K, double const &_tag_width, double const &_sig_q);
         void pinholeHomogeneous(Eigen::Matrix3s const & _K, Eigen::Vector3s const & _t,
@@ -138,7 +138,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
                                 Eigen::Vector3s &_h, Eigen::Matrix3s &_J_h_T, Eigen::Matrix3s &_J_h_R);
         void cornersToPose(const std::vector<cv::Point2d> &_img_pts,
                            const std::vector<Scalar> &_k_vec,
-                           Eigen::Affine3ds &_M);
+                           Eigen::Isometry3ds &_M);
 
     protected:
         void advanceDerived();
@@ -154,7 +154,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         Scalar std_pix_;                    ///< pixel error to be propagated to a camera to tag transformation covariance
         Scalar ippe_min_ratio_;
         Scalar ippe_max_rep_error_;
-//        Eigen::Affine3ds c_M_ac_;           ///< aprilCamera-to-camera transform not used with solvePnP
+//        Eigen::Isometry3ds c_M_ac_;           ///< aprilCamera-to-camera transform not used with solvePnP
 //        double cx_, cy_, fx_, fy_;
         Matrix3s K_;
         cv::Mat_<Scalar> cv_K_;
