@@ -11,17 +11,17 @@
 #include "core/state_block/state_quaternion.h"
 
 // April tags
-#include "common/homography.h"
-#include "common/zarray.h"
+#include "apriltag/common/homography.h"
+#include "apriltag/common/zarray.h"
 
-#include <tag16h5.h>
-#include <tag25h9.h>
-#include <tag36h11.h>
-#include <tagCircle21h7.h>
-#include <tagCircle49h12.h>
-#include <tagCustom48h12.h>
-#include <tagStandard41h12.h>
-#include <tagStandard52h13.h>
+#include <apriltag/tag16h5.h>
+#include <apriltag/tag25h9.h>
+#include <apriltag/tag36h11.h>
+#include <apriltag/tagCircle21h7.h>
+#include <apriltag/tagCircle49h12.h>
+#include <apriltag/tagCustom48h12.h>
+#include <apriltag/tagStandard41h12.h>
+#include <apriltag/tagStandard52h13.h>
 
 
 // #include "opencv2/opencv.hpp"
@@ -421,7 +421,7 @@ Eigen::Matrix6s ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vect
     Eigen::Vector3s p3; p3 <<  s, -s, 0; // top right
     Eigen::Vector3s p4; p4 << -s, -s, 0; // top left
     std::vector<Eigen::Vector3s> pvec = {p1, p2, p3, p4};
-    std::vector<Eigen::Vector2s> proj_pix_vec; proj_pix_vec.resize(4);
+    std::vector<Eigen::Vector2s> proj_pix_vec(4); //proj_pix_vec.resize(4);
 
     // Initialize jacobian matrices
     Eigen::Matrix<Scalar, 8, 6> J_u_TR = Eigen::Matrix<Scalar, 8, 6>::Zero();  // 2N x 6 jac
