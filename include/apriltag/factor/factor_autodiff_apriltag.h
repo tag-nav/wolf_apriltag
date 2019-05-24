@@ -142,23 +142,23 @@ template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p
     Eigen::Translation3ds  p_measured(getMeasurement().head(3));
     Eigen::Quaternions     q_measured(getMeasurement().data() + 3 );
     // landmark wrt camera, measure
-    Eigen::Transform<T, 3, Eigen::Affine> c_M_l_meas = p_c_l_meas.cast<T>() * q_measured.cast<T>();
+    Eigen::Transform<T, 3, Eigen::Isometry> c_M_l_meas = p_c_l_meas.cast<T>() * q_measured.cast<T>();
 
     // Create transformation matrices to compose
     // robot wrt world
-    Eigen::Transform<T, 3, Eigen::Affine> w_M_r = p_keyframe * q_keyframe;
+    Eigen::Transform<T, 3, Eigen::Isometry> w_M_r = p_keyframe * q_keyframe;
     // camera wrt robot
-    Eigen::Transform<T, 3, Eigen::Affine> r_M_c = p_camera * q_camera;
+    Eigen::Transform<T, 3, Eigen::Isometry> r_M_c = p_camera * q_camera;
     // landmark wrt world
-    Eigen::Transform<T, 3, Eigen::Affine> w_M_l = p_landmark * q_landmark;
+    Eigen::Transform<T, 3, Eigen::Isometry> w_M_l = p_landmark * q_landmark;
     // landmark wrt camera, estimated
-    Eigen::Transform<T, 3, Eigen::Affine> c_M_l_est = (w_M_r * r_M_c).inverse() * w_M_l;
+    Eigen::Transform<T, 3, Eigen::Isometry> c_M_l_est = (w_M_r * r_M_c).inverse() * w_M_l;
 
     // expectation error, in camera frame
     // right-minus
-    Eigen::Transform<T, 3, Eigen::Affine> c_M_err = c_M_l_meas.inverse() * c_M_l_est;
+    Eigen::Transform<T, 3, Eigen::Isometry> c_M_err = c_M_l_meas.inverse() * c_M_l_est;
     // opposite of the previous formula and therefore equivalent
-//    Eigen::Transform<T, 3, Eigen::Affine> c_M_err = c_M_l_est.inverse() * c_M_l_meas;
+//    Eigen::Transform<T, 3, Eigen::Isometry> c_M_err = c_M_l_est.inverse() * c_M_l_meas;
 
 
     // error
