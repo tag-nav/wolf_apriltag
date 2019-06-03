@@ -9,6 +9,7 @@
 #include "core/math/rotations.h"
 #include "core/state_block/state_quaternion.h"
 #include "core/math/pinhole_tools.h"
+#include "core/factor/factor_autodiff_distance_3D.h"
 
 // April tags
 #include "common/homography.h"
@@ -366,6 +367,12 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame()
     bool too_big_feature_diff = (abs(diff) >=  max_features_diff_);
 
     // Final decision logic
+    std::cout << "\nenough_info: " << enough_info << std::endl;
+    std::cout << "more_than_min_time_vote: " << more_than_min_time_vote << std::endl;
+    std::cout << "more_in_last: " << more_in_last << std::endl;
+    std::cout << "less_in_incoming: " << less_in_incoming << std::endl;
+    std::cout << "too_long_since_last_KF: " << too_long_since_last_KF << std::endl;
+    std::cout << "too_big_feature_diff: " << too_big_feature_diff << std::endl;
     bool vote = enough_info && more_than_min_time_vote && more_in_last && (less_in_incoming || too_long_since_last_KF || too_big_feature_diff);
     return vote;
 }
@@ -511,18 +518,14 @@ void ProcessorTrackerLandmarkApriltag::resetDerived()
             (getOrigin()->getFrame() != getLast()->getFrame()) 
             )
         {
-
             FrameBasePtr ori_frame = getOrigin()->getFrame();
             Eigen::Vector1s dist_meas; dist_meas << 0.0;
             double dist_std = 0.5;
             Eigen::Matrix1s cov0(dist_std*dist_std);
-
-            CaptureBasePtr capt3D = std::make_shared<CaptureBase>("Dist", getLast()->getTimeStamp());
-            getLast()->getFrame()->addCapture(capt3D);
-            FeatureBasePtr feat_dist = capt3D->addFeature(std::make_shared<FeatureBase>("Dist", dist_meas, cov0));
-            FactorAutodiffDistance3DPtr cstr = std::make_shared<FactorAutodiffDistance3D>(feat_dist, ori_frame, nullptr, false, FAC_ACTIVE);
-            feat_dist->addFactor(cstr);
-            ori_frame->addConstrainedBy(cstr);    
+ 
+            auto capt3D = CaptureBase::emplace<CaptureBase>(getLast()->getFrame(),"Dist",getLast()->getTimeStamp());
+            auto feat_dist = FeatureBase::emplace<FeatureBase>(capt3D, "Dist", dist_meas, cov0);
+            auto cstr = FactorBase::emplace<FactorAutodiffDistance3D>(feat_dist, feat_dist, ori_frame, nullptr, false, FAC_ACTIVE);  
         }
     }
     
