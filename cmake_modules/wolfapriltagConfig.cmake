@@ -62,3 +62,29 @@ if(NOT wolfapriltag_FOUND)
 endif(NOT wolfapriltag_FOUND)
 # Set the include directories for wolf (itself).
 set(wolfapriltag_FOUND TRUE)
+
+# Now we gather all the required dependencies for Wolf Laser
+
+FIND_PACKAGE(wolfvision REQUIRED)
+list(APPEND wolfapriltag_INCLUDE_DIRS ${wolfvision_INCLUDE_DIR})
+list(APPEND wolfapriltag_LIBRARIES ${wolfvision_LIBRARY})
+
+if(NOT OpenCV_FOUND)
+  FIND_PACKAGE(OpenCV REQUIRED)
+  list(APPEND wolfapriltag_INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS})
+  list(APPEND wolfapriltag_LIBRARIES ${OpenCV_LIBS})
+endif()
+
+#Making sure wolf is looked for
+if(NOT wolf_FOUND)
+  FIND_PACKAGE(wolf REQUIRED)
+
+  #We reverse in order to insert at the start
+  list(REVERSE wolfapriltag_INCLUDE_DIRS)
+  list(APPEND wolfapriltag_INCLUDE_DIRS ${wolf_INCLUDE_DIRS})
+  list(REVERSE wolfapriltag_INCLUDE_DIRS)
+
+  list(REVERSE wolfapriltag_LIBRARIES)
+  list(APPEND wolfapriltag_LIBRARIES ${wolf_LIBRARIES})
+  list(REVERSE wolfapriltag_LIBRARIES)
+endif()
