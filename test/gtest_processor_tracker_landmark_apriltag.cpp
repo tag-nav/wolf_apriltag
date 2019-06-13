@@ -335,10 +335,8 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
 {
     Vector7s pose_landmark((Vector7s()<<0,0,0,0,0,0,1).finished());
     det.id = 1;
-    FeatureApriltagPtr f1 = std::make_shared<FeatureApriltag>(pose_landmark, Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
+    FeatureBasePtr f1 = FeatureBase::emplace<FeatureApriltag>(C1,pose_landmark, Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
 
-    // C1->addFeature(f1);
-    f1->link(C1);
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
     ASSERT_TRUE(lmk_april->getMap() != nullptr);
@@ -349,10 +347,8 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
 TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)
 {
     det.id = 1;
-    FeatureApriltagPtr f1 = std::make_shared<FeatureApriltag>((Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
+    FeatureBasePtr f1 = FeatureBase::emplace<FeatureApriltag>(C1,(Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
 
-    // C1->addFeature(f1);
-    f1->link(C1);
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
 
