@@ -1,4 +1,4 @@
-#include "utils_gtest.h"
+#include <core/utils/utils_gtest.h>
 
 #include "core/common/wolf.h"
 #include "core/utils/logging.h"
@@ -11,7 +11,7 @@
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/factor/factor_autodiff_apriltag.h"
 
-#include <apriltag.h>
+#include <apriltag/apriltag.h>
 
 using namespace Eigen;
 using namespace wolf;
@@ -157,8 +157,8 @@ class FactorAutodiffApriltag_class : public testing::Test{
             F1 = problem->setPrior(pose_robot, Matrix6s::Identity(), 0.0, 0.1);
 
             //create feature and landmark
-            C1 = std::make_shared<CaptureImage>(1.0, camera, cv::Mat(2,2,CV_8UC1));
-            F1-> addCapture(C1);
+            C1 = std::static_pointer_cast<CaptureImage>(CaptureBase::emplace<CaptureImage>(F1, 1.0, camera, cv::Mat(2,2,CV_8UC1)));
+            // F1-> addCapture(C1);
             proc_apriltag->setOriginPtr(C1);
             proc_apriltag->setLastPtr(C1);
 
@@ -182,12 +182,14 @@ class FactorAutodiffApriltag_class : public testing::Test{
             Scalar rep_error2 = 0.1;
             bool use_rotation = true;
 
-            f1 = std::make_shared<FeatureApriltag>(pose_landmark, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation);
+            // f1 = std::make_shared<FeatureApriltag>(pose_landmark, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation);
+            f1 = std::static_pointer_cast<FeatureApriltag>(FeatureBase::emplace<FeatureApriltag>(C1, pose_landmark, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation));
+            // lmk1 = std::static_pointer_cast<LandmarkApriltag>(proc_apriltag->createLandmark(f1));
             lmk1 = std::static_pointer_cast<LandmarkApriltag>(proc_apriltag->createLandmark(f1));
-
+            lmk1->link(problem->getMap());
             // Add the feature and the landmark in the graph as needed
-            C1->addFeature(f1); // add feature to capture
-            problem->addLandmark(lmk1); // add landmark to map
+            // C1->addFeature(f1); // add feature to capture
+            // problem->addLandmark(lmk1); // add landmark to map
         }
 };
 
@@ -208,34 +210,26 @@ TEST_F(FactorAutodiffApriltag_class, Constructor)
 
 TEST_F(FactorAutodiffApriltag_class, Check_tree)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
-            S,
-            F1,
-            lmk1,
-            f1,
-            false,
-            FAC_ACTIVE
-    );
-
-    f1->addFactor(constraint);
-    lmk1->addConstrainedBy(constraint);
-
+    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+                                                              S,
+                                                              F1,
+                                                              lmk1,
+                                                              f1,
+                                                              false,
+                                                              FAC_ACTIVE);
     ASSERT_TRUE(problem->check(0));
 }
 
 TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
-            S,
-            F1,
-            lmk1,
-            f1,
-            false,
-            FAC_ACTIVE
-    );
-
-    f1->addFactor(constraint);
-    lmk1->addConstrainedBy(constraint);
+    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+                                                              S,
+                                                              F1,
+                                                              lmk1,
+                                                              f1,
+                                                              false,
+                                                              FAC_ACTIVE);
+    ASSERT_TRUE(problem->check(0));
 
     // unfix F1, perturbate state
     F1->unfix();
@@ -261,17 +255,13 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
 
 TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
-            S,
-            F1,
-            lmk1,
-            f1,
-            false,
-            FAC_ACTIVE
-    );
-
-    f1->addFactor(constraint);
-    lmk1->addConstrainedBy(constraint);
+    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+                                                              S,
+                                                              F1,
+                                                              lmk1,
+                                                              f1,
+                                                              false,
+                                                              FAC_ACTIVE);
 
     // unfix F1, perturbate state
     F1->unfix();
@@ -299,17 +289,13 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
 
 TEST_F(FactorAutodiffApriltag_class, Check_initialization)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
-            S,
-            F1,
-            lmk1,
-            f1,
-            false,
-            FAC_ACTIVE
-    );
-
-    f1->addFactor(constraint);
-    lmk1->addConstrainedBy(constraint);
+    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+                                                              S,
+                                                              F1,
+                                                              lmk1,
+                                                              f1,
+                                                              false,
+                                                              FAC_ACTIVE);
 
     ASSERT_MATRIX_APPROX(F1->getState(), pose_robot, 1e-6);
     ASSERT_MATRIX_APPROX(f1->getMeasurement(), pose_landmark, 1e-6);
@@ -319,17 +305,13 @@ TEST_F(FactorAutodiffApriltag_class, Check_initialization)
 
 TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
-            S,
-            F1,
-            lmk1,
-            f1,
-            false,
-            FAC_ACTIVE
-    );
-
-    f1->addFactor(constraint);
-    lmk1->addConstrainedBy(constraint);
+    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+                                                              S,
+                                                              F1,
+                                                              lmk1,
+                                                              f1,
+                                                              false,
+                                                              FAC_ACTIVE);
 
     // unfix lmk1, perturbate state
     lmk1->unfix();
@@ -355,17 +337,13 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
 
 TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
-            S,
-            F1,
-            lmk1,
-            f1,
-            false,
-            FAC_ACTIVE
-    );
-
-    f1->addFactor(constraint);
-    lmk1->addConstrainedBy(constraint);
+    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+                                                              S,
+                                                              F1,
+                                                              lmk1,
+                                                              f1,
+                                                              false,
+                                                              FAC_ACTIVE);
 
     // unfix F1, perturbate state
     lmk1->unfix();
@@ -392,17 +370,13 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
 
 TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
-            S,
-            F1,
-            lmk1,
-            f1,
-            false,
-            FAC_ACTIVE
-    );
-
-    f1->addFactor(constraint);
-    lmk1->addConstrainedBy(constraint);
+    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+                                                              S,
+                                                              F1,
+                                                              lmk1,
+                                                              f1,
+                                                              false,
+                                                              FAC_ACTIVE);
 
     // Change setup
     Vector3s p_w_r, p_r_c, p_c_l, p_w_l;

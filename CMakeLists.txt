@@ -106,7 +106,7 @@ FIND_PACKAGE(wolfvision REQUIRED)
 
 FIND_PACKAGE(Ceres QUIET) #Ceres is not required
 
-
+FIND_PACKAGE(YamlCpp REQUIRED)
 
 FIND_PATH(APRILTAG_INCLUDE_DIR NAMES apriltag.h PATH_SUFFIXES "apriltag" ${APRILTAG_INCLUDE_PATH})
 FIND_LIBRARY(APRILTAGL_LIBRARY NAMES apriltag PATH_SUFFIXES "${CMAKE_LIBRARY_ARCHITECTURE}" "apriltag" ${APRILTAGL_LIBRARY_PATH})
@@ -122,26 +122,25 @@ ENDIF(Ceres_FOUND)
 FIND_PATH(APRILTAG_INCLUDE_DIR NAMES apriltag.h PATH_SUFFIXES "apriltag" ${APRILTAG_INCLUDE_PATH})
 FIND_LIBRARY(APRILTAG_LIBRARY NAMES apriltag PATH_SUFFIXES "${CMAKE_LIBRARY_ARCHITECTURE}" "apriltag" ${APRILTAG_LIBRARY_PATH})
 
-INCLUDE (${PROJECT_SOURCE_DIR}/cmake_modules/FindYamlCpp.cmake)
 IF(YAMLCPP_FOUND)
     MESSAGE("yaml-cpp Library FOUND: yaml-cpp related sources will be built.")
 ELSEIF(YAMLCPP_FOUND)
     MESSAGE("yaml-cpp Library NOT FOUND!")
 ENDIF(YAMLCPP_FOUND)
 
-FIND_PATH(
-    Suitesparse_INCLUDE_DIRS
-    NAMES SuiteSparse_config.h
-    PATHS /usr/include/suitesparse /usr/local/include/suitesparse)
-MESSAGE("Found suitesparse_INCLUDE_DIRS:" ${Suitesparse_INCLUDE_DIRS})
+#FIND_PATH(
+#    Suitesparse_INCLUDE_DIRS
+#    NAMES SuiteSparse_config.h
+#    PATHS /usr/include/suitesparse /usr/local/include/suitesparse)
+#MESSAGE("Found suitesparse_INCLUDE_DIRS:" ${Suitesparse_INCLUDE_DIRS})
 
-IF(Suitesparse_INCLUDE_DIRS)
-   SET(Suitesparse_FOUND TRUE)
-   MESSAGE("Suitesparse FOUND: wolf_solver will be built.")
-ELSE (Suitesparse_INCLUDE_DIRS)
-   SET(Suitesparse_FOUND FALSE)
-   MESSAGE(FATAL_ERROR "Suitesparse NOT FOUND")
-ENDIF (Suitesparse_INCLUDE_DIRS)
+#IF(Suitesparse_INCLUDE_DIRS)
+#   SET(Suitesparse_FOUND TRUE)
+#   MESSAGE("Suitesparse FOUND: wolf_solver will be built.")
+#ELSE (Suitesparse_INCLUDE_DIRS)
+#   SET(Suitesparse_FOUND FALSE)
+#   MESSAGE(FATAL_ERROR "Suitesparse NOT FOUND")
+#ENDIF (Suitesparse_INCLUDE_DIRS)
 
 # Define the directory where will be the configured config.h
 SET(WOLF_CONFIG_DIR ${PROJECT_BINARY_DIR}/conf/${PROJECT_NAME}/internal)
@@ -164,12 +163,12 @@ include_directories("${PROJECT_BINARY_DIR}/conf")
 # ============EXAMPLE==================
 INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${wolf_INCLUDE_DIRS})
-# INCLUDE_DIRECTORIES(${wolf_vision_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${wolfvision_INCLUDE_DIR})
 include_directories(BEFORE "include")
 INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${vision_utils_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${YAMLCPP_INCLUDE_DIR})
 IF(Ceres_FOUND)
     INCLUDE_DIRECTORIES(${CERES_INCLUDE_DIRS})
 ENDIF(Ceres_FOUND)
@@ -276,7 +275,14 @@ ADD_LIBRARY(${PLUGIN_NAME}
   ${SRCS_YAML}
   )
 # set(wolf_vision_LIBRARY "/usr/local/lib/iri-algorithms/libvision.so")
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolf_LIBRARY} ${wolfvision_LIBRARY} ${vision_utils_LIBRARY} ${APRILTAGL_LIBRARY}  ${CMAKE_THREAD_LIBS_INIT} ${OPENCV_LDFLAGS})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${CMAKE_THREAD_LIBS_INIT})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolf_LIBRARY})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${YAMLCPP_LIBRARY})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${OpenCV_LIBS})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${OPENCV_LDFLAGS})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${vision_utils_LIBRARY})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolfvision_LIBRARY})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${APRILTAGL_LIBRARY})
 #Link the created libraries
 #===============EXAMPLE=========================
 # IF (Ceres_FOUND)
@@ -328,8 +334,8 @@ INSTALL(FILES ${HDRS_LANDMARK}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/landmark)
 INSTALL(FILES ${HDRS_WRAPPER}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/ceres_wrapper)
-INSTALL(FILES ${HDRS_SOLVER_SUITESPARSE}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver_suitesparse)
+#INSTALL(FILES ${HDRS_SOLVER_SUITESPARSE}
+#  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver_suitesparse)
 INSTALL(FILES ${HDRS_SOLVER}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver)
 INSTALL(FILES ${HDRS_SERIALIZATION}

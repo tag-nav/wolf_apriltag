@@ -1,32 +1,32 @@
 #edit the following line to add the librarie's header files
 FIND_PATH(
-    wolfapriltag_INCLUDE_DIR
+    wolfapriltag_INCLUDE_DIRS
     NAMES apriltag.found
     PATHS /usr/local/include/iri-algorithms/wolf/plugin_apriltag)
-IF(wolfapriltag_INCLUDE_DIR)
-  MESSAGE("Found wolf apriltag include dirs: ${wolfapriltag_INCLUDE_DIR}")
-ELSE(wolfapriltag_INCLUDE_DIR)
+IF(wolfapriltag_INCLUDE_DIRS)
+  MESSAGE("Found wolf apriltag include dirs: ${wolfapriltag_INCLUDE_DIRS}")
+ELSE(wolfapriltag_INCLUDE_DIRS)
   MESSAGE("Couldn't find wolf apriltag include dirs")
-ENDIF(wolfapriltag_INCLUDE_DIR)
+ENDIF(wolfapriltag_INCLUDE_DIRS)
 FIND_LIBRARY(
-    wolfapriltag_LIBRARY
-    NAMES libwolfapriltag.so
+    wolfapriltag_LIBRARIES
+    NAMES libwolfapriltag.so libwolfapriltag.dylib
     PATHS /usr/local/lib/iri-algorithms)
-IF(wolfapriltag_LIBRARY)
-  MESSAGE("Found wolf apriltag lib: ${wolfapriltag_LIBRARY}")
-ELSE(wolfapriltag_LIBRARY)
+IF(wolfapriltag_LIBRARIES)
+  MESSAGE("Found wolf apriltag lib: ${wolfapriltag_LIBRARIES}")
+ELSE(wolfapriltag_LIBRARIES)
   MESSAGE("Couldn't find wolf apriltag lib")
-ENDIF(wolfapriltag_LIBRARY)
+ENDIF(wolfapriltag_LIBRARIES)
 
-IF (wolfapriltag_INCLUDE_DIR AND wolfapriltag_LIBRARY)
+IF (wolfapriltag_INCLUDE_DIRS AND wolfapriltag_LIBRARIES)
    SET(wolfapriltag_FOUND TRUE)
- ELSE(wolfapriltag_INCLUDE_DIR AND wolfapriltag_LIBRARY)
+ ELSE(wolfapriltag_INCLUDE_DIRS AND wolfapriltag_LIBRARIES)
    set(wolfapriltag_FOUND FALSE)
-ENDIF (wolfapriltag_INCLUDE_DIR AND wolfapriltag_LIBRARY)
+ENDIF (wolfapriltag_INCLUDE_DIRS AND wolfapriltag_LIBRARIES)
 
 IF (wolfapriltag_FOUND)
    IF (NOT wolfapriltag_FIND_QUIETLY)
-      MESSAGE(STATUS "Found wolf apriltag: ${wolfapriltag_LIBRARY}")
+      MESSAGE(STATUS "Found wolf apriltag: ${wolfapriltag_LIBRARIES}")
    ENDIF (NOT wolfapriltag_FIND_QUIETLY)
 ELSE (wolfapriltag_FOUND)
    IF (wolfapriltag_FIND_REQUIRED)
@@ -37,7 +37,7 @@ ENDIF (wolfapriltag_FOUND)
 
 macro(wolf_report_not_found REASON_MSG)
   set(wolfapriltag_FOUND FALSE)
-  unset(wolfapriltag_INCLUDE_DIR)
+  unset(wolfapriltag_INCLUDE_DIRS)
   unset(wolfapriltag_LIBRARIES)
 
   # Reset the CMake module path to its state when this script was called.

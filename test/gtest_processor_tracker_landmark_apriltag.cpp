@@ -1,4 +1,4 @@
-#include "utils_gtest.h"
+#include <core/utils/utils_gtest.h>
 
 #include "core/common/wolf.h"
 #include "core/utils/logging.h"
@@ -82,7 +82,8 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
 
             // minimal config for the processor to be operative
             C1 = std::make_shared<CapturePose>(1.0, sen, Vector7s(), Matrix6s());
-            F1->addCapture(C1);
+            // F1->addCapture(C1);
+            C1->link(F1);
             prc_apr->setOriginPtr(C1);
             prc_apr->setLastPtr(C1);
 
@@ -177,28 +178,33 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, voteForKeyFrame)
     unsigned int min_features_for_keyframe = prc_apr->getMinFeaturesForKeyframe();
     Scalar start_ts = 2.0;
 
-    CaptureBasePtr Ca = std::make_shared<CapturePose>(start_ts, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cb = std::make_shared<CapturePose>(start_ts + min_time_vote/2, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cc = std::make_shared<CapturePose>(start_ts + 2*min_time_vote, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cd = std::make_shared<CapturePose>(start_ts + 2.5*min_time_vote, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Ce = std::make_shared<CapturePose>(start_ts + 3*min_time_vote, sen, Vector7s(), Matrix6s());
+    CaptureBasePtr Ca = CaptureBase::emplace<CapturePose>(F1, start_ts, sen, Vector7s(), Matrix6s());
+    CaptureBasePtr Cb = CaptureBase::emplace<CapturePose>(F1, start_ts + min_time_vote/2, sen, Vector7s(), Matrix6s());
+    CaptureBasePtr Cc = CaptureBase::emplace<CapturePose>(F1, start_ts + 2*min_time_vote, sen, Vector7s(), Matrix6s());
+    CaptureBasePtr Cd = CaptureBase::emplace<CapturePose>(F1, start_ts + 2.5*min_time_vote, sen, Vector7s(), Matrix6s());
+    CaptureBasePtr Ce = CaptureBase::emplace<CapturePose>(F1, start_ts + 3*min_time_vote, sen, Vector7s(), Matrix6s());
 
     for (int i=0; i < min_features_for_keyframe; i++){
         det.id = i;
         FeatureApriltagPtr f = std::make_shared<FeatureApriltag>((Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), i, det, rep_error1, rep_error2, use_rotation);
-        Ca->addFeature(f);
-        Ca->addFeature(f);
-        Cc->addFeature(f);
+        // Ca->addFeature(f);
+        // Ca->addFeature(f);
+        // Cc->addFeature(f);
+        f->link(Ca);
+        f->link(Ca);
+        f->link(Cc);
         if (i != min_features_for_keyframe-1){
-            Cd->addFeature(f);
-            Ce->addFeature(f);
+            // Cd->addFeature(f);
+            // Ce->addFeature(f);
+            f->link(Cd);
+            f->link(Ce);
         }
     }
-    F1->addCapture(Ca);
-    F1->addCapture(Cb);
-    F1->addCapture(Cc);
-    F1->addCapture(Cd);
-    F1->addCapture(Ce);
+    // F1->addCapture(Ca);
+    // F1->addCapture(Cb);
+    // F1->addCapture(Cc);
+    // F1->addCapture(Cd);
+    // F1->addCapture(Ce);
 
     // CASE 1: Not enough time between origin and incoming
     prc_apr->setOriginPtr(Ca);
@@ -289,9 +295,11 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeatures)
 
     // Put some of the features in the graph with createLandmark() and detect some of them as well as others with detectNewFeatures() running again.
     WOLF_WARN("call to function createLandmark() in unit test for detectNewFeatures().")
-    C1->addFeature(f0);
+    // C1->addFeature(f0);
+    f0->link(C1);
     LandmarkBasePtr lmk0 = prc_apr->createLandmark(f0);
-    C1->addFeature(f1);
+    // C1->addFeature(f1);
+    f1->link(C1);
     LandmarkBasePtr lmk1 = prc_apr->createLandmark(f1);
 
     // Add landmarks to the map
@@ -318,7 +326,8 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, createLandmark)
     det.id = 1;
     FeatureApriltagPtr f1 = std::make_shared<FeatureApriltag>(pose_landmark, Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
 
-    C1->addFeature(f1);
+    // C1->addFeature(f1);
+    f1->link(C1);
     LandmarkBasePtr lmk = prc_apr->createLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
     ASSERT_TRUE(lmk_april->getType() == "APRILTAG");
@@ -330,7 +339,8 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, createFactor)
     det.id = 1;
     FeatureApriltagPtr f1 = std::make_shared<FeatureApriltag>((Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
 
-    C1->addFeature(f1);
+    // C1->addFeature(f1);
+    f1->link(C1);
     LandmarkBasePtr lmk = prc_apr->createLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
 
