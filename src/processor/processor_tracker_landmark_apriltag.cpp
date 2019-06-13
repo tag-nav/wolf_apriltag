@@ -241,21 +241,19 @@ void ProcessorTrackerLandmarkApriltag::postProcess()
 
 }
 
-FactorBasePtr ProcessorTrackerLandmarkApriltag::createFactor(FeatureBasePtr _feature_ptr,
+FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
                                                                      LandmarkBasePtr _landmark_ptr)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
-            getSensor(),
-            getLast()->getFrame(),
-            std::static_pointer_cast<LandmarkApriltag>(_landmark_ptr),
-            std::static_pointer_cast<FeatureApriltag> (_feature_ptr ),
-            true,
-            FAC_ACTIVE
-    );
-    return constraint;
+    return FactorBase::emplace<FactorAutodiffApriltag>(_feature_ptr,
+                                                       getSensor(),
+                                                       getLast()->getFrame(),
+                                                       std::static_pointer_cast<LandmarkApriltag>(_landmark_ptr),
+                                                       std::static_pointer_cast<FeatureApriltag> (_feature_ptr ),
+                                                       true,
+                                                       FAC_ACTIVE);
 }
 
-LandmarkBasePtr ProcessorTrackerLandmarkApriltag::createLandmark(FeatureBasePtr _feature_ptr)
+LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr _feature_ptr)
 {
     // world to rob
     Vector3s pos = getLast()->getFrame()->getP()->getState();
@@ -284,18 +282,22 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::createLandmark(FeatureBasePtr 
     FeatureApriltagPtr feat_april = std::static_pointer_cast<FeatureApriltag>(_feature_ptr);
     int tag_id = feat_april->getTagId();
 
-    // LandmarkApriltagPtr new_landmark = std::make_shared<LandmarkApriltag>(w_pose_t, tag_id, getTagWidth(tag_id));
-    // LandmarkApriltagPtr new_landmark = std::static_pointer_cast<LandmarkApriltag>(LandmarkBase::emplace<LandmarkApriltag>(nullptr, w_pose_t, tag_id, getTagWidth(tag_id)));
-    return LandmarkBase::emplace<LandmarkApriltag>(nullptr, w_pose_t, tag_id, getTagWidth(tag_id));
+    return LandmarkBase::emplace<LandmarkApriltag>(getProblem()->getMap(), w_pose_t, tag_id, getTagWidth(tag_id));
 }
 
-unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max_features, FeatureBasePtrList& _new_features_last)
+unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max_new_features,
+                                                                 const CaptureBasePtr& _capture,
+                                                                 FeatureBasePtrList& _features_out)
 {
+    // list of landmarks in the map
     LandmarkBasePtrList& landmark_list = getProblem()->getMap()->getLandmarkList();
     for (auto feature_in_image : detections_last_)
     {
+        // max_new_features reached
+        if (_max_new_features != -1 && _features_out.size() == _max_new_features)
+            break;
+
         bool feature_already_found(false);
-        // list of landmarks in the map
 
         //Loop over the landmark to find is one is associated to  feature_in_image
         for(auto it = landmark_list.begin(); it != landmark_list.end(); ++it){
@@ -307,11 +309,11 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
 
         if (!feature_already_found)
         {
-            for (FeatureBasePtrList::iterator it=_new_features_last.begin(); it != _new_features_last.end(); ++it)
+            for (FeatureBasePtrList::iterator it=_features_out.begin(); it != _features_out.end(); ++it)
                 if (std::static_pointer_cast<FeatureApriltag>(*it)->getTagId() == std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getTagId())
                 {
                     //we have a detection with the same id as the currently processed one. We remove the previous feature from the list for now
-                    _new_features_last.erase(it);
+                    _features_out.erase(it);
                     //it should not be possible two detection with the same id before getting there so we can stop here.
                     break; 
                 }
@@ -320,11 +322,15 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
                 continue;
 
             // If the feature is not in the map & not in the list of newly detected features yet then we add it.
-            _new_features_last.push_back(feature_in_image); 
+            _features_out.push_back(feature_in_image);
+
+            // link feature (they are created unlinked in preprocess())
+            feature_in_image->link(_capture);
+
         } //otherwise we check the next feature
     }
 
-    return _new_features_last.size();
+    return _features_out.size();
 }
 
 bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame()
@@ -378,28 +384,30 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame()
     return vote;
 }
 
-unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBasePtrList& _landmark_list_in,
-                                                             FeatureBasePtrList& _feature_list_out,
+unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBasePtrList& _landmarks_in,
+                                                             const CaptureBasePtr& _capture,
+                                                             FeatureBasePtrList& _features_out,
                                                              LandmarkMatchMap& _feature_landmark_correspondences)
 {   
     for (auto feature_in_image : detections_incoming_)
     {
         int tag_id(std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getTagId());
 
-        for (auto landmark_in_ptr : _landmark_list_in)
+        for (auto landmark_in_ptr : _landmarks_in)
         {
             if(std::static_pointer_cast<LandmarkApriltag>(landmark_in_ptr)->getTagId() == tag_id)
             {
-                _feature_list_out.push_back(feature_in_image);
+                _features_out.push_back(feature_in_image);
                 Scalar score(1.0);
                 LandmarkMatchPtr matched_landmark = std::make_shared<LandmarkMatch>(landmark_in_ptr, score); //TODO: smarter score
                 _feature_landmark_correspondences.emplace ( feature_in_image, matched_landmark );
+                feature_in_image->link(_capture); // since all features are created in preProcess() are unlinked
                 break;
             }
         }
     }
 
-    return _feature_list_out.size();
+    return _features_out.size();
 }
 
 wolf::Scalar ProcessorTrackerLandmarkApriltag::getTagWidth(int _id) const
