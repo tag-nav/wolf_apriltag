@@ -47,6 +47,57 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
     Scalar ippe_max_rep_error_;
 
     bool reestimate_last_frame_;
+    ProcessorParamsTrackerLandmarkApriltag() = default;
+    ProcessorParamsTrackerLandmarkApriltag(std::string _unique_name, const paramsServer& _server):
+        ProcessorParamsTrackerLandmark(_unique_name, _server)
+        {
+            tag_family_ = _server.getParam<std::string>(_unique_name + "/tag_family");
+            tag_width_default_ = _server.getParam<Scalar>(_unique_name + "/tag_width_default");
+            tag_widths_ = _server.getParam<std::map<int, Scalar>>(_unique_name + "/tag_widths");
+            quad_decimate_ = _server.getParam<Scalar>(_unique_name + "/quad_decimate");
+            quad_sigma_ = _server.getParam<Scalar>(_unique_name + "/quad_sigma");
+            nthreads_ = _server.getParam<unsigned int>(_unique_name + "/nthreads");
+            debug_ = _server.getParam<bool>(_unique_name + "/debug");
+            refine_edges_ = _server.getParam<bool>(_unique_name + "/refine_edges");
+            std_xy_ = _server.getParam<Scalar>(_unique_name + "/std_xy");
+            std_z_ = _server.getParam<Scalar>(_unique_name + "/std_z");
+            std_rpy_ = _server.getParam<Scalar>(_unique_name + "/std_rpy");
+            std_pix_ = _server.getParam<Scalar>(_unique_name + "/std_pix");
+            min_time_vote_ = _server.getParam<Scalar>(_unique_name + "/min_time_vote");
+            max_time_vote_ = _server.getParam<Scalar>(_unique_name + "/max_time_vote");
+            max_features_diff_ = _server.getParam<int>(_unique_name + "/max_features_diff");
+            nb_vote_for_every_first_ = _server.getParam<int>(_unique_name + "/nb_vote_for_every_first");
+            enough_info_necessary_ = _server.getParam<bool>(_unique_name + "/enough_info_necessary");
+            add_3D_cstr_ = _server.getParam<bool>(_unique_name + "/add_3D_cstr");
+            ippe_min_ratio_ = _server.getParam<Scalar>(_unique_name + "/ippe_min_ratio");
+            ippe_max_rep_error_ = _server.getParam<Scalar>(_unique_name + "/ippe_max_rep_error");
+            reestimate_last_frame_ = _server.getParam<bool>(_unique_name + "/reestimate_last_frame");
+        }
+    std::string print()
+    {
+        return "\n" + ProcessorParamsTrackerLandmark::print()
+            + "tag_family_: " + tag_family_ + "\n"
+            + "tag_width_default_: " + std::to_string(tag_width_default_) + "\n"
+            + "tag_widths_: " + converter<std::string>::convert(tag_widths_) + "\n"
+            + "quad_decimate_: " + std::to_string(quad_decimate_) + "\n"
+            + "quad_sigma_: " + std::to_string(quad_sigma_) + "\n"
+            + "nthreads_: " + std::to_string(nthreads_) + "\n"
+            + "debug_: " + std::to_string(debug_) + "\n"
+            + "refine_edges_: " + std::to_string(refine_edges_) + "\n"
+            + "std_xy_: " + std::to_string(std_xy_) + "\n"
+            + "std_z_: " + std::to_string(std_z_) + "\n"
+            + "std_rpy_: " + std::to_string(std_rpy_) + "\n"
+            + "std_pix_: " + std::to_string(std_pix_) + "\n"
+            + "min_time_vote_: " + std::to_string(min_time_vote_) + "\n"
+            + "max_time_vote_: " + std::to_string(max_time_vote_) + "\n"
+            + "max_features_diff_: " + std::to_string(max_features_diff_) + "\n"
+            + "nb_vote_for_every_first_: " + std::to_string(nb_vote_for_every_first_) + "\n"
+            + "enough_info_necessary_: " + std::to_string(enough_info_necessary_) + "\n"
+            + "add_3D_cstr_: " + std::to_string(add_3D_cstr_) + "\n"
+            + "ippe_min_ratio_: " + std::to_string(ippe_min_ratio_) + "\n"
+            + "ippe_max_rep_error_: " + std::to_string(ippe_max_rep_error_) + "\n"
+            + "reestimate_last_frame_: " + std::to_string(reestimate_last_frame_) + "\n";
+    }
 };
 
 
