@@ -73,6 +73,8 @@ static ProcessorParamsBasePtr createProcessorParamsLandmarkApriltag(const std::s
         params->reestimate_last_frame_      = config["reestimate_last_frame"]        .as<bool>();
         params->add_3D_cstr_                = config["add_3D_cstr"]                  .as<bool>();
 
+        params->max_new_features            = config["max_new_features"]             .as<int>();
+
         return params;
     }
     else
