@@ -9,7 +9,6 @@
 
 #include "core/math/rotations.h"
 #include "core/state_block/state_quaternion.h"
-#include "core/math/pinhole_tools.h"
 #include "core/factor/factor_autodiff_distance_3D.h"
 
 // April tags

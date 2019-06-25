@@ -39,7 +39,7 @@ vote:
 
 reestimate_last_frame: true   # for a better prior on the new keyframe: use only if no motion processor
 add_3D_cstr: true             # add 3D constraints between the KF so that they do not jump when using apriltag only
-
+max_new_features: -1
 
 # Annexes:
 ### Quad decimate: the higher, the lower the resolution

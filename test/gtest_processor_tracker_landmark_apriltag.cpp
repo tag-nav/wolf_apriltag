@@ -8,6 +8,7 @@
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag.h"
 #include "apriltag/landmark/landmark_apriltag.h"
+#include "apriltag/internal/config.h"
 using namespace Eigen;
 using namespace wolf;
 using std::static_pointer_cast;
@@ -69,7 +70,7 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
     public:
         virtual void SetUp()
         {
-            wolf_root = _WOLF_ROOT_DIR;
+            wolf_root = _WOLF_APRILTAG_ROOT_DIR;
 
             // configure wolf problem
             problem = Problem::create("PO", 3);
