@@ -156,9 +156,8 @@ class FactorAutodiffApriltag_class : public testing::Test{
             // F1 is be origin KF
             F1 = problem->setPrior(pose_robot, Matrix6s::Identity(), 0.0, 0.1);
 
-            //create feature and landmark
+            //emplace capture & set as last and origin
             C1 = std::static_pointer_cast<CaptureImage>(CaptureBase::emplace<CaptureImage>(F1, 1.0, camera, cv::Mat(2,2,CV_8UC1)));
-            // F1-> addCapture(C1);
             proc_apriltag->setOriginPtr(C1);
             proc_apriltag->setLastPtr(C1);
 
@@ -182,21 +181,16 @@ class FactorAutodiffApriltag_class : public testing::Test{
             Scalar rep_error2 = 0.1;
             bool use_rotation = true;
 
-            // f1 = std::make_shared<FeatureApriltag>(pose_landmark, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation);
+            //emplace feature and landmark
             f1 = std::static_pointer_cast<FeatureApriltag>(FeatureBase::emplace<FeatureApriltag>(C1, pose_landmark, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation));
-            // lmk1 = std::static_pointer_cast<LandmarkApriltag>(proc_apriltag->createLandmark(f1));
-            lmk1 = std::static_pointer_cast<LandmarkApriltag>(proc_apriltag->createLandmark(f1));
-            lmk1->link(problem->getMap());
-            // Add the feature and the landmark in the graph as needed
-            // C1->addFeature(f1); // add feature to capture
-            // problem->addLandmark(lmk1); // add landmark to map
+            lmk1 = std::static_pointer_cast<LandmarkApriltag>(proc_apriltag->emplaceLandmark(f1));
         }
 };
 
 
 TEST_F(FactorAutodiffApriltag_class, Constructor)
 {
-    FactorAutodiffApriltagPtr constraint = std::make_shared<FactorAutodiffApriltag>(
+    FactorAutodiffApriltagPtr factor = std::make_shared<FactorAutodiffApriltag>(
             S,
             F1,
             lmk1,
@@ -205,7 +199,7 @@ TEST_F(FactorAutodiffApriltag_class, Constructor)
             FAC_ACTIVE
     );
 
-    ASSERT_TRUE(constraint->getType() == "AUTODIFF APRILTAG");
+    ASSERT_TRUE(factor->getType() == "AUTODIFF APRILTAG");
 }
 
 TEST_F(FactorAutodiffApriltag_class, Check_tree)
