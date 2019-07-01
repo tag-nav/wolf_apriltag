@@ -13,6 +13,7 @@
 #include "core/utils/logging.h"
 
 #include "apriltag/landmark/landmark_apriltag.h"
+#include "apriltag/internal/config.h"
 
 using namespace Eigen;
 using namespace wolf;
@@ -22,7 +23,7 @@ class LandmarkApriltag_class : public testing::Test{
     public:
         virtual void SetUp()
         {
-            wolf_root = _WOLF_ROOT_DIR;
+            wolf_root = _WOLF_APRILTAG_ROOT_DIR;
             problem = Problem::create("PO", 3);
         }
     public:

@@ -10,6 +10,7 @@
 
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/factor/factor_autodiff_apriltag.h"
+#include "apriltag/internal/config.h"
 
 #include <apriltag/apriltag.h>
 
@@ -81,7 +82,7 @@ class FactorAutodiffApriltag_class : public testing::Test{
 
         virtual void SetUp()
         {
-            std::string wolf_root = _WOLF_ROOT_DIR;
+            std::string wolf_root = _WOLF_APRILTAG_ROOT_DIR;
 
             // configuration
 
