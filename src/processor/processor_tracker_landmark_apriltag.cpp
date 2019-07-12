@@ -289,7 +289,7 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
                                                                  FeatureBasePtrList& _features_out)
 {
     // list of landmarks in the map
-    LandmarkBasePtrList& landmark_list = getProblem()->getMap()->getLandmarkList();
+    const LandmarkBasePtrList& landmark_list = getProblem()->getMap()->getLandmarkList();
     for (auto feature_in_image : detections_last_)
     {
         // max_new_features reached

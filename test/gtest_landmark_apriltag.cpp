@@ -71,7 +71,7 @@ TEST_F(LandmarkApriltag_class, saveToYaml)
     problem->saveMap(wolf_root + "/demos/map_apriltag_save.yaml"); // this will call saveToYaml()
 
     // delete existing map
-    problem->getMap()->getLandmarkList().clear();
+    while(!problem->getMap()->getLandmarkList().empty()) problem->getMap()->getLandmarkList().front()->remove();
     ASSERT_EQ(problem->getMap()->getLandmarkList().size(), 0);
 
     // reload the saved map
