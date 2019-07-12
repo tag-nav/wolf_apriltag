@@ -117,8 +117,8 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
          */
         virtual ~ProcessorTrackerLandmarkApriltag();
 
-        void preProcess();
-        void postProcess();
+        void preProcess() override;
+        void postProcess() override;
 
         /** \brief Find provided landmarks as features in the provided capture
          * \param _landmarks_in input list of landmarks to be found
@@ -140,7 +140,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
          *
          * WARNING! This function only votes! It does not create KeyFrames!
          */
-        virtual bool voteForKeyFrame();
+        virtual bool voteForKeyFrame() override;
 
         /** \brief Detect new Features
          * \param _max_features maximum number of features detected (-1: unlimited. 0: none)
@@ -160,15 +160,15 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         /** \brief Emplace one landmark
          *
          */
-        virtual LandmarkBasePtr emplaceLandmark(FeatureBasePtr _feature_ptr);
+        virtual LandmarkBasePtr emplaceLandmark(FeatureBasePtr _feature_ptr) override;
 
         /** \brief Emplace a new factor
          * \param _feature_ptr pointer to the Feature
          * \param _landmark_ptr LandmarkBase pointer to the Landmark.
          */
-        virtual FactorBasePtr emplaceFactor(FeatureBasePtr _feature_ptr, LandmarkBasePtr _landmark_ptr);
+        virtual FactorBasePtr emplaceFactor(FeatureBasePtr _feature_ptr, LandmarkBasePtr _landmark_ptr) override;
 
-        virtual void configure(SensorBasePtr _sensor);
+        virtual void configure(SensorBasePtr _sensor) override;
 
         void reestimateLastFrame();
 
@@ -197,8 +197,8 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
                            Eigen::Isometry3ds &_M);
 
     protected:
-        void advanceDerived();
-        void resetDerived();
+        void advanceDerived() override;
+        void resetDerived() override;
 
     private:
         std::map<int, Scalar> tag_widths_;  ///< each tag's width indexed by tag_id
