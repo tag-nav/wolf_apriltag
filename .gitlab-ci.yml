@@ -1,6 +1,32 @@
 image: segaleran/ceres
 
 before_script:
+  ##
+  ## Install ssh-agent if not already installed, it is required by Docker.
+  ## (change apt-get to yum if you use an RPM-based image)
+  ##
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+
+  ##
+  ## Run ssh-agent (inside the build environment)
+  ##
+  - eval $(ssh-agent -s)
+
+  ##
+  ## Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+  ## We're using tr to fix line endings which makes ed25519 keys work
+  ## without extra base64 encoding.
+  ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
+  ##
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh  
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  # - echo "$SSH_KNOWN_HOSTS" > $HOME/.ssh/known_hosts
+  - ssh-keyscan -H -p 2202 gitlab.iri.upc.edu >> $HOME/.ssh/known_hosts
+
+  ##
+  ## Create the SSH directory and give it the right permissions
+  ##
   - ls
   - apt-get update
   - apt-get install -y build-essential cmake 
@@ -54,6 +80,16 @@ before_script:
   - cd build
   - ls
   - cmake -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC" -DYAML_CPP_BUILD_TESTS=OFF ..
+  - make install
+  - cd ../..
+#Wolf core
+  - git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/wolf.git
+  - cd wolf
+  - mkdir -pv build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
+  - make -j$(nproc)
+  - ctest -j$(nproc)
   - make install
   - cd ../..
 
