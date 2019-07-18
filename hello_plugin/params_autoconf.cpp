@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     if(argc > 1) file = argv[1];
     parserYAML parser = parserYAML(file);
     parser.parse();
-    paramsServer server = paramsServer(parser.getParams(), parser.sensorsSerialization(), parser.processorsSerialization());
+    ParamsServer server = ParamsServer(parser.getParams(), parser.sensorsSerialization(), parser.processorsSerialization());
     cout << "PRINTING SERVER MAP" << endl;
     server.print();
     cout << "-----------------------------------" << endl;

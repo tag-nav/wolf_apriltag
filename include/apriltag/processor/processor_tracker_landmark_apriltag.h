@@ -48,7 +48,7 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
 
     bool reestimate_last_frame_;
     ProcessorParamsTrackerLandmarkApriltag() = default;
-    ProcessorParamsTrackerLandmarkApriltag(std::string _unique_name, const paramsServer& _server):
+    ProcessorParamsTrackerLandmarkApriltag(std::string _unique_name, const ParamsServer& _server):
         ProcessorParamsTrackerLandmark(_unique_name, _server)
         {
             tag_family_ = _server.getParam<std::string>(_unique_name + "/tag_family");
