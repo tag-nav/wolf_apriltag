@@ -102,5 +102,6 @@ wolf_build_and_test:
     - cd build
     - ls # we can check whether the directory was already full
     - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-    - make
-    - ctest
+    - make -j$(nproc)
+    - ctest -j$(nproc)
+    - make install
