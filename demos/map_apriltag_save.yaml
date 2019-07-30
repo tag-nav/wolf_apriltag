@@ -1,8 +1,0 @@
-map name: Map automatically saved by Wolf
-date-time: 18/07/2019 at 11:36:32
-nlandmarks: 4
-landmarks:
-  - {position: [0, 0, 0], id: 1, type: APRILTAG, position fixed: true, tag width: 0.1, tag id: 1, orientation fixed: true, orientation: [0, 0, 0, 1]}
-  - {position fixed: true, position: [1, 1, 0], orientation: [0, 0, 0, 1], id: 3, tag width: 0.1, tag id: 3, type: APRILTAG, orientation fixed: true}
-  - {position: [1, 0, 0], type: APRILTAG, id: 5, orientation fixed: true, position fixed: true, tag width: 0.1, orientation: [0, 0, 0, 1], tag id: 5}
-  - {position fixed: true, id: 2, position: [0, 1, 0], orientation: [0, 0, 0, 1], tag id: 2, type: APRILTAG, orientation fixed: true, tag width: 0.1}
