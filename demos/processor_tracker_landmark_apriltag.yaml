@@ -1,5 +1,4 @@
-processor type: "TRACKER LANDMARK APRILTAG"
-processor name: "tracker landmark apriltag example"
+type: "TRACKER LANDMARK APRILTAG"
 
 detector parameters: 
     quad_decimate:  1.5      # doing quad detection at lower resolution to speed things up (see end of file)

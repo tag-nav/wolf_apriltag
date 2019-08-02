@@ -28,7 +28,7 @@ static ProcessorParamsBasePtr createProcessorParamsLandmarkApriltag(const std::s
         WOLF_ERROR("Invalid YAML file!");
         return nullptr;
     }
-    else if (config["processor type"].as<std::string>() == "TRACKER LANDMARK APRILTAG")
+    else if (config["type"].as<std::string>() == "TRACKER LANDMARK APRILTAG")
     {
         ProcessorParamsTrackerLandmarkApriltagPtr params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
 
