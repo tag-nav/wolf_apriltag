@@ -107,16 +107,14 @@ ProcessorTrackerLandmarkApriltag::~ProcessorTrackerLandmarkApriltag()
 }
 
 
-ProcessorBasePtr ProcessorTrackerLandmarkApriltag::create(const std::string& _unique_name, const ProcessorParamsBasePtr _params, const SensorBasePtr _sen_ptr)
+ProcessorBasePtr ProcessorTrackerLandmarkApriltag::create(const std::string& _unique_name, const ProcessorParamsBasePtr _params)
 {
-    std::shared_ptr<ProcessorParamsTrackerLandmarkApriltag> prc_apriltag_params;
-    if (_params)
-        prc_apriltag_params = std::static_pointer_cast<ProcessorParamsTrackerLandmarkApriltag>(_params);
-    else
-        prc_apriltag_params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
+    auto prc_apriltag_params = std::static_pointer_cast<ProcessorParamsTrackerLandmarkApriltag>(_params);
 
-    ProcessorTrackerLandmarkApriltagPtr prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag>(prc_apriltag_params);
+    auto prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag>(prc_apriltag_params);
+
     prc_ptr->setName(_unique_name);
+
     return prc_ptr;
 }
 

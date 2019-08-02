@@ -37,16 +37,14 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         void setIncomingPtr  (const CaptureBasePtr _incoming_ptr)   { incoming_ptr_ = _incoming_ptr; }
 
         // for factory
-        static ProcessorBasePtr create(const std::string& _unique_name, const ProcessorParamsBasePtr _params, const SensorBasePtr sensor_ptr = nullptr)
+        static ProcessorBasePtr create(const std::string& _unique_name, const ProcessorParamsBasePtr _params)
         {
-            std::shared_ptr<ProcessorParamsTrackerLandmarkApriltag> prc_apriltag_params_;
-            if (_params)
-                prc_apriltag_params_ = std::static_pointer_cast<ProcessorParamsTrackerLandmarkApriltag>(_params);
-            else
-                prc_apriltag_params_ = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
+            auto prc_apriltag_params_ = std::static_pointer_cast<ProcessorParamsTrackerLandmarkApriltag>(_params);
 
-            ProcessorTrackerLandmarkApriltag_WrapperPtr prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag_Wrapper>(prc_apriltag_params_);
+            auto prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag_Wrapper>(prc_apriltag_params_);
+
             prc_ptr->setName(_unique_name);
+
             return prc_ptr;
         }
 

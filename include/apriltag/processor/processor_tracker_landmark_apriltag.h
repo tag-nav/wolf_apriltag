@@ -173,7 +173,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         void reestimateLastFrame();
 
         // for factory
-        static ProcessorBasePtr create(const std::string& _unique_name, const ProcessorParamsBasePtr _params, const SensorBasePtr sensor_ptr = nullptr);
+        static ProcessorBasePtr create(const std::string& _unique_name, const ProcessorParamsBasePtr _params);
 
     public:
         Scalar getTagWidth(int _id) const;
