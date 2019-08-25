@@ -140,7 +140,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
          *
          * WARNING! This function only votes! It does not create KeyFrames!
          */
-        virtual bool voteForKeyFrame() override;
+        virtual bool voteForKeyFrame() const override;
 
         /** \brief Detect new Features
          * \param _max_features maximum number of features detected (-1: unlimited. 0: none)

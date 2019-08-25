@@ -235,7 +235,7 @@ void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *
 
 void ProcessorTrackerLandmarkApriltag::postProcess()
 {
-
+    nb_vote_++;
 }
 
 FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
@@ -330,13 +330,12 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
     return _features_out.size();
 }
 
-bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame()
+bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
 {   
     // Necessary conditions
     bool more_in_last = getLast()->getFeatureList().size() >= min_features_for_keyframe_;
     // Vote for every image processed at the beginning, bypasses the others
     if (more_in_last && (nb_vote_ < nb_vote_for_every_first_)){
-        nb_vote_++;
         return true;
     }
     // Check if enough information is provided by the measurements to determine uniquely the position of the KF
