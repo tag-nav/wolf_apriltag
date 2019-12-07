@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
 
     WOLF_INFO( "====================    Configure Problem      ======================" )
-    Eigen::Vector7s cam_extrinsics; cam_extrinsics << 0,0,0,  0,0,0,1;
+    Eigen::Vector7d cam_extrinsics; cam_extrinsics << 0,0,0,  0,0,0,1;
     SensorBasePtr sen       = problem->installSensor("CAMERA", "camera", cam_extrinsics, wolf_root + "/src/examples/camera_logitech_c300_640_480.yaml");
 //    SensorBasePtr sen       = problem->installSensor("CAMERA", "camera", cam_extrinsics, wolf_root + "/src/examples/camera_Dinesh_LAAS_params_notangentrect.yaml");
     SensorCameraPtr sen_cam = std::static_pointer_cast<SensorCamera>(sen);
@@ -76,9 +76,9 @@ int main(int argc, char *argv[])
     }
 
     // set prior
-    Eigen::Matrix6s covariance = Matrix6s::Identity();
-    Scalar std_m;
-    Scalar std_deg;
+    Eigen::Matrix6d covariance = Matrix6d::Identity();
+    double std_m;
+    double std_deg;
     if (USEMAP){
         std_m   = 100;  // standard deviation on original translation
         std_deg = 180;  // standard deviation on original rotation
@@ -92,10 +92,10 @@ int main(int argc, char *argv[])
     covariance.bottomRightCorner(3,3)   = (M_TORAD*std_deg)*(M_TORAD*std_deg) * covariance.bottomRightCorner(3,3);
 
     if (USEMAP){
-        FrameBasePtr F1 = problem->setPrior((Vector7s()<<0.08, 0.15, -0.75, 0, 0, 0, 1).finished(), covariance, 0.0, 0.1);
+        FrameBasePtr F1 = problem->setPrior((Vector7d()<<0.08, 0.15, -0.75, 0, 0, 0, 1).finished(), covariance, 0.0, 0.1);
     }
     else {
-        FrameBasePtr F1 = problem->setPrior((Vector7s()<<0,0,0,0,0,0,1).finished(), covariance, 0.0, 0.1);
+        FrameBasePtr F1 = problem->setPrior((Vector7d()<<0,0,0,0,0,0,1).finished(), covariance, 0.0, 0.1);
         F1->fix();
     }
 
@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
     const int inputs = argc -1;
     WOLF_DEBUG("nb of images: ", inputs);
     cv::Mat frame;
-    Scalar ts(0);
-    Scalar dt = 1;
+    double ts(0);
+    double dt = 1;
 
     WOLF_INFO( "====================        Main loop       ======================" )
     for (int input = 1; input <= inputs; input++) {
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
         if( frame.data ){ //if imread succeeded
 
             if (APPLY_CONTRAST){
-                Scalar alpha = 2.0; // to tune contrast  [1-3]
+                double alpha = 2.0; // to tune contrast  [1-3]
                 int beta = 0;       // to tune lightness [0-100]
                 // Do the operation new_image(i,j) = alpha*image(i,j) + beta
                 for( int y = 0; y < frame.rows; y++ ){
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 //    WOLF_INFO( "====================    Provide perturbed prior    ======================" )
 //    for (auto kf : problem->getTrajectory()->getFrameList())
 //    {
-//        Vector7s x;
+//        Vector7d x;
 //        if (kf->isKey())
 //        {
 //            x.setRandom();
@@ -198,18 +198,18 @@ int main(int argc, char *argv[])
             {
                 if (cap->getType() != "POSE")
                 {
-                    Vector3s T = kf->getP()->getState();
-                    Vector4s qv= kf->getO()->getState();
-                    Vector3s e = M_TODEG * R2e(q2R(qv));
+                    Vector3d T = kf->getP()->getState();
+                    Vector4d qv= kf->getO()->getState();
+                    Vector3d e = M_TODEG * R2e(q2R(qv));
                     WOLF_DEBUG("KF", kf->id(), " => ", T.transpose(), " | ", e.transpose());
                 }
             }
     }
     for (auto lmk : problem->getMap()->getLandmarkList())
     {
-        Vector3s T = lmk->getP()->getState();
-        Vector4s qv= lmk->getO()->getState();
-        Vector3s e = M_TODEG * R2e(q2R(qv));
+        Vector3d T = lmk->getP()->getState();
+        Vector4d qv= lmk->getO()->getState();
+        Vector3d e = M_TODEG * R2e(q2R(qv));
         WOLF_DEBUG(" L", lmk->id(), " => ", T.transpose(), " | ", e.transpose());
     }
 
@@ -223,12 +223,12 @@ int main(int argc, char *argv[])
     for (auto kf : problem->getTrajectory()->getFrameList())
         if (kf->isKey())
         {
-            Eigen::MatrixXs cov = kf->getCovariance();
+            Eigen::MatrixXd cov = kf->getCovariance();
             WOLF_DEBUG("KF", kf->id(), "_std (sigmas) = ", cov.diagonal().transpose().array().sqrt());
         }
     for (auto lmk : problem->getMap()->getLandmarkList())
     {
-        Eigen::MatrixXs cov = lmk->getCovariance();
+        Eigen::MatrixXd cov = lmk->getCovariance();
         WOLF_DEBUG(" L", lmk->id(), "_std (sigmas) = ", cov.diagonal().transpose().array().sqrt());
     }
     std::cout << std::endl;

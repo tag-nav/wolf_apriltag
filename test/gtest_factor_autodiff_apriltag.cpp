@@ -58,11 +58,11 @@ WOLF_REGISTER_PROCESSOR("TRACKER LANDMARK APRILTAG WRAPPER", ProcessorTrackerLan
 // Use the following in case you want to initialize tests with predefines variables or methods.
 class FactorAutodiffApriltag_class : public testing::Test{
     public:
-        Vector3s    pos_camera,   pos_robot,   pos_landmark;
-        Vector3s    euler_camera, euler_robot, euler_landmark;
-        Quaternions quat_camera,  quat_robot,  quat_landmark;
-        Vector4s    vquat_camera, vquat_robot, vquat_landmark; // quaternions as vectors
-        Vector7s    pose_camera,  pose_robot,  pose_landmark;
+        Vector3d    pos_camera,   pos_robot,   pos_landmark;
+        Vector3d    euler_camera, euler_robot, euler_landmark;
+        Quaterniond quat_camera,  quat_robot,  quat_landmark;
+        Vector4d    vquat_camera, vquat_robot, vquat_landmark; // quaternions as vectors
+        Vector7d    pose_camera,  pose_robot,  pose_landmark;
 
         ProblemPtr      problem;
         CeresManagerPtr ceres_manager;
@@ -153,7 +153,7 @@ class FactorAutodiffApriltag_class : public testing::Test{
             proc_apriltag = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(proc);
 
             // F1 is be origin KF
-            F1 = problem->setPrior(pose_robot, Matrix6s::Identity(), 0.0, 0.1);
+            F1 = problem->setPrior(pose_robot, Matrix6d::Identity(), 0.0, 0.1);
 
             //emplace capture & set as last and origin
             C1 = std::static_pointer_cast<CaptureImage>(CaptureBase::emplace<CaptureImage>(F1, 1.0, camera, cv::Mat(2,2,CV_8UC1)));
@@ -161,7 +161,7 @@ class FactorAutodiffApriltag_class : public testing::Test{
             proc_apriltag->setLastPtr(C1);
 
             // the sensor is at origin as well as the robot. The measurement matches with the pose of the tag wrt camera (and also wrt robot and world)
-            Eigen::Matrix6s meas_cov(Eigen::Matrix6s::Identity());
+            Eigen::Matrix6d meas_cov(Eigen::Matrix6d::Identity());
             meas_cov.topLeftCorner(3,3)     *= 1e-2;
             meas_cov.bottomRightCorner(3,3) *= 1e-3;
             int tag_id = 1;
@@ -176,8 +176,8 @@ class FactorAutodiffApriltag_class : public testing::Test{
             det.p[3][0] = -1.0;
             det.p[3][1] = -1.0;
 
-            Scalar rep_error1 = 0.01;
-            Scalar rep_error2 = 0.1;
+            double rep_error1 = 0.01;
+            double rep_error2 = 0.1;
             bool use_rotation = true;
 
             //emplace feature and landmark
@@ -226,10 +226,10 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
 
     // unfix F1, perturbate state
     F1->unfix();
-    Vector3s p0 = Vector3s::Random() * 0.25;
+    Vector3d p0 = Vector3d::Random() * 0.25;
 //    WOLF_DEBUG("Perturbation: ")
 //    WOLF_DEBUG(p0.transpose());
-    Vector7s x0(pose_robot);
+    Vector7d x0(pose_robot);
 
     x0.head<3>() += p0;
     WOLF_DEBUG("State before perturbation: ");
@@ -258,12 +258,12 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
 
     // unfix F1, perturbate state
     F1->unfix();
-    Vector3s e0 = euler_robot + Vector3s::Random() * 0.25;
-    Quaternions e0_quat     = e2q(e0);
-    Vector4s e0_vquat = e0_quat.coeffs();
+    Vector3d e0 = euler_robot + Vector3d::Random() * 0.25;
+    Quaterniond e0_quat     = e2q(e0);
+    Vector4d e0_vquat = e0_quat.coeffs();
 //    WOLF_DEBUG("Perturbation: ")
 //    WOLF_DEBUG(e0.transpose());
-    Vector7s x0(pose_robot);
+    Vector7d x0(pose_robot);
 
     x0.tail<4>() = e0_vquat;
     WOLF_DEBUG("State before perturbation: ");
@@ -308,10 +308,10 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
 
     // unfix lmk1, perturbate state
     lmk1->unfix();
-    Vector3s p0 = Vector3s::Random() * 0.25;
+    Vector3d p0 = Vector3d::Random() * 0.25;
 //    WOLF_DEBUG("Perturbation: ")
 //    WOLF_DEBUG(p0.transpose());
-    Vector7s x0(pose_landmark);
+    Vector7d x0(pose_landmark);
 
     x0.head<3>() += p0;
     //WOLF_DEBUG("Landmark state before perturbation: ");
@@ -340,9 +340,9 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
 
     // unfix F1, perturbate state
     lmk1->unfix();
-    Vector3s e0 = euler_landmark + Vector3s::Random() * 0.25;
-    Quaternions e0_quat     = e2q(e0);
-    Vector4s e0_vquat = e0_quat.coeffs();
+    Vector3d e0 = euler_landmark + Vector3d::Random() * 0.25;
+    Quaterniond e0_quat     = e2q(e0);
+    Vector4d e0_vquat = e0_quat.coeffs();
 //    WOLF_DEBUG("Perturbation: ")
 //    WOLF_DEBUG(e0.transpose());
 
@@ -372,8 +372,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
                                                               FAC_ACTIVE);
 
     // Change setup
-    Vector3s p_w_r, p_r_c, p_c_l, p_w_l;
-    Quaternions q_w_r, q_r_c, q_c_l, q_w_l;
+    Vector3d p_w_r, p_r_c, p_c_l, p_w_l;
+    Quaterniond q_w_r, q_r_c, q_c_l, q_w_l;
     p_w_r << 1, 2, 3;
     p_r_c << 4, 5, 6;
     p_c_l << 7, 8, 9;
@@ -385,7 +385,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
     p_w_l = p_w_r + q_w_r * (p_r_c + q_r_c * p_c_l);
 
     // Change feature
-    Vector7s meas;
+    Vector7d meas;
     meas << p_c_l, q_c_l.coeffs();
     f1->setMeasurement(meas);
 
@@ -414,7 +414,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
     ASSERT_TRUE(S->getP()->stateUpdated());
     ASSERT_TRUE(S->getO()->stateUpdated());
 
-    Vector7s t_w_r, t_w_l;
+    Vector7d t_w_r, t_w_l;
     t_w_r << p_w_r, q_w_r.coeffs();
     t_w_l << p_w_l, q_w_l.coeffs();
     ASSERT_MATRIX_APPROX(F1->getState(), t_w_r, 1e-6);
@@ -422,8 +422,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
 
     // unfix LMK, perturbate state
     lmk1->unfix();
-    Vector3s e0_pos = p_w_l + Vector3s::Random() * 0.25;
-    Quaternions e0_quat = q_w_l * exp_q(Vector3s::Random() * 0.1);
+    Vector3d e0_pos = p_w_l + Vector3d::Random() * 0.25;
+    Quaterniond e0_quat = q_w_l * exp_q(Vector3d::Random() * 0.1);
     lmk1->getP()->setState(e0_pos);
     lmk1->getO()->setState(e0_quat.coeffs());
     ASSERT_TRUE(lmk1->getP()->stateUpdated());

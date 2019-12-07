@@ -62,12 +62,12 @@ int main(int argc, char** argv) {
     }
 
     problem->print(4,1,1,1);
-    Vector2s motion_data(1.0, 0.0);                     // Will advance 1m at each keyframe, will not turn.
-    Matrix2s motion_cov = 0.1 * Matrix2s::Identity();
+    Vector2d motion_data(1.0, 0.0);                     // Will advance 1m at each keyframe, will not turn.
+    Matrix2d motion_cov = 0.1 * Matrix2d::Identity();
 
     // landmark observations data
     VectorXi ids;
-    VectorXs ranges, bearings;
+    VectorXd ranges, bearings;
 
 
     // SET OF EVENTS =======================================================
@@ -84,8 +84,8 @@ int main(int argc, char** argv) {
 
     // initialize
     TimeStamp   t(0.0);                     // t : 0.0
-    Vector3s    x(0,0,0);
-    Matrix3s    P = Matrix3s::Identity() * 0.1;
+    Vector3d    x(0,0,0);
+    Matrix3d    P = Matrix3d::Identity() * 0.1;
     problem->setPrior(x, P, t, 0.5);             // KF1 : (0,0,0)
     auto sensor_rb = sensorMap.find("rb")->second;
     // observe lmks
@@ -141,16 +141,16 @@ int main(int argc, char** argv) {
     for (auto sen : problem->getHardware()->getSensorList())
         for (auto sb : sen->getStateBlockVec())
             if (sb && !sb->isFixed())
-                sb->setState(sb->getState() + VectorXs::Random(sb->getSize()) * 0.5);       // We perturb A LOT !
+                sb->setState(sb->getState() + VectorXd::Random(sb->getSize()) * 0.5);       // We perturb A LOT !
     for (auto kf : problem->getTrajectory()->getFrameList())
         if (kf->isKey())
             for (auto sb : kf->getStateBlockVec())
                 if (sb && !sb->isFixed())
-                    sb->setState(sb->getState() + VectorXs::Random(sb->getSize()) * 0.5);   // We perturb A LOT !
+                    sb->setState(sb->getState() + VectorXd::Random(sb->getSize()) * 0.5);   // We perturb A LOT !
     for (auto lmk : problem->getMap()->getLandmarkList())
         for (auto sb : lmk->getStateBlockVec())
             if (sb && !sb->isFixed())
-                sb->setState(sb->getState() + VectorXs::Random(sb->getSize()) * 0.5);       // We perturb A LOT !
+                sb->setState(sb->getState() + VectorXd::Random(sb->getSize()) * 0.5);       // We perturb A LOT !
     problem->print(1,0,1,0);
 
     // SOLVE again
@@ -165,11 +165,11 @@ int main(int argc, char** argv) {
     for (auto kf : problem->getTrajectory()->getFrameList()){
         if (kf->isKey())
             {
-                Eigen::MatrixXs cov;
+                Eigen::MatrixXd cov;
                 WOLF_TRACE("KF", kf->id(), "_cov = \n", kf->getCovariance(cov));
             }
         for (auto lmk : problem->getMap()->getLandmarkList()) {
-            Eigen::MatrixXs cov;
+            Eigen::MatrixXd cov;
             WOLF_TRACE("L", lmk->id(), "_cov = \n", lmk->getCovariance(cov));
         }
     }

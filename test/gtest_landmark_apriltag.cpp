@@ -33,21 +33,21 @@ class LandmarkApriltag_class : public testing::Test{
 
 TEST(LandmarkApriltag, getTagId)
 {
-    Vector7s p;
+    Vector7d p;
     LandmarkApriltagPtr l = std::make_shared<LandmarkApriltag>(p, 5, 0.2); // pose, tag_id, tag_width
     ASSERT_EQ(l->getTagId(), 5);
 }
 
 TEST(LandmarkApriltag, getTagWidth)
 {
-    Vector7s p;
+    Vector7d p;
     LandmarkApriltagPtr l = std::make_shared<LandmarkApriltag>(p, 5, 0.2); // pose, tag_id, tag_width
     ASSERT_EQ(l->getTagWidth(), 0.2);
 }
 
 TEST(LandmarkApriltag, getPose)
 {
-    Vector7s p;
+    Vector7d p;
     p << 0,0,0, 0,0,0,1;
     LandmarkApriltagPtr l = std::make_shared<LandmarkApriltag>(p, 5, 0.2); // pose, tag_id, tag_width
     ASSERT_MATRIX_APPROX(l->getState(), p, 1e-6);

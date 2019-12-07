@@ -43,8 +43,8 @@ class FactorAutodiffApriltag : public FactorAutodiff<FactorAutodiffApriltag, 6, 
                           const T* const _o_landmark, 
                           T* _residuals) const;
 
-        Eigen::Vector6s residual() const;
-        Scalar cost() const;
+        Eigen::Vector6d residual() const;
+        double cost() const;
 
         // print function only for double (not Jet)
         template<typename T, int Rows, int Cols>
@@ -53,7 +53,7 @@ class FactorAutodiffApriltag : public FactorAutodiff<FactorAutodiffApriltag, 6, 
             // jet prints nothing
         }
         template<int Rows, int Cols>
-        void print(int kf, int lmk, const std::string s, const Eigen::Matrix<Scalar, Rows, Cols> _M) const
+        void print(int kf, int lmk, const std::string s, const Eigen::Matrix<double, Rows, Cols> _M) const
         {
             // double prints stuff
             WOLF_TRACE("KF", kf, " L", lmk, "; ", s, _M);
@@ -116,8 +116,8 @@ template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p
     Eigen::Matrix<T,3,1> p_c_l = q_c_w * (-(p_w_r + q_w_r * p_r_c) + p_w_l);
 
     // Measurement
-    Eigen::Vector3s      p_c_l_meas(getMeasurement().head<3>());
-    Eigen::Quaternions   q_c_l_meas(getMeasurement().data() + 3 );
+    Eigen::Vector3d      p_c_l_meas(getMeasurement().head<3>());
+    Eigen::Quaterniond   q_c_l_meas(getMeasurement().data() + 3 );
     Eigen::Quaternion<T> q_l_c_meas = q_c_l_meas.conjugate().cast<T>();
     //Eigen::Matrix<T,3,1> p_l_c_meas = -q_l_c_meas * p_c_l_meas.cast<T>();
 
@@ -139,8 +139,8 @@ template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p
                          q_landmark (_o_landmark);
 
     //Measurements T and Q
-    Eigen::Translation3ds  p_measured(getMeasurement().head(3));
-    Eigen::Quaternions     q_measured(getMeasurement().data() + 3 );
+    Eigen::Translation3d  p_measured(getMeasurement().head(3));
+    Eigen::Quaterniond     q_measured(getMeasurement().data() + 3 );
     // landmark wrt camera, measure
     Eigen::Transform<T, 3, Eigen::Isometry> c_M_l_meas = p_c_l_meas.cast<T>() * q_measured.cast<T>();
 
@@ -185,10 +185,10 @@ template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p
     return true;
 }
 
-Eigen::Vector6s FactorAutodiffApriltag::residual() const
+Eigen::Vector6d FactorAutodiffApriltag::residual() const
 {
-    Eigen::Vector6s res;
-    Scalar * p_camera, * o_camera, * p_frame, * o_frame, * p_tag, * o_tag;
+    Eigen::Vector6d res;
+    double * p_camera, * o_camera, * p_frame, * o_frame, * p_tag, * o_tag;
     p_camera = getCapture()->getSensorP()->getState().data();
     o_camera = getCapture()->getSensorO()->getState().data();
     p_frame  = getCapture()->getFrame()->getP()->getState().data();
@@ -201,7 +201,7 @@ Eigen::Vector6s FactorAutodiffApriltag::residual() const
     return res;
 }
 
-Scalar FactorAutodiffApriltag::cost() const
+double FactorAutodiffApriltag::cost() const
 {
     return residual().squaredNorm();
 }

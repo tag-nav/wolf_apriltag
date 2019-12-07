@@ -32,7 +32,7 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         void setLastPtr  (const CaptureBasePtr _last_ptr)   { last_ptr_ = _last_ptr; }
         void setIncomingPtr  (const CaptureBasePtr _incoming_ptr)   { incoming_ptr_ = _incoming_ptr; }
         unsigned int getMinFeaturesForKeyframe (){return min_features_for_keyframe_;}
-        Scalar getMinTimeVote (){return min_time_vote_;}
+        double getMinTimeVote (){return min_time_vote_;}
         void setIncomingDetections(const FeatureBasePtrList _incoming_detections) { detections_incoming_ = _incoming_detections; }
         void setLastDetections(const FeatureBasePtrList _last_detections) { detections_last_ = _last_detections; }
 
@@ -72,15 +72,15 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
 
             // configure wolf problem
             problem = Problem::create("PO", 3);
-            sen = problem->installSensor("CAMERA", "camera", (Vector7s()<<0,0,0,0,0,0,1).finished(), wolf_root + "/demos/camera_params_canonical.yaml");
+            sen = problem->installSensor("CAMERA", "camera", (Vector7d()<<0,0,0,0,0,0,1).finished(), wolf_root + "/demos/camera_params_canonical.yaml");
             prc     = problem->installProcessor("TRACKER LANDMARK APRILTAG WRAPPER", "apriltags_wrapper", "camera", wolf_root + "/demos/processor_tracker_landmark_apriltag.yaml");
             prc_apr = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(prc);
 
             // set prior
-            F1 = problem->setPrior((Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), 0.0, 0.1);
+            F1 = problem->setPrior((Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), 0.0, 0.1);
 
             // minimal config for the processor to be operative
-            C1 = CaptureBase::emplace<CapturePose>(F1, 1.0, sen, Vector7s(), Matrix6s());
+            C1 = CaptureBase::emplace<CapturePose>(F1, 1.0, sen, Vector7d(), Matrix6d());
             prc_apr->setOriginPtr(C1);
             prc_apr->setLastPtr(C1);
 
@@ -107,8 +107,8 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
         FrameBasePtr            F1;
         CaptureBasePtr          C1;
         apriltag_detection_t    det;
-        Scalar                  rep_error1;
-        Scalar                  rep_error2;
+        double                  rep_error1;
+        double                  rep_error2;
         bool                    use_rotation;
 };
 ////////////////////////////////////////////////////////////////
@@ -171,23 +171,23 @@ TEST(ProcessorTrackerLandmarkApriltag, Constructor)
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, voteForKeyFrame)
 {
-    Scalar min_time_vote = prc_apr->getMinTimeVote();
+    double min_time_vote = prc_apr->getMinTimeVote();
     unsigned int min_features_for_keyframe = prc_apr->getMinFeaturesForKeyframe();
-    Scalar start_ts = 2.0;
+    double start_ts = 2.0;
 
-    CaptureBasePtr Ca = CaptureBase::emplace<CapturePose>(F1, start_ts, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cb = CaptureBase::emplace<CapturePose>(F1, start_ts + min_time_vote/2, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cc = CaptureBase::emplace<CapturePose>(F1, start_ts + 2*min_time_vote, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cd = CaptureBase::emplace<CapturePose>(F1, start_ts + 2.5*min_time_vote, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Ce = CaptureBase::emplace<CapturePose>(F1, start_ts + 3*min_time_vote, sen, Vector7s(), Matrix6s());
+    CaptureBasePtr Ca = CaptureBase::emplace<CapturePose>(F1, start_ts, sen, Vector7d(), Matrix6d());
+    CaptureBasePtr Cb = CaptureBase::emplace<CapturePose>(F1, start_ts + min_time_vote/2, sen, Vector7d(), Matrix6d());
+    CaptureBasePtr Cc = CaptureBase::emplace<CapturePose>(F1, start_ts + 2*min_time_vote, sen, Vector7d(), Matrix6d());
+    CaptureBasePtr Cd = CaptureBase::emplace<CapturePose>(F1, start_ts + 2.5*min_time_vote, sen, Vector7d(), Matrix6d());
+    CaptureBasePtr Ce = CaptureBase::emplace<CapturePose>(F1, start_ts + 3*min_time_vote, sen, Vector7d(), Matrix6d());
 
     for (int i=0; i < min_features_for_keyframe; i++){
         det.id = i;
-        FeatureBase::emplace<FeatureApriltag>(Ca, (Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), i, det, rep_error1, rep_error2, use_rotation);
-        FeatureBase::emplace<FeatureApriltag>(Cc, (Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), i, det, rep_error1, rep_error2, use_rotation);
+        FeatureBase::emplace<FeatureApriltag>(Ca, (Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), i, det, rep_error1, rep_error2, use_rotation);
+        FeatureBase::emplace<FeatureApriltag>(Cc, (Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), i, det, rep_error1, rep_error2, use_rotation);
         if (i != min_features_for_keyframe-1){
-            FeatureBase::emplace<FeatureApriltag>(Cd, (Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), i, det, rep_error1, rep_error2, use_rotation);
-            FeatureBase::emplace<FeatureApriltag>(Ce, (Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), i, det, rep_error1, rep_error2, use_rotation);
+            FeatureBase::emplace<FeatureApriltag>(Cd, (Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), i, det, rep_error1, rep_error2, use_rotation);
+            FeatureBase::emplace<FeatureApriltag>(Ce, (Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), i, det, rep_error1, rep_error2, use_rotation);
         }
     }
 
@@ -224,11 +224,11 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeaturesDuplicated)
 
     // Some detected features TODO
     FeatureBasePtrList features_in;
-    Eigen::Vector3s pos;
-    Eigen::Vector3s ori; //Euler angles in rad
-    Eigen::Quaternions quat;
-    Eigen::Vector7s pose;
-    Eigen::Matrix6s meas_cov( (prc_apr->getVarVec()).asDiagonal() );
+    Eigen::Vector3d pos;
+    Eigen::Vector3d ori; //Euler angles in rad
+    Eigen::Quaterniond quat;
+    Eigen::Vector7d pose;
+    Eigen::Matrix6d meas_cov( (prc_apr->getVarVec()).asDiagonal() );
     int tag_id;
 
     // feature 0
@@ -268,11 +268,11 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeatures)
 
     // Some detected features TODO
     FeatureBasePtrList features_in;
-    Eigen::Vector3s pos;
-    Eigen::Vector3s ori; //Euler angles in rad
-    Eigen::Quaternions quat;
-    Eigen::Vector7s pose;
-    Eigen::Matrix6s meas_cov( (prc_apr->getVarVec()).asDiagonal() );
+    Eigen::Vector3d pos;
+    Eigen::Vector3d ori; //Euler angles in rad
+    Eigen::Quaterniond quat;
+    Eigen::Vector7d pose;
+    Eigen::Matrix6d meas_cov( (prc_apr->getVarVec()).asDiagonal() );
     int tag_id;
 
     // feature 0
@@ -332,9 +332,9 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeatures)
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
 {
-    Vector7s pose_landmark((Vector7s()<<0,0,0,0,0,0,1).finished());
+    Vector7d pose_landmark((Vector7d()<<0,0,0,0,0,0,1).finished());
     det.id = 1;
-    FeatureBasePtr f1 = FeatureBase::emplace<FeatureApriltag>(C1,pose_landmark, Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
+    FeatureBasePtr f1 = FeatureBase::emplace<FeatureApriltag>(C1,pose_landmark, Matrix6d::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
 
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
@@ -346,7 +346,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
 TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)
 {
     det.id = 1;
-    FeatureBasePtr f1 = FeatureBase::emplace<FeatureApriltag>(C1,(Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
+    FeatureBasePtr f1 = FeatureBase::emplace<FeatureApriltag>(C1,(Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
 
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
@@ -359,49 +359,49 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
 {
-    Scalar cx = 320;
-    Scalar cy = 240;
-    Scalar fx = 320;
-    Scalar fy = 320;
-    Eigen::Matrix3s K;
+    double cx = 320;
+    double cy = 240;
+    double fx = 320;
+    double fy = 320;
+    Eigen::Matrix3d K;
     K <<  fx,  0, cx,
           0,  fy, cy,
           0,    0,   1;
-    Eigen::Vector3s t; t << 0.0, 0.0, 0.4;
-    Eigen::Vector3s v; v << 0.2, 0.0, 0.0;
-    Scalar tag_width = 0.05;
-    Scalar s = tag_width/2;
-    Eigen::Vector3s p1; p1 <<  s,  s, 0; // bottom right
-    Eigen::Vector3s p2; p2 << -s,  s, 0; // bottom left
+    Eigen::Vector3d t; t << 0.0, 0.0, 0.4;
+    Eigen::Vector3d v; v << 0.2, 0.0, 0.0;
+    double tag_width = 0.05;
+    double s = tag_width/2;
+    Eigen::Vector3d p1; p1 <<  s,  s, 0; // bottom right
+    Eigen::Vector3d p2; p2 << -s,  s, 0; // bottom left
 
     // Got from Matlab code:
     // Top left corner
-    Eigen::Vector3s h1_matlab; h1_matlab <<   137.5894, 105.0325, 0.4050;
-    Eigen::Matrix3s J_h_T1_matlab;
+    Eigen::Vector3d h1_matlab; h1_matlab <<   137.5894, 105.0325, 0.4050;
+    Eigen::Matrix3d J_h_T1_matlab;
     J_h_T1_matlab << 320,  0, 320,
                      0,  320, 240,
                      0,    0,   1;
-    Eigen::Matrix3s J_h_R1_matlab;
+    Eigen::Matrix3d J_h_R1_matlab;
     J_h_R1_matlab << 7.8405, -7.8405, -6.4106,
                      4.2910, -4.2910,  9.0325,
                      0.0245, -0.0245,  0.0050;
     // Top right corner
-    Eigen::Vector3s h2_matlab; h2_matlab << 121.5894, 105.0325, 0.4050;
-    Eigen::Matrix3s J_h_T2_matlab;
+    Eigen::Vector3d h2_matlab; h2_matlab << 121.5894, 105.0325, 0.4050;
+    Eigen::Matrix3d J_h_T2_matlab;
     J_h_T2_matlab << 320,  0, 320,
                      0,  320, 240,
                      0,    0,   1;
-    Eigen::Matrix3s J_h_R2_matlab;
+    Eigen::Matrix3d J_h_R2_matlab;
     J_h_R2_matlab << 7.8405, 7.8405, -9.5894,
                      4.2910, 4.2910, -9.0325,
                      0.0245, 0.0245, -0.0050;
 
-    Eigen::Vector3s h1;
-    Eigen::Matrix3s J_h_T1;
-    Eigen::Matrix3s J_h_R1;
-    Eigen::Vector3s h2;
-    Eigen::Matrix3s J_h_T2;
-    Eigen::Matrix3s J_h_R2;
+    Eigen::Vector3d h1;
+    Eigen::Matrix3d J_h_T1;
+    Eigen::Matrix3d J_h_R1;
+    Eigen::Vector3d h2;
+    Eigen::Matrix3d J_h_T2;
+    Eigen::Matrix3d J_h_R2;
 
     prc_apr->pinholeHomogeneous(K, t, v2R(v), p1, h1, J_h_T1, J_h_R1);
     prc_apr->pinholeHomogeneous(K, t, v2R(v), p2, h2, J_h_T2, J_h_R2);
@@ -413,11 +413,11 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
     ASSERT_MATRIX_APPROX(J_h_T2, J_h_T2_matlab, 1e-3);
     ASSERT_MATRIX_APPROX(J_h_R2, J_h_R2_matlab, 1e-3);
 
-    Scalar sig_q = 2;
-    Eigen::Matrix6s transformation_info = prc_apr->computeInformation(t, v2R(v), K, tag_width, sig_q);
+    double sig_q = 2;
+    Eigen::Matrix6d transformation_info = prc_apr->computeInformation(t, v2R(v), K, tag_width, sig_q);
 
     // From Matlab
-//    Eigen::Matrix6s transformation_cov_matlab;
+//    Eigen::Matrix6d transformation_cov_matlab;
 //    transformation_cov_matlab <<
 //    0.0000,    0.0000,   -0.0000,    0.0000,   -0.0002,    0.0000,
 //    0.0000,    0.0000,   -0.0000,    0.0002,    0.0000,    0.0000,
@@ -426,7 +426,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
 //   -0.0002,    0.0000,   -0.0000,    0.0000,    0.1074,   -0.0106,
 //    0.0000,    0.0000,    0.0000,    0.0000,   -0.0106,    0.0023;
 
-    Eigen::Matrix6s transformation_info_matlab;
+    Eigen::Matrix6d transformation_info_matlab;
     transformation_info_matlab <<
     6.402960973553990,                   0,   0.000000000000000,  -0.000000000000000,   0.009809735541319,   0.001986080274985,
                     0,   6.402960973553990,   0.014610695222409,  -0.008824560412472,   0.000000000000000,   0.000000000000000,

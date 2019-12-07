@@ -27,7 +27,7 @@ class LandmarkApriltag : public LandmarkBase
          * \param _tag_width : total width of the tag (in metres)
          *
          **/
-		LandmarkApriltag(Eigen::Vector7s& pose, const int& _tagid, const Scalar& _tag_width);
+		LandmarkApriltag(Eigen::Vector7d& pose, const int& _tagid, const double& _tag_width);
 
         virtual ~LandmarkApriltag();
         
@@ -43,7 +43,7 @@ class LandmarkApriltag : public LandmarkBase
          * Returns width of the tag
          * 
          **/
-        Scalar getTagWidth() const;
+        double getTagWidth() const;
 
         /** Factory method to create new landmarks from YAML nodes
          */
@@ -54,7 +54,7 @@ class LandmarkApriltag : public LandmarkBase
 
     private:
         const int tag_id_;
-        const Scalar tag_width_;         
+        const double tag_width_;         
         
 };
 
