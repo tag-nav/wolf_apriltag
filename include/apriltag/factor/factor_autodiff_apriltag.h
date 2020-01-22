@@ -32,6 +32,11 @@ class FactorAutodiffApriltag : public FactorAutodiff<FactorAutodiffApriltag, 6, 
          */
         virtual ~FactorAutodiffApriltag();
  
+        virtual std::string getTopology() const override
+        {
+            return std::string("LMK");
+        }
+
         /** brief : compute the residual from the state blocks being iterated by the solver.
          **/
         template<typename T>
