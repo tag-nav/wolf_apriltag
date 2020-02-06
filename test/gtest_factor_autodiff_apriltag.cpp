@@ -194,6 +194,7 @@ TEST_F(FactorAutodiffApriltag_class, Constructor)
             F1,
             lmk1,
             f1,
+            nullptr,
             false,
             FAC_ACTIVE
     );
@@ -208,6 +209,7 @@ TEST_F(FactorAutodiffApriltag_class, Check_tree)
                                                               F1,
                                                               lmk1,
                                                               f1,
+                                                              nullptr,
                                                               false,
                                                               FAC_ACTIVE);
     ASSERT_TRUE(problem->check(0));
@@ -220,6 +222,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
                                                               F1,
                                                               lmk1,
                                                               f1,
+                                                              nullptr,
                                                               false,
                                                               FAC_ACTIVE);
     ASSERT_TRUE(problem->check(0));
@@ -253,6 +256,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
                                                               F1,
                                                               lmk1,
                                                               f1,
+                                                              nullptr,
                                                               false,
                                                               FAC_ACTIVE);
 
@@ -287,6 +291,7 @@ TEST_F(FactorAutodiffApriltag_class, Check_initialization)
                                                               F1,
                                                               lmk1,
                                                               f1,
+                                                              nullptr,
                                                               false,
                                                               FAC_ACTIVE);
 
@@ -303,6 +308,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
                                                               F1,
                                                               lmk1,
                                                               f1,
+                                                              nullptr,
                                                               false,
                                                               FAC_ACTIVE);
 
@@ -335,6 +341,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
                                                               F1,
                                                               lmk1,
                                                               f1,
+                                                              nullptr,
                                                               false,
                                                               FAC_ACTIVE);
 
@@ -368,6 +375,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
                                                               F1,
                                                               lmk1,
                                                               f1,
+                                                              nullptr,
                                                               false,
                                                               FAC_ACTIVE);
 

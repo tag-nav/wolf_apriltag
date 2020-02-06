@@ -25,6 +25,7 @@ class FactorAutodiffApriltag : public FactorAutodiff<FactorAutodiffApriltag, 6, 
                 const FrameBasePtr& _frame_ptr,
                 const LandmarkApriltagPtr& _landmark_other_ptr,
                 const FeatureApriltagPtr& _feature_ptr,
+                const ProcessorBasePtr& _processor_ptr,
                 bool _apply_loss_function,
                 FactorStatus _status);
 
@@ -78,6 +79,7 @@ FactorAutodiffApriltag::FactorAutodiffApriltag(
         const FrameBasePtr& _frame_ptr,
         const LandmarkApriltagPtr& _landmark_other_ptr,
         const FeatureApriltagPtr& _feature_ptr,
+        const ProcessorBasePtr& _processor_ptr,
         bool _apply_loss_function,
         FactorStatus _status) :
             FactorAutodiff("AUTODIFF APRILTAG",
@@ -85,7 +87,7 @@ FactorAutodiffApriltag::FactorAutodiffApriltag(
                                nullptr,
                                nullptr,
                                _landmark_other_ptr,
-                               nullptr,
+                               _processor_ptr,
                                _apply_loss_function,
                                _status,
                                _sensor_ptr->getP(),         _sensor_ptr->getO(),
