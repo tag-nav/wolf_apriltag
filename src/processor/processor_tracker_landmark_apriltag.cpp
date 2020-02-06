@@ -239,14 +239,15 @@ void ProcessorTrackerLandmarkApriltag::postProcess()
 }
 
 FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
-                                                                     LandmarkBasePtr _landmark_ptr)
+                                                              LandmarkBasePtr _landmark_ptr)
 {
     return FactorBase::emplace<FactorAutodiffApriltag>(_feature_ptr,
                                                        getSensor(),
                                                        getLast()->getFrame(),
                                                        std::static_pointer_cast<LandmarkApriltag>(_landmark_ptr),
                                                        std::static_pointer_cast<FeatureApriltag> (_feature_ptr ),
-                                                       true,
+                                                       shared_from_this(),
+                                                       params_->apply_loss_function,
                                                        FAC_ACTIVE);
 }
 
@@ -530,7 +531,7 @@ void ProcessorTrackerLandmarkApriltag::resetDerived()
  
             auto capt3D = CaptureBase::emplace<CaptureBase>(getLast()->getFrame(),"Dist",getLast()->getTimeStamp());
             auto feat_dist = FeatureBase::emplace<FeatureBase>(capt3D, "Dist", dist_meas, cov0);
-            auto cstr = FactorBase::emplace<FactorAutodiffDistance3D>(feat_dist, feat_dist, ori_frame, nullptr, false, FAC_ACTIVE);  
+            auto cstr = FactorBase::emplace<FactorAutodiffDistance3D>(feat_dist, feat_dist, ori_frame, shared_from_this(), params_->apply_loss_function, FAC_ACTIVE);
         }
     }
     
@@ -672,6 +673,6 @@ std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
 
 namespace wolf
 {
-WOLF_REGISTER_PROCESSOR("TRACKER LANDMARK APRILTAG", ProcessorTrackerLandmarkApriltag)
+WOLF_REGISTER_PROCESSOR("ProcessorTrackerLandmarkApriltag", ProcessorTrackerLandmarkApriltag)
 }
 
