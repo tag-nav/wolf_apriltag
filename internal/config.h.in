@@ -24,8 +24,8 @@
 //            which will be added to the include path for compilation,
 //            and installed with the public wolf headers.
 
-#ifndef WOLF_INTERNAL_${UPPERNAME}_CONFIG_H_
-#define WOLF_INTERNAL_${UPPERNAME}_CONFIG_H_
+#ifndef WOLF_INTERNAL_${UPPER_NAME}_CONFIG_H_
+#define WOLF_INTERNAL_${UPPER_NAME}_CONFIG_H_
 
 #cmakedefine _WOLF_DEBUG
 
