@@ -232,6 +232,9 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         bool            enough_info_necessary_;
         bool            add_3D_cstr_;
         int             nb_vote_;
+
+    public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };
 
 } // namespace wolf
