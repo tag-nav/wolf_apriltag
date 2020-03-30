@@ -28,7 +28,7 @@ static ProcessorParamsBasePtr createProcessorParamsLandmarkApriltag(const std::s
         WOLF_ERROR("Invalid YAML file!");
         return nullptr;
     }
-    else if (config["type"].as<std::string>() == "TRACKER LANDMARK APRILTAG")
+    else if (config["type"].as<std::string>() == "ProcessorTrackerLandmarkApriltag")
     {
         ProcessorParamsTrackerLandmarkApriltagPtr params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
 
@@ -71,7 +71,7 @@ static ProcessorParamsBasePtr createProcessorParamsLandmarkApriltag(const std::s
         params->enough_info_necessary_      = vote["enough_info_necessary"]          .as<bool>();
         
         params->reestimate_last_frame_      = config["reestimate_last_frame"]        .as<bool>();
-        params->add_3D_cstr_                = config["add_3D_cstr"]                  .as<bool>();
+        params->add_3d_cstr_                = config["add_3d_cstr"]                  .as<bool>();
 
         params->max_new_features            = config["max_new_features"]             .as<int>();
         params->apply_loss_function         = config["apply_loss_function"]          .as<bool>();
@@ -80,15 +80,15 @@ static ProcessorParamsBasePtr createProcessorParamsLandmarkApriltag(const std::s
     }
     else
     {
-        WOLF_ERROR("Wrong processor type! Should be \"TRACKER LANDMARK APRILTAG\"");
+        WOLF_ERROR("Wrong processor type! Should be \"ProcessorTrackerLandmarkApriltag\"");
         return nullptr;
     }
     return nullptr;
 }
 
 // Register in the SensorFactory
-const bool WOLF_UNUSED registered_prc_apriltag = ProcessorParamsFactory::get().registerCreator("TRACKER LANDMARK APRILTAG", createProcessorParamsLandmarkApriltag);
-const bool WOLF_UNUSED registered_prc_apriltag_wrapper = ProcessorParamsFactory::get().registerCreator("TRACKER LANDMARK APRILTAG WRAPPER", createProcessorParamsLandmarkApriltag);
+const bool WOLF_UNUSED registered_prc_apriltag = ProcessorParamsFactory::get().registerCreator("ProcessorTrackerLandmarkApriltag", createProcessorParamsLandmarkApriltag);
+const bool WOLF_UNUSED registered_prc_apriltag_wrapper = ProcessorParamsFactory::get().registerCreator("ProcessorTrackerLandmarkApriltagWrapper", createProcessorParamsLandmarkApriltag);
 
 } // namespace [unnamed]
 

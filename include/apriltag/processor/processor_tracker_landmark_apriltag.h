@@ -5,7 +5,7 @@
 #include "core/common/wolf.h"
 #include "core/processor/processor_tracker_landmark.h"
 #include "vision/sensor/sensor_camera.h"
-#include "core/factor/factor_autodiff_distance_3D.h"
+#include "core/factor/factor_autodiff_distance_3d.h"
 
 // Apriltag
 #include <apriltag/apriltag.h>
@@ -42,7 +42,7 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
     int max_features_diff_;
     int nb_vote_for_every_first_;
     bool enough_info_necessary_;
-    bool add_3D_cstr_;
+    bool add_3d_cstr_;
     double ippe_min_ratio_;
     double ippe_max_rep_error_;
 
@@ -68,7 +68,7 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
         max_features_diff_          = _server.getParam<int>(_unique_name                    + "/max_features_diff");
         nb_vote_for_every_first_    = _server.getParam<int>(_unique_name                    + "/nb_vote_for_every_first");
         enough_info_necessary_      = _server.getParam<bool>(_unique_name                   + "/enough_info_necessary");
-        add_3D_cstr_                = _server.getParam<bool>(_unique_name                   + "/add_3D_cstr");
+        add_3d_cstr_                = _server.getParam<bool>(_unique_name                   + "/add_3d_cstr");
         ippe_min_ratio_             = _server.getParam<double>(_unique_name                 + "/ippe_min_ratio");
         ippe_max_rep_error_         = _server.getParam<double>(_unique_name                 + "/ippe_max_rep_error");
         reestimate_last_frame_      = _server.getParam<bool>(_unique_name                   + "/reestimate_last_frame");
@@ -93,7 +93,7 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
         + "max_features_diff_: "        + std::to_string(max_features_diff_)            + "\n"
         + "nb_vote_for_every_first_: "  + std::to_string(nb_vote_for_every_first_)      + "\n"
         + "enough_info_necessary_: "    + std::to_string(enough_info_necessary_)        + "\n"
-        + "add_3D_cstr_: "              + std::to_string(add_3D_cstr_)                  + "\n"
+        + "add_3d_cstr_: "              + std::to_string(add_3d_cstr_)                  + "\n"
         + "ippe_min_ratio_: "           + std::to_string(ippe_min_ratio_)               + "\n"
         + "ippe_max_rep_error_: "       + std::to_string(ippe_max_rep_error_)           + "\n"
         + "reestimate_last_frame_: "    + std::to_string(reestimate_last_frame_)        + "\n";
@@ -230,7 +230,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         int             max_features_diff_;
         int             nb_vote_for_every_first_;
         bool            enough_info_necessary_;
-        bool            add_3D_cstr_;
+        bool            add_3d_cstr_;
         int             nb_vote_;
 
     public:

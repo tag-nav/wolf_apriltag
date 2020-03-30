@@ -61,18 +61,18 @@ public:
      * @param squareLength      The square's length (which is also it's width) in object coordinate units (e.g. millimeters, meters, etc.)
      * @param _objectPoints        Set of 4 object points (1x4 3-channel double)
      */
-    void generateSquareObjectCorners3D(double squareLength, cv::OutputArray _objectPoints);
+    void generateSquareObjectCorners3d(double squareLength, cv::OutputArray _objectPoints);
 
     /**
      * @brief                   Generates the 4 object points of a square planar object, without including the z-component (which is z=0 for all points).
      * @param squareLength      The square's length (which is also it's width) in object coordinate units (e.g. millimeters, meters, etc.)
      * @param _objectPoints        Set of 4 object points (1x4 2-channel double)
      */
-    void generateSquareObjectCorners2D(double squareLength, cv::OutputArray _objectPoints);
+    void generateSquareObjectCorners2d(double squareLength, cv::OutputArray _objectPoints);
 
     /**
      * @brief                   Computes the average depth of an object given its pose in camera coordinates
-     * @param objectPoints:        Object points defined in 3D object space
+     * @param objectPoints:        Object points defined in 3d object space
      * @param rvec:             Rotation component of pose
      * @param tvec:             Translation component of pose
      * @return:                 average depth of the object
@@ -150,7 +150,7 @@ private:
      * @param _imagePoints              Array of corresponding image points, 1xN/Nx1 2-channel. This can either be in pixel coordinates or normalized pixel coordinates.
      * @param _cameraMatrix             Intrinsic camera matrix (same definition as OpenCV). If _imagePoints is in normalized pixel coordinates you must set  _cameraMatrix = cv::noArray().
      * @param _distCoeffs               Intrinsic camera distortion vector (same definition as OpenCV). If _imagePoints is in normalized pixel coordinates you must set  _cameraMatrix = cv::noArray().
-     * @param _M                        Pose matrix from 3D object to camera coordinates: 4x4 1-channel (double)
+     * @param _M                        Pose matrix from 3d object to camera coordinates: 4x4 1-channel (double)
      * @param err                       RMS reprojection error
      */
     void evalReprojError(cv::InputArray _objectPoints, cv::InputArray _imagePoints, cv::InputArray _cameraMatrix, cv::InputArray _distCoeffs, cv::InputArray _M, float& err);

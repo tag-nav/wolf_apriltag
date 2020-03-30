@@ -6,7 +6,7 @@
 namespace wolf {
 
 LandmarkApriltag::LandmarkApriltag(Eigen::Vector7d& pose, const int& _tagid, const double& _tag_width) :
-	LandmarkBase("APRILTAG", std::make_shared<StateBlock>(pose.head(3)), std::make_shared<StateQuaternion>(pose.tail(4))),
+	LandmarkBase("LandmarkApriltag", std::make_shared<StateBlock>(pose.head(3)), std::make_shared<StateQuaternion>(pose.tail(4))),
 	tag_id_(_tagid),
 	tag_width_(_tag_width)
 {
@@ -85,7 +85,7 @@ YAML::Node LandmarkApriltag::saveToYaml() const
 // Register landmark creator
 namespace
 {
-const bool WOLF_UNUSED registered_lmk_apriltag = LandmarkFactory::get().registerCreator("APRILTAG", LandmarkApriltag::create);
+const bool WOLF_UNUSED registered_lmk_apriltag = LandmarkFactory::get().registerCreator("LandmarkApriltag", LandmarkApriltag::create);
 }
 
 

@@ -153,10 +153,10 @@ void IPPE::PoseSolver::solveSquare(float squareLength, InputArray _imagePoints, 
     _tvec2.create(3, 1, CV_64FC1);
 
     cv::Mat normalizedInputPoints; //undistored version of imagePoints
-    cv::Mat objectPoints2D;
+    cv::Mat objectPoints2d;
 
     //generate the object points:
-    generateSquareObjectCorners2D(squareLength, objectPoints2D);
+    generateSquareObjectCorners2d(squareLength, objectPoints2d);
 
 
     cv::Mat H; //homography from canonical object points to normalized pixels
@@ -176,13 +176,13 @@ void IPPE::PoseSolver::solveSquare(float squareLength, InputArray _imagePoints, 
 
     //now solve
     cv::Mat Ma, Mb;
-    solveCanonicalForm(objectPoints2D, normalizedInputPoints, H, Ma, Mb);
+    solveCanonicalForm(objectPoints2d, normalizedInputPoints, H, Ma, Mb);
 
     //sort poses according to reprojection error:
     cv::Mat M1, M2;
-    cv::Mat objectPoints3D;
-    generateSquareObjectCorners3D(squareLength, objectPoints3D);
-    sortPosesByReprojError(objectPoints3D, _imagePoints, _cameraMatrix, _distCoeffs, Ma, Mb, M1, M2, err1, err2);
+    cv::Mat objectPoints3d;
+    generateSquareObjectCorners3d(squareLength, objectPoints3d);
+    sortPosesByReprojError(objectPoints3d, _imagePoints, _cameraMatrix, _distCoeffs, Ma, Mb, M1, M2, err1, err2);
 
     //fill outputs
     rot2vec(M1.colRange(0, 3).rowRange(0, 3), _rvec1);
@@ -192,7 +192,7 @@ void IPPE::PoseSolver::solveSquare(float squareLength, InputArray _imagePoints, 
     M2.colRange(3, 4).rowRange(0, 3).copyTo(_tvec2);
 }
 
-void IPPE::PoseSolver::generateSquareObjectCorners3D(double squareLength, OutputArray _objectPoints)
+void IPPE::PoseSolver::generateSquareObjectCorners3d(double squareLength, OutputArray _objectPoints)
 {
     _objectPoints.create(1, 4, CV_64FC3);
     cv::Mat objectPoints = _objectPoints.getMat();
@@ -202,7 +202,7 @@ void IPPE::PoseSolver::generateSquareObjectCorners3D(double squareLength, Output
     objectPoints.ptr<Vec3d>(0)[3] = Vec3d(-squareLength / 2.0, -squareLength / 2.0, 0.0);
 }
 
-void IPPE::PoseSolver::generateSquareObjectCorners2D(double squareLength, OutputArray _objectPoints)
+void IPPE::PoseSolver::generateSquareObjectCorners2d(double squareLength, OutputArray _objectPoints)
 {
     _objectPoints.create(1, 4, CV_64FC2);
     cv::Mat objectPoints = _objectPoints.getMat();

@@ -9,7 +9,7 @@
 
 #include "core/math/rotations.h"
 #include "core/state_block/state_quaternion.h"
-#include "core/factor/factor_autodiff_distance_3D.h"
+#include "core/factor/factor_autodiff_distance_3d.h"
 
 // April tags
 #include "apriltag/common/homography.h"
@@ -34,7 +34,7 @@ namespace wolf {
 
 // Constructor
 ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ProcessorParamsTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
-        ProcessorTrackerLandmark("TRACKER LANDMARK APRILTAG",  _params_tracker_landmark_apriltag ),
+        ProcessorTrackerLandmark("ProcessorTrackerLandmarkApriltag",  _params_tracker_landmark_apriltag ),
         tag_widths_(_params_tracker_landmark_apriltag->tag_widths_),
         tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
         std_xy_ (_params_tracker_landmark_apriltag->std_xy_ ),
@@ -52,7 +52,7 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ProcessorPar
         max_features_diff_(_params_tracker_landmark_apriltag->max_features_diff_),
         nb_vote_for_every_first_(_params_tracker_landmark_apriltag->nb_vote_for_every_first_),
         enough_info_necessary_(_params_tracker_landmark_apriltag->enough_info_necessary_),
-        add_3D_cstr_(_params_tracker_landmark_apriltag->add_3D_cstr_),
+        add_3d_cstr_(_params_tracker_landmark_apriltag->add_3d_cstr_),
         nb_vote_(0)
 
 {
@@ -196,7 +196,7 @@ void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *
         corners_pix[i].y = _det->p[i][1];
     }
     std::vector<cv::Point3d> obj_pts;
-    // Same order as the 2D corners (anti clockwise, looking at the tag).
+    // Same order as the 2d corners (anti clockwise, looking at the tag).
     // Looking at the tag, the reference frame is
     // X = Right, Y = Down, Z = Inside the plane
     double s = _tag_width/2;
@@ -355,7 +355,7 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
             }
         }
         // Condition on wether enough information is provided by the measurements:
-        // Position + rotation OR more that 3 3D translations (3 gives 2 symmetric solutions)
+        // Position + rotation OR more that 3 3d translations (3 gives 2 symmetric solutions)
         enough_info = (nb_userot > 0) || (nb_not_userot > 3);
     }
     else{
@@ -425,7 +425,7 @@ Eigen::Vector6d ProcessorTrackerLandmarkApriltag::getVarVec()
 
 Eigen::Matrix6d ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vector3d const &t, Eigen::Matrix3d const &R, Eigen::Matrix3d const &K, double const &tag_width, double const &sig_q)
 {
-    // Same order as the 2D corners (anti clockwise, looking at the tag).
+    // Same order as the 2d corners (anti clockwise, looking at the tag).
     // Looking at the tag, the reference frame is
     // X = Right, Y = Down, Z = Inside the plane
     double s = tag_width/2;
@@ -440,7 +440,7 @@ Eigen::Matrix6d ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vect
     Eigen::Matrix<double, 8, 6> J_u_TR = Eigen::Matrix<double, 8, 6>::Zero();  // 2N x 6 jac
     Eigen::Vector3d h;
     Eigen::Matrix3d J_h_T, J_h_R;
-    Eigen::Vector2d eu;  // 2D pixel coord, not needed
+    Eigen::Vector2d eu;  // 2d pixel coord, not needed
     Eigen::Matrix<double, 3, 6> J_h_TR;
     Eigen::Matrix<double, 2, 3> J_u_h;
     for (int i=0; i < pvec.size(); i++){
@@ -516,8 +516,8 @@ void ProcessorTrackerLandmarkApriltag::advanceDerived()
 
 void ProcessorTrackerLandmarkApriltag::resetDerived()
 {   
-    // Add 3D distance constraint between 2 frames
-    if (getProblem()->getProcessorMotion() == nullptr && add_3D_cstr_){
+    // Add 3d distance constraint between 2 frames
+    if (getProblem()->getProcessorMotion() == nullptr && add_3d_cstr_){
         if ((getOrigin() != nullptr) && 
             (getOrigin()->getFrame() != nullptr) && 
             (getOrigin() != getLast()) &&
@@ -529,9 +529,9 @@ void ProcessorTrackerLandmarkApriltag::resetDerived()
             double dist_std = 0.5;
             Eigen::Matrix1d cov0(dist_std*dist_std);
  
-            auto capt3D = CaptureBase::emplace<CaptureBase>(getLast()->getFrame(),"Dist",getLast()->getTimeStamp());
-            auto feat_dist = FeatureBase::emplace<FeatureBase>(capt3D, "Dist", dist_meas, cov0);
-            auto cstr = FactorBase::emplace<FactorAutodiffDistance3D>(feat_dist, feat_dist, ori_frame, shared_from_this(), params_->apply_loss_function, FAC_ACTIVE);
+            auto capt3d = CaptureBase::emplace<CaptureBase>(getLast()->getFrame(),"Dist",getLast()->getTimeStamp());
+            auto feat_dist = FeatureBase::emplace<FeatureBase>(capt3d, "Dist", dist_meas, cov0);
+            auto cstr = FactorBase::emplace<FactorAutodiffDistance3d>(feat_dist, feat_dist, ori_frame, shared_from_this(), params_->apply_loss_function, FAC_ACTIVE);
         }
     }
     
