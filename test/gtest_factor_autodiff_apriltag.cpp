@@ -199,7 +199,7 @@ TEST_F(FactorAutodiffApriltag_class, Constructor)
             FAC_ACTIVE
     );
 
-    ASSERT_TRUE(factor->getType() == "AUTODIFF APRILTAG");
+    ASSERT_TRUE(factor->getType() == "FactorAutodiffApriltag");
 }
 
 TEST_F(FactorAutodiffApriltag_class, Check_tree)

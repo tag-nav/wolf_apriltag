@@ -82,7 +82,7 @@ FactorAutodiffApriltag::FactorAutodiffApriltag(
         const ProcessorBasePtr& _processor_ptr,
         bool _apply_loss_function,
         FactorStatus _status) :
-            FactorAutodiff("AUTODIFF APRILTAG",
+            FactorAutodiff("FactorAutodiffApriltag",
                                nullptr,
                                nullptr,
                                nullptr,
