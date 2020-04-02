@@ -73,9 +73,7 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
             // configure wolf problem
             problem = Problem::create("PO", 3);
             sen = problem->installSensor("SensorCamera", "camera", (Vector7d()<<0,0,0,0,0,0,1).finished(), wolf_root + "/demos/camera_params_canonical.yaml");
-            std::cout << "VAT DA FAK\n";
             prc     = problem->installProcessor("ProcessorTrackerLandmarkApriltagWrapper", "apriltags_wrapper", "camera", wolf_root + "/demos/processor_tracker_landmark_apriltag.yaml");
-            std::cout << "KAF AD TAV\n";
             prc_apr = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(prc);
 
             // set prior
