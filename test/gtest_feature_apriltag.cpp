@@ -49,7 +49,7 @@ TEST_F(FeatureApriltag_test, type)
 {
     FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, det, rep_error1, rep_error2, use_rotation);
 
-    ASSERT_EQ(f->getType(), "APRILTAG");
+    ASSERT_EQ(f->getType(), "FeatureApriltag");
 }
 
 TEST_F(FeatureApriltag_test, getTagId)

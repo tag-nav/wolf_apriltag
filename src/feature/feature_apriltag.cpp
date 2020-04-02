@@ -10,7 +10,7 @@ FeatureApriltag::FeatureApriltag(const Eigen::Vector7d & _measurement,
                                  double _rep_error2,
                                  bool _use_rotation,
                                  UncertaintyType _uncertainty_type) :
-    FeatureBase("APRILTAG", _measurement, _meas_uncertainty, _uncertainty_type),
+    FeatureBase("FeatureApriltag", _measurement, _meas_uncertainty, _uncertainty_type),
     tag_id_     (_tag_id),
     tag_corners_(4),
     detection_  (_det),
