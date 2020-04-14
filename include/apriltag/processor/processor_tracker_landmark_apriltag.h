@@ -17,9 +17,9 @@
 namespace wolf
 {
 
-WOLF_STRUCT_PTR_TYPEDEFS(ProcessorParamsTrackerLandmarkApriltag);
+WOLF_STRUCT_PTR_TYPEDEFS(ParamsProcessorTrackerLandmarkApriltag);
 
-struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLandmark
+struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLandmark
 {
     //tag parameters
     std::string tag_family_;
@@ -47,9 +47,9 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
     double ippe_max_rep_error_;
 
     bool reestimate_last_frame_;
-    ProcessorParamsTrackerLandmarkApriltag() = default;
-    ProcessorParamsTrackerLandmarkApriltag(std::string _unique_name, const ParamsServer& _server):
-        ProcessorParamsTrackerLandmark(_unique_name, _server)
+    ParamsProcessorTrackerLandmarkApriltag() = default;
+    ParamsProcessorTrackerLandmarkApriltag(std::string _unique_name, const ParamsServer& _server):
+        ParamsProcessorTrackerLandmark(_unique_name, _server)
     {
         tag_family_                 = _server.getParam<std::string>(_unique_name            + "/tag_family");
         tag_width_default_          = _server.getParam<double>(_unique_name                 + "/tag_width_default");
@@ -75,7 +75,7 @@ struct ProcessorParamsTrackerLandmarkApriltag : public ProcessorParamsTrackerLan
     }
     std::string print()
     {
-        return "\n" + ProcessorParamsTrackerLandmark::print()                           + "\n"
+        return "\n" + ParamsProcessorTrackerLandmark::print()                           + "\n"
         + "tag_family_: "               + tag_family_                                   + "\n"
         + "tag_width_default_: "        + std::to_string(tag_width_default_)            + "\n"
         + "tag_widths_: "               + converter<std::string>::convert(tag_widths_)  + "\n"
@@ -111,7 +111,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
 
         /** \brief Class constructor
          */
-        ProcessorTrackerLandmarkApriltag( ProcessorParamsTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag);
+        ProcessorTrackerLandmarkApriltag( ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag);
 
         /** \brief Class Destructor
          */
@@ -173,7 +173,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         void reestimateLastFrame();
 
         // for factory
-        static ProcessorBasePtr create(const std::string& _unique_name, const ProcessorParamsBasePtr _params);
+        static ProcessorBasePtr create(const std::string& _unique_name, const ParamsProcessorBasePtr _params);
 
     public:
         double getTagWidth(int _id) const;

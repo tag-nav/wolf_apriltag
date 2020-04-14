@@ -4,7 +4,7 @@
 #include "core/utils/logging.h"
 
 #include "core/ceres_wrapper/ceres_manager.h"
-#include "core/processor/processor_factory.h"
+#include "core/processor/factory_processor.h"
 
 #include "vision/capture/capture_image.h"
 
@@ -26,7 +26,7 @@ WOLF_PTR_TYPEDEFS(ProcessorTrackerLandmarkApriltag_Wrapper);
 class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmarkApriltag
 {
     public:
-        ProcessorTrackerLandmarkApriltag_Wrapper(ProcessorParamsTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
+        ProcessorTrackerLandmarkApriltag_Wrapper(ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
             ProcessorTrackerLandmarkApriltag(_params_tracker_landmark_apriltag)
         {
             setType("TRACKER LANDMARK APRILTAG WRAPPER");
@@ -37,9 +37,9 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         void setIncomingPtr  (const CaptureBasePtr _incoming_ptr)   { incoming_ptr_ = _incoming_ptr; }
 
         // for factory
-        static ProcessorBasePtr create(const std::string& _unique_name, const ProcessorParamsBasePtr _params)
+        static ProcessorBasePtr create(const std::string& _unique_name, const ParamsProcessorBasePtr _params)
         {
-            auto prc_apriltag_params_ = std::static_pointer_cast<ProcessorParamsTrackerLandmarkApriltag>(_params);
+            auto prc_apriltag_params_ = std::static_pointer_cast<ParamsProcessorTrackerLandmarkApriltag>(_params);
 
             auto prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag_Wrapper>(prc_apriltag_params_);
 
@@ -144,7 +144,7 @@ class FactorAutodiffApriltag_class : public testing::Test{
             S      = problem->installSensor("SensorCamera", "canonical", pose_camera, wolf_root + "/demos/camera_params_canonical.yaml");
             camera = std::static_pointer_cast<SensorCamera>(S);
 
-            ProcessorParamsTrackerLandmarkApriltagPtr params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
+            ParamsProcessorTrackerLandmarkApriltagPtr params = std::make_shared<ParamsProcessorTrackerLandmarkApriltag>();
             // Need to set some parameters ? do it now !
             params->tag_family_ = "tag36h11";
             //params->name        = params->tag_family_;

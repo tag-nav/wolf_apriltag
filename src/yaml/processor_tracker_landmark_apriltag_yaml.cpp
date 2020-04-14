@@ -19,7 +19,7 @@ namespace wolf
 
 namespace
 {
-static ProcessorParamsBasePtr createProcessorParamsLandmarkApriltag(const std::string & _filename_dot_yaml)
+static ParamsProcessorBasePtr createParamsProcessorLandmarkApriltag(const std::string & _filename_dot_yaml)
 {
     YAML::Node config = YAML::LoadFile(_filename_dot_yaml);
 
@@ -30,7 +30,7 @@ static ProcessorParamsBasePtr createProcessorParamsLandmarkApriltag(const std::s
     }
     else if (config["type"].as<std::string>() == "ProcessorTrackerLandmarkApriltag")
     {
-        ProcessorParamsTrackerLandmarkApriltagPtr params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
+        ParamsProcessorTrackerLandmarkApriltagPtr params = std::make_shared<ParamsProcessorTrackerLandmarkApriltag>();
 
         YAML::Node detector_parameters      = config["detector parameters"];
         params->quad_decimate_              = detector_parameters["quad_decimate"]            .as<double>();
@@ -86,9 +86,9 @@ static ProcessorParamsBasePtr createProcessorParamsLandmarkApriltag(const std::s
     return nullptr;
 }
 
-// Register in the SensorFactory
-const bool WOLF_UNUSED registered_prc_apriltag = ProcessorParamsFactory::get().registerCreator("ProcessorTrackerLandmarkApriltag", createProcessorParamsLandmarkApriltag);
-const bool WOLF_UNUSED registered_prc_apriltag_wrapper = ProcessorParamsFactory::get().registerCreator("ProcessorTrackerLandmarkApriltagWrapper", createProcessorParamsLandmarkApriltag);
+// Register in the FactorySensor
+const bool WOLF_UNUSED registered_prc_apriltag = FactoryParamsProcessor::get().registerCreator("ProcessorTrackerLandmarkApriltag", createParamsProcessorLandmarkApriltag);
+const bool WOLF_UNUSED registered_prc_apriltag_wrapper = FactoryParamsProcessor::get().registerCreator("ProcessorTrackerLandmarkApriltagWrapper", createParamsProcessorLandmarkApriltag);
 
 } // namespace [unnamed]
 

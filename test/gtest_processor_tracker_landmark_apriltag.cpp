@@ -3,7 +3,7 @@
 #include "core/common/wolf.h"
 #include "core/utils/logging.h"
 #include "core/capture/capture_pose.h"
-#include "core/processor/processor_factory.h"
+#include "core/processor/factory_processor.h"
 
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag.h"
@@ -22,7 +22,7 @@ WOLF_PTR_TYPEDEFS(ProcessorTrackerLandmarkApriltag_Wrapper);
 class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmarkApriltag
 {
     public:
-        ProcessorTrackerLandmarkApriltag_Wrapper(ProcessorParamsTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
+        ProcessorTrackerLandmarkApriltag_Wrapper(ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
             ProcessorTrackerLandmarkApriltag(_params_tracker_landmark_apriltag)
         {
             setType("ProcessorTrackerLandmarkApriltagWrapper");
@@ -37,9 +37,9 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         void setLastDetections(const FeatureBasePtrList _last_detections) { detections_last_ = _last_detections; }
 
         // for factory
-        static ProcessorBasePtr create(const std::string& _unique_name, const ProcessorParamsBasePtr _params)
+        static ProcessorBasePtr create(const std::string& _unique_name, const ParamsProcessorBasePtr _params)
         {
-            auto prc_apriltag_params_ = std::static_pointer_cast<ProcessorParamsTrackerLandmarkApriltag>(_params);
+            auto prc_apriltag_params_ = std::static_pointer_cast<ParamsProcessorTrackerLandmarkApriltag>(_params);
 
             auto prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag_Wrapper>(prc_apriltag_params_);
 
@@ -122,7 +122,7 @@ TEST(ProcessorTrackerLandmarkApriltag, Constructor)
     std::string s1;
     std::string s2;
 
-    ProcessorParamsTrackerLandmarkApriltagPtr params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
+    ParamsProcessorTrackerLandmarkApriltagPtr params = std::make_shared<ParamsProcessorTrackerLandmarkApriltag>();
 
     ProcessorTrackerLandmarkApriltagPtr p;
 

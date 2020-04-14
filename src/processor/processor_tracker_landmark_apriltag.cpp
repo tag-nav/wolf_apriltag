@@ -33,7 +33,7 @@ namespace wolf {
 
 
 // Constructor
-ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ProcessorParamsTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
+ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
         ProcessorTrackerLandmark("ProcessorTrackerLandmarkApriltag",  _params_tracker_landmark_apriltag ),
         tag_widths_(_params_tracker_landmark_apriltag->tag_widths_),
         tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
@@ -107,9 +107,9 @@ ProcessorTrackerLandmarkApriltag::~ProcessorTrackerLandmarkApriltag()
 }
 
 
-ProcessorBasePtr ProcessorTrackerLandmarkApriltag::create(const std::string& _unique_name, const ProcessorParamsBasePtr _params)
+ProcessorBasePtr ProcessorTrackerLandmarkApriltag::create(const std::string& _unique_name, const ParamsProcessorBasePtr _params)
 {
-    auto prc_apriltag_params = std::static_pointer_cast<ProcessorParamsTrackerLandmarkApriltag>(_params);
+    auto prc_apriltag_params = std::static_pointer_cast<ParamsProcessorTrackerLandmarkApriltag>(_params);
 
     auto prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag>(prc_apriltag_params);
 
@@ -668,8 +668,8 @@ std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
 
 } // namespace wolf
 
-// Register in the SensorFactory
-#include "core/processor/processor_factory.h"
+// Register in the FactorySensor
+#include "core/processor/factory_processor.h"
 
 namespace wolf
 {
