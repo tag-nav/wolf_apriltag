@@ -673,6 +673,6 @@ std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
 
 namespace wolf
 {
-WOLF_REGISTER_PROCESSOR("ProcessorTrackerLandmarkApriltag", ProcessorTrackerLandmarkApriltag)
+WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag)
 }
 

@@ -25,7 +25,7 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         ProcessorTrackerLandmarkApriltag_Wrapper(ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
             ProcessorTrackerLandmarkApriltag(_params_tracker_landmark_apriltag)
         {
-            setType("ProcessorTrackerLandmarkApriltagWrapper");
+            setType("ProcessorTrackerLandmarkApriltag_Wrapper");
         };
         ~ProcessorTrackerLandmarkApriltag_Wrapper(){}
         void setOriginPtr(const CaptureBasePtr _origin_ptr) { origin_ptr_ = _origin_ptr; }
@@ -51,7 +51,7 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
 };
 namespace wolf{
 // Register in the Factories
-WOLF_REGISTER_PROCESSOR("ProcessorTrackerLandmarkApriltagWrapper", ProcessorTrackerLandmarkApriltag_Wrapper);
+WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag_Wrapper);
 }
 ////////////////////////////////////////////////////////////////
 
@@ -73,7 +73,7 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
             // configure wolf problem
             problem = Problem::create("PO", 3);
             sen = problem->installSensor("SensorCamera", "camera", (Vector7d()<<0,0,0,0,0,0,1).finished(), wolf_root + "/demos/camera_params_canonical.yaml");
-            prc     = problem->installProcessor("ProcessorTrackerLandmarkApriltagWrapper", "apriltags_wrapper", "camera", wolf_root + "/demos/processor_tracker_landmark_apriltag.yaml");
+            prc     = problem->installProcessor("ProcessorTrackerLandmarkApriltag_Wrapper", "apriltags_wrapper", "camera", wolf_root + "/demos/processor_tracker_landmark_apriltag.yaml");
             prc_apr = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(prc);
 
             // set prior

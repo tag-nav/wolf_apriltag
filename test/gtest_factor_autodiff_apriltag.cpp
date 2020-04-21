@@ -29,7 +29,7 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         ProcessorTrackerLandmarkApriltag_Wrapper(ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
             ProcessorTrackerLandmarkApriltag(_params_tracker_landmark_apriltag)
         {
-            setType("TRACKER LANDMARK APRILTAG WRAPPER");
+            setType("ProcessorTrackerLandmarkApriltag_Wrapper");
         };
         ~ProcessorTrackerLandmarkApriltag_Wrapper(){}
         void setOriginPtr(const CaptureBasePtr _origin_ptr) { origin_ptr_ = _origin_ptr; }
@@ -51,7 +51,7 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
 };
 namespace wolf{
 // Register in the Factories
-WOLF_REGISTER_PROCESSOR("TRACKER LANDMARK APRILTAG WRAPPER", ProcessorTrackerLandmarkApriltag_Wrapper);
+WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag_Wrapper);
 }
 ////////////////////////////////////////////////////////////////
 
@@ -149,7 +149,7 @@ class FactorAutodiffApriltag_class : public testing::Test{
             params->tag_family_ = "tag36h11";
             //params->name        = params->tag_family_;
 
-            ProcessorBasePtr proc = problem->installProcessor("TRACKER LANDMARK APRILTAG WRAPPER", "apriltags_wrapper", camera, params);
+            ProcessorBasePtr proc = problem->installProcessor("ProcessorTrackerLandmarkApriltag_Wrapper", "apriltags_wrapper", camera, params);
             proc_apriltag = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(proc);
 
             // F1 is be origin KF
