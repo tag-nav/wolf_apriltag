@@ -5,7 +5,7 @@ nlandmarks: 4          # This must match the number of landmarks in the list tha
 landmarks:
 
   - id : 1                    # use same as tag id
-    type: "LandmarkApriltag"          # This must match the KEY used in the LandmarkFactory. Otherwise it is an error.
+    type: "LandmarkApriltag"          # This must match the KEY used in the FactoryLandmark. Otherwise it is an error.
     tag id: 1
     tag width: 0.1
     position: [0, 0, 0]
@@ -14,7 +14,7 @@ landmarks:
     orientation fixed: true
 
   - id : 3                    # use same as tag id
-    type: "LandmarkApriltag"          # This must match the KEY used in the LandmarkFactory. Otherwise it is an error.
+    type: "LandmarkApriltag"          # This must match the KEY used in the FactoryLandmark. Otherwise it is an error.
     tag id: 3
     tag width: 0.1
     position: [1, 1, 0]
@@ -23,7 +23,7 @@ landmarks:
     orientation fixed: true
 
   - id : 5                    # use same as tag id
-    type: "LandmarkApriltag"          # This must match the KEY used in the LandmarkFactory. Otherwise it is an error.
+    type: "LandmarkApriltag"          # This must match the KEY used in the FactoryLandmark. Otherwise it is an error.
     tag id: 5
     tag width: 0.1
     position: [1, 0, 0]
@@ -32,7 +32,7 @@ landmarks:
     orientation fixed: true
 
   - id : 2                    # use same as tag id
-    type: "LandmarkApriltag"          # This must match the KEY used in the LandmarkFactory. Otherwise it is an error.
+    type: "LandmarkApriltag"          # This must match the KEY used in the FactoryLandmark. Otherwise it is an error.
     tag id: 2
     tag width: 0.1
     position: [0, 1, 0]

@@ -85,7 +85,7 @@ YAML::Node LandmarkApriltag::saveToYaml() const
 // Register landmark creator
 namespace
 {
-const bool WOLF_UNUSED registered_lmk_apriltag = LandmarkFactory::get().registerCreator("LandmarkApriltag", LandmarkApriltag::create);
+const bool WOLF_UNUSED registered_lmk_apriltag = FactoryLandmark::get().registerCreator("LandmarkApriltag", LandmarkApriltag::create);
 }
 
 
