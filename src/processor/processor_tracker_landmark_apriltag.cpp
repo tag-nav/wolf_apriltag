@@ -123,8 +123,11 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
     //clear wolf detections so that new ones will be stored inside
     detections_incoming_.clear();
 
+    auto incoming_ptr = std::dynamic_pointer_cast<CaptureImage>(incoming_ptr_);
+    assert(incoming_ptr != nullptr && "Capture type mismatch. ProcessorTrackerLandmarkApriltag can only process captures of type CaptureImage");
+
     // The image is assumed to be of color BGR2 type
-    cv::cvtColor(std::static_pointer_cast<CaptureImage>(incoming_ptr_)->getImage(), grayscale_image_, cv::COLOR_BGR2GRAY);   
+    cv::cvtColor(incoming_ptr->getImage(), grayscale_image_, cv::COLOR_BGR2GRAY);
     
     //detect tags in incoming image
     // Make an image_u8_t header for the Mat data
