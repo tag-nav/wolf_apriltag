@@ -1,7 +1,7 @@
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag.h"
 #include "apriltag/landmark/landmark_apriltag.h"
-#include "apriltag/factor/factor_autodiff_apriltag.h"
+#include "apriltag/factor/factor_apriltag.h"
 #include "apriltag/processor/ippe.h"
 
 #include "vision/capture/capture_image.h"
@@ -244,7 +244,7 @@ void ProcessorTrackerLandmarkApriltag::postProcess()
 FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
                                                               LandmarkBasePtr _landmark_ptr)
 {
-    return FactorBase::emplace<FactorAutodiffApriltag>(_feature_ptr,
+    return FactorBase::emplace<FactorApriltag>(_feature_ptr,
                                                        getSensor(),
                                                        getLast()->getFrame(),
                                                        std::static_pointer_cast<LandmarkApriltag>(_landmark_ptr),

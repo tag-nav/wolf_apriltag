@@ -1,5 +1,5 @@
-#ifndef _FACTOR_AUTODIFF_APRILTAG_H_
-#define _FACTOR_AUTODIFF_APRILTAG_H_
+#ifndef _FACTOR_APRILTAG_H_
+#define _FACTOR_APRILTAG_H_
 
 //Wolf includes
 #include "core/common/wolf.h"
@@ -12,15 +12,15 @@
 namespace wolf
 {
 
-WOLF_PTR_TYPEDEFS(FactorAutodiffApriltag);
+WOLF_PTR_TYPEDEFS(FactorApriltag);
 
-class FactorAutodiffApriltag : public FactorAutodiff<FactorAutodiffApriltag, 6, 3, 4, 3, 4, 3, 4>
+class FactorApriltag : public FactorAutodiff<FactorApriltag, 6, 3, 4, 3, 4, 3, 4>
 {
     public:
 
         /** \brief Class constructor
          */
-        FactorAutodiffApriltag(
+        FactorApriltag(
                 const SensorBasePtr& _sensor_ptr,
                 const FrameBasePtr& _frame_ptr,
                 const LandmarkApriltagPtr& _landmark_other_ptr,
@@ -31,7 +31,7 @@ class FactorAutodiffApriltag : public FactorAutodiff<FactorAutodiffApriltag, 6, 
 
         /** \brief Class Destructor
          */
-        virtual ~FactorAutodiffApriltag();
+        virtual ~FactorApriltag();
  
         virtual std::string getTopology() const override
         {
@@ -74,7 +74,7 @@ class FactorAutodiffApriltag : public FactorAutodiff<FactorAutodiffApriltag, 6, 
 namespace wolf
 {
 
-FactorAutodiffApriltag::FactorAutodiffApriltag(
+FactorApriltag::FactorApriltag(
         const SensorBasePtr& _sensor_ptr,
         const FrameBasePtr& _frame_ptr,
         const LandmarkApriltagPtr& _landmark_other_ptr,
@@ -82,7 +82,7 @@ FactorAutodiffApriltag::FactorAutodiffApriltag(
         const ProcessorBasePtr& _processor_ptr,
         bool _apply_loss_function,
         FactorStatus _status) :
-            FactorAutodiff("FactorAutodiffApriltag",
+            FactorAutodiff("FactorApriltag",
                                nullptr,
                                nullptr,
                                nullptr,
@@ -101,12 +101,12 @@ FactorAutodiffApriltag::FactorAutodiffApriltag(
 
 /** \brief Class Destructor
  */
-FactorAutodiffApriltag::~FactorAutodiffApriltag()
+FactorApriltag::~FactorApriltag()
 {
     //
 }
 
-template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p_camera, const T* const _o_camera, const T* const _p_keyframe, const T* const _o_keyframe, const T* const _p_landmark, const T* const _o_landmark, T* _residuals) const
+template<typename T> bool FactorApriltag::operator ()( const T* const _p_camera, const T* const _o_camera, const T* const _p_keyframe, const T* const _o_keyframe, const T* const _p_landmark, const T* const _o_landmark, T* _residuals) const
 {
     // Maps
     Eigen::Map<const Eigen::Matrix<T,3,1>> p_r_c(_p_camera);
@@ -192,7 +192,7 @@ template<typename T> bool FactorAutodiffApriltag::operator ()( const T* const _p
     return true;
 }
 
-Eigen::Vector6d FactorAutodiffApriltag::residual() const
+Eigen::Vector6d FactorApriltag::residual() const
 {
     Eigen::Vector6d res;
     double * p_camera, * o_camera, * p_frame, * o_frame, * p_tag, * o_tag;
@@ -208,7 +208,7 @@ Eigen::Vector6d FactorAutodiffApriltag::residual() const
     return res;
 }
 
-double FactorAutodiffApriltag::cost() const
+double FactorApriltag::cost() const
 {
     return residual().squaredNorm();
 }

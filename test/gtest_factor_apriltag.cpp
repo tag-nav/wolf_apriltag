@@ -9,7 +9,7 @@
 #include "vision/capture/capture_image.h"
 
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
-#include "apriltag/factor/factor_autodiff_apriltag.h"
+#include "apriltag/factor/factor_apriltag.h"
 #include "apriltag/internal/config.h"
 
 #include <apriltag/apriltag.h>
@@ -56,7 +56,7 @@ WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag_Wrapper);
 ////////////////////////////////////////////////////////////////
 
 // Use the following in case you want to initialize tests with predefines variables or methods.
-class FactorAutodiffApriltag_class : public testing::Test{
+class FactorApriltag_class : public testing::Test{
     public:
         Vector3d    pos_camera,   pos_robot,   pos_landmark;
         Vector3d    euler_camera, euler_robot, euler_landmark;
@@ -75,7 +75,7 @@ class FactorAutodiffApriltag_class : public testing::Test{
         CaptureImagePtr C1;
         FeatureApriltagPtr  f1;
         LandmarkApriltagPtr lmk1;
-        FactorAutodiffApriltagPtr c_tag;
+        FactorApriltagPtr c_tag;
         apriltag_detection_t    det;
 
         virtual void SetUp()
@@ -187,9 +187,9 @@ class FactorAutodiffApriltag_class : public testing::Test{
 };
 
 
-TEST_F(FactorAutodiffApriltag_class, Constructor)
+TEST_F(FactorApriltag_class, Constructor)
 {
-    FactorAutodiffApriltagPtr factor = std::make_shared<FactorAutodiffApriltag>(
+    FactorApriltagPtr factor = std::make_shared<FactorApriltag>(
             S,
             F1,
             lmk1,
@@ -199,12 +199,12 @@ TEST_F(FactorAutodiffApriltag_class, Constructor)
             FAC_ACTIVE
     );
 
-    ASSERT_TRUE(factor->getType() == "FactorAutodiffApriltag");
+    ASSERT_TRUE(factor->getType() == "FactorApriltag");
 }
 
-TEST_F(FactorAutodiffApriltag_class, Check_tree)
+TEST_F(FactorApriltag_class, Check_tree)
 {
-    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+    auto factor = FactorBase::emplace<FactorApriltag>(f1,
                                                               S,
                                                               F1,
                                                               lmk1,
@@ -215,9 +215,9 @@ TEST_F(FactorAutodiffApriltag_class, Check_tree)
     ASSERT_TRUE(problem->check(0));
 }
 
-TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
+TEST_F(FactorApriltag_class, solve_F1_P_perturbated)
 {
-    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+    auto factor = FactorBase::emplace<FactorApriltag>(f1,
                                                               S,
                                                               F1,
                                                               lmk1,
@@ -249,9 +249,9 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
 
 }
 
-TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
+TEST_F(FactorApriltag_class, solve_F1_O_perturbated)
 {
-    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+    auto factor = FactorBase::emplace<FactorApriltag>(f1,
                                                               S,
                                                               F1,
                                                               lmk1,
@@ -284,9 +284,9 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
 
 }
 
-TEST_F(FactorAutodiffApriltag_class, Check_initialization)
+TEST_F(FactorApriltag_class, Check_initialization)
 {
-    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+    auto factor = FactorBase::emplace<FactorApriltag>(f1,
                                                               S,
                                                               F1,
                                                               lmk1,
@@ -301,9 +301,9 @@ TEST_F(FactorAutodiffApriltag_class, Check_initialization)
 
 }
 
-TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
+TEST_F(FactorApriltag_class, solve_L1_P_perturbated)
 {
-    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+    auto factor = FactorBase::emplace<FactorApriltag>(f1,
                                                               S,
                                                               F1,
                                                               lmk1,
@@ -334,9 +334,9 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
     ASSERT_MATRIX_APPROX(lmk1->getState(), pose_landmark, 1e-6);
 }
 
-TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
+TEST_F(FactorApriltag_class, solve_L1_O_perturbated)
 {
-    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+    auto factor = FactorBase::emplace<FactorApriltag>(f1,
                                                               S,
                                                               F1,
                                                               lmk1,
@@ -368,9 +368,9 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
 
 }
 
-TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
+TEST_F(FactorApriltag_class, solve_L1_PO_perturbated)
 {
-    auto factor = FactorBase::emplace<FactorAutodiffApriltag>(f1,
+    auto factor = FactorBase::emplace<FactorApriltag>(f1,
                                                               S,
                                                               F1,
                                                               lmk1,

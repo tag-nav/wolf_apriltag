@@ -158,7 +158,7 @@ SET(HDRS_UTILS
 SET(HDRS_CAPTURE
   )
 SET(HDRS_FACTOR
-include/apriltag/factor/factor_autodiff_apriltag.h
+include/apriltag/factor/factor_apriltag.h
   )
 SET(HDRS_FEATURE
 include/apriltag/feature/feature_apriltag.h
