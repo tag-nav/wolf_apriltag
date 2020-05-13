@@ -236,8 +236,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
 
     x0.head<3>() += p0;
     WOLF_DEBUG("State before perturbation: ");
-    WOLF_DEBUG(F1->getState().transpose());
-    F1->setState(x0);
+    WOLF_DEBUG(F1->getState().vector("PO").transpose());
+    F1->setState(x0, "PO", {3,4});
 //    WOLF_DEBUG("State after perturbation: ");
 //    WOLF_DEBUG(F1->getState().transpose());
 
@@ -245,7 +245,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_P_perturbated)
     std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
 //    WOLF_DEBUG("State after solve: ");
 //    WOLF_DEBUG(F1->getState().transpose());
-    ASSERT_MATRIX_APPROX(F1->getState(), pose_robot, 1e-6);
+    ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
 
 }
 
@@ -271,8 +271,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
 
     x0.tail<4>() = e0_vquat;
     WOLF_DEBUG("State before perturbation: ");
-    WOLF_DEBUG(F1->getState().transpose());
-    F1->setState(x0);
+    WOLF_DEBUG(F1->getState().vector("PO").transpose());
+    F1->setState(x0, "PO", {3,4});
 //    WOLF_DEBUG("State after perturbation: ");
 //    WOLF_DEBUG(F1->getState().transpose());
 
@@ -280,7 +280,7 @@ TEST_F(FactorAutodiffApriltag_class, solve_F1_O_perturbated)
     std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
 //    WOLF_DEBUG("State after solve: ");
 //    WOLF_DEBUG(F1->getState().transpose());
-    ASSERT_MATRIX_APPROX(F1->getState(), pose_robot, 1e-6);
+    ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
 
 }
 
@@ -295,9 +295,9 @@ TEST_F(FactorAutodiffApriltag_class, Check_initialization)
                                                               false,
                                                               FAC_ACTIVE);
 
-    ASSERT_MATRIX_APPROX(F1->getState(), pose_robot, 1e-6);
+    ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
     ASSERT_MATRIX_APPROX(f1->getMeasurement(), pose_landmark, 1e-6);
-    ASSERT_MATRIX_APPROX(lmk1->getState(), pose_landmark, 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), pose_landmark, 1e-6);
 
 }
 
@@ -330,8 +330,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_P_perturbated)
     std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
     //WOLF_DEBUG("Landmark state after solve: ");
     //WOLF_DEBUG(lmk1->getState().transpose());
-    ASSERT_MATRIX_APPROX(F1->getState(), pose_robot, 1e-6);
-    ASSERT_MATRIX_APPROX(lmk1->getState(), pose_landmark, 1e-6);
+    ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), pose_landmark, 1e-6);
 }
 
 TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
@@ -363,8 +363,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_O_perturbated)
     std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
     //WOLF_DEBUG("Landmark state after solve: ");
     //WOLF_DEBUG(lmk1->getState().transpose());
-    ASSERT_MATRIX_APPROX(F1->getState(), pose_robot, 1e-6);
-    ASSERT_MATRIX_APPROX(lmk1->getState(), pose_landmark, 1e-6);
+    ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), pose_landmark, 1e-6);
 
 }
 
@@ -425,8 +425,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
     Vector7d t_w_r, t_w_l;
     t_w_r << p_w_r, q_w_r.coeffs();
     t_w_l << p_w_l, q_w_l.coeffs();
-    ASSERT_MATRIX_APPROX(F1->getState(), t_w_r, 1e-6);
-    ASSERT_MATRIX_APPROX(lmk1->getState(), t_w_l, 1e-6);
+    ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), t_w_r, 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), t_w_l, 1e-6);
 
     // unfix LMK, perturbate state
     lmk1->unfix();
@@ -441,8 +441,8 @@ TEST_F(FactorAutodiffApriltag_class, solve_L1_PO_perturbated)
     std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
     //WOLF_DEBUG("Landmark state after solve: ");
     //WOLF_DEBUG(lmk1->getState().transpose());
-    ASSERT_MATRIX_APPROX(F1->getState().transpose(), t_w_r.transpose(), 1e-6);
-    ASSERT_MATRIX_APPROX(lmk1->getState().transpose(), t_w_l.transpose(), 1e-6);
+    ASSERT_MATRIX_APPROX(F1->getState().vector("PO").transpose(), t_w_r.transpose(), 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO").transpose(), t_w_l.transpose(), 1e-6);
 
 }
 

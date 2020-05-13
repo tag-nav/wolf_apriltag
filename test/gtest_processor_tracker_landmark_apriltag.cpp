@@ -340,7 +340,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
     ASSERT_TRUE(lmk_april->getMap() != nullptr);
     ASSERT_TRUE(lmk_april->getType() == "LandmarkApriltag");
-    ASSERT_MATRIX_APPROX(lmk_april->getState(), pose_landmark, 1e-6);
+    ASSERT_MATRIX_APPROX(lmk_april->getState().vector("PO"), pose_landmark, 1e-6);
 }
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)

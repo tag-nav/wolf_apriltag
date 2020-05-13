@@ -50,7 +50,7 @@ TEST(LandmarkApriltag, getPose)
     Vector7d p;
     p << 0,0,0, 0,0,0,1;
     LandmarkApriltagPtr l = std::make_shared<LandmarkApriltag>(p, 5, 0.2); // pose, tag_id, tag_width
-    ASSERT_MATRIX_APPROX(l->getState(), p, 1e-6);
+    ASSERT_MATRIX_APPROX(l->getState().vector("PO"), p, 1e-6);
 }
 
 TEST_F(LandmarkApriltag_class, create)
