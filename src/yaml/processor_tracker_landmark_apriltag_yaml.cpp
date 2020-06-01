@@ -71,7 +71,7 @@ static ParamsProcessorBasePtr createParamsProcessorLandmarkApriltag(const std::s
         params->enough_info_necessary_      = vote["enough_info_necessary"]          .as<bool>();
         
         params->reestimate_last_frame_      = config["reestimate_last_frame"]        .as<bool>();
-        params->add_3d_cstr_                = config["add_3D_cstr"]                  .as<bool>();
+        params->add_3d_cstr_                = config["add_3d_cstr"]                  .as<bool>();
 
         params->max_new_features            = config["max_new_features"]             .as<int>();
         params->apply_loss_function         = config["apply_loss_function"]          .as<bool>();
