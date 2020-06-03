@@ -83,6 +83,7 @@ FactorApriltag::FactorApriltag(
         bool _apply_loss_function,
         FactorStatus _status) :
             FactorAutodiff("FactorApriltag",
+                           _feature_ptr,
                                nullptr,
                                nullptr,
                                nullptr,
