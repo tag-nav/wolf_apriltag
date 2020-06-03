@@ -23,5 +23,5 @@ target_link_libraries(gtest_landmark_apriltag ${PLUGIN_NAME} ${wolf_LIBRARY} ${O
 wolf_add_gtest(gtest_processor_tracker_landmark_apriltag gtest_processor_tracker_landmark_apriltag.cpp)
 target_link_libraries(gtest_processor_tracker_landmark_apriltag ${PLUGIN_NAME} ${wolf_LIBRARY} ${OpenCV_LIBS})
 
-wolf_add_gtest(gtest_factor_autodiff_apriltag gtest_factor_autodiff_apriltag.cpp)
-target_link_libraries(gtest_factor_autodiff_apriltag ${PLUGIN_NAME} ${wolf_LIBRARY} ${OpenCV_LIBS})
+wolf_add_gtest(gtest_factor_apriltag gtest_factor_apriltag.cpp)
+target_link_libraries(gtest_factor_apriltag ${PLUGIN_NAME} ${wolf_LIBRARY} ${OpenCV_LIBS})

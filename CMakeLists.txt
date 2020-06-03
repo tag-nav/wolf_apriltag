@@ -158,7 +158,7 @@ SET(HDRS_UTILS
 SET(HDRS_CAPTURE
   )
 SET(HDRS_FACTOR
-include/apriltag/factor/factor_autodiff_apriltag.h
+include/apriltag/factor/factor_apriltag.h
   )
 SET(HDRS_FEATURE
 include/apriltag/feature/feature_apriltag.h
@@ -247,7 +247,21 @@ ADD_LIBRARY(${PLUGIN_NAME}
   ${SRCS_WRAPPER}
   ${SRCS_YAML}
   )
-# set(wolf_vision_LIBRARY "/usr/local/lib/iri-algorithms/libvision.so")
+  
+  
+# Set compiler options
+# ====================
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  message(STATUS "Using C++ compiler clang")
+  target_compile_options(${PLUGIN_NAME} PRIVATE -Winconsistent-missing-override)
+  # using Clang
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  message(STATUS "Using C++ compiler gnu")
+  target_compile_options(${PLUGIN_NAME} PRIVATE -Wsuggest-override)
+  # using GCC
+endif()
+
+
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolf_LIBRARIES})
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${OpenCV_LIBS})
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${OPENCV_LDFLAGS})
