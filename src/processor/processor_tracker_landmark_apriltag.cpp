@@ -34,7 +34,7 @@ namespace wolf {
 
 // Constructor
 ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
-        ProcessorTrackerLandmark("ProcessorTrackerLandmarkApriltag",  _params_tracker_landmark_apriltag ),
+        ProcessorTrackerLandmark("ProcessorTrackerLandmarkApriltag", "PO", _params_tracker_landmark_apriltag ),
         tag_widths_(_params_tracker_landmark_apriltag->tag_widths_),
         tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
         std_xy_ (_params_tracker_landmark_apriltag->std_xy_ ),
