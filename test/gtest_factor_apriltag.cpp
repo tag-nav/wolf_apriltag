@@ -78,6 +78,12 @@ class FactorApriltag_class : public testing::Test{
         FactorApriltagPtr c_tag;
         apriltag_detection_t    det;
 
+        double rep_error1;
+        double rep_error2;
+        bool use_rotation;
+
+        Eigen::Matrix6d meas_cov;
+
         virtual void SetUp()
         {
             std::string wolf_root = _WOLF_APRILTAG_ROOT_DIR;
@@ -163,7 +169,7 @@ class FactorApriltag_class : public testing::Test{
             proc_apriltag->setLastPtr(C1);
 
             // the sensor is at origin as well as the robot. The measurement matches with the pose of the tag wrt camera (and also wrt robot and world)
-            Eigen::Matrix6d meas_cov(Eigen::Matrix6d::Identity());
+            meas_cov = Eigen::Matrix6d::Identity();
             meas_cov.topLeftCorner(3,3)     *= 1e-2;
             meas_cov.bottomRightCorner(3,3) *= 1e-3;
             int tag_id = 1;
@@ -178,12 +184,12 @@ class FactorApriltag_class : public testing::Test{
             det.p[3][0] = -1.0;
             det.p[3][1] = -1.0;
 
-            double rep_error1 = 0.01;
-            double rep_error2 = 0.1;
-            bool use_rotation = true;
+            rep_error1 = 0.01;
+            rep_error2 = 0.1;
+            use_rotation = true;
 
             //emplace feature and landmark
-            f1 = std::static_pointer_cast<FeatureApriltag>(FeatureBase::emplace<FeatureApriltag>(C1, pose_landmark, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation));
+            f1 = std::static_pointer_cast<FeatureApriltag>(FeatureBase::emplace<FeatureApriltag>(C1, pose_landmark, meas_cov, det.id, det, rep_error1, rep_error2, use_rotation));
             lmk1 = std::static_pointer_cast<LandmarkApriltag>(proc_apriltag->emplaceLandmark(f1));
         }
 };
@@ -372,15 +378,6 @@ TEST_F(FactorApriltag_class, solve_L1_O_perturbated)
 
 TEST_F(FactorApriltag_class, solve_L1_PO_perturbated)
 {
-    auto factor = FactorBase::emplace<FactorApriltag>(f1,
-                                                              S,
-                                                              F1,
-                                                              lmk1,
-                                                              f1,
-                                                              nullptr,
-                                                              false,
-                                                              FAC_ACTIVE);
-
     // Change setup
     Vector3d p_w_r, p_r_c, p_c_l, p_w_l;
     Quaterniond q_w_r, q_r_c, q_c_l, q_w_l;
@@ -394,10 +391,22 @@ TEST_F(FactorApriltag_class, solve_L1_PO_perturbated)
     q_w_l = q_w_r * q_r_c * q_c_l;
     p_w_l = p_w_r + q_w_r * (p_r_c + q_r_c * p_c_l);
 
-    // Change feature
+    // Change feature (remove and emplace)
     Vector7d meas;
     meas << p_c_l, q_c_l.coeffs();
-    f1->setMeasurement(meas);
+    f1->remove();
+    f1 = std::static_pointer_cast<FeatureApriltag>(FeatureBase::emplace<FeatureApriltag>(C1, meas, meas_cov, det.id, det, rep_error1, rep_error2, use_rotation));
+    //f1->setMeasurement(meas);
+
+    // emplace factor
+    auto factor = FactorBase::emplace<FactorApriltag>(f1,
+                                                              S,
+                                                              F1,
+                                                              lmk1,
+                                                              f1,
+                                                              nullptr,
+                                                              false,
+                                                              FAC_ACTIVE);
 
     // Change Landmark
     lmk1->getP()->setState(p_w_l);
