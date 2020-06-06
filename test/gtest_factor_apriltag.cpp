@@ -153,7 +153,9 @@ class FactorApriltag_class : public testing::Test{
             proc_apriltag = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(proc);
 
             // F1 is be origin KF
-            F1 = problem->setPriorFactor(pose_robot, Matrix6d::Identity(), 0.0, 0.1);
+            VectorComposite x0(pose_robot, "PO", {3,4});
+            VectorComposite s0("PO", {Vector3d(1,1,1), Vector3d(1,1,1)});
+            F1 = problem->setPriorFactor(x0, s0, 0.0, 0.1);
 
             //emplace capture & set as last and origin
             C1 = std::static_pointer_cast<CaptureImage>(CaptureBase::emplace<CaptureImage>(F1, 1.0, camera, cv::Mat(2,2,CV_8UC1)));
