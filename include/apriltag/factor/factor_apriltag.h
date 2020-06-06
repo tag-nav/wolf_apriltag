@@ -83,17 +83,18 @@ FactorApriltag::FactorApriltag(
         bool _apply_loss_function,
         FactorStatus _status) :
             FactorAutodiff("FactorApriltag",
-                               nullptr,
-                               nullptr,
-                               nullptr,
-                               _landmark_other_ptr,
-                               _processor_ptr,
-                               _apply_loss_function,
-                               _status,
-                               _sensor_ptr->getP(),         _sensor_ptr->getO(),
-                               _frame_ptr->getP(),          _frame_ptr->getO(),
-                               _landmark_other_ptr->getP(), _landmark_other_ptr->getO()
-                               )
+                           _feature_ptr,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           _landmark_other_ptr,
+                           _processor_ptr,
+                           _apply_loss_function,
+                           _status,
+                           _sensor_ptr->getP(),         _sensor_ptr->getO(),
+                           _frame_ptr->getP(),          _frame_ptr->getO(),
+                           _landmark_other_ptr->getP(), _landmark_other_ptr->getO()
+            )
 {
 
 
