@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
     // ceres::Solver::Options options;
     // options.max_num_iterations              = 1000; // We depart far from solution, need a lot of iterations
     // CeresManagerPtr ceres                   = std::make_shared<CeresManager>(problem, options);
-    auto ceres = SolverFactory::get().create("Solver", problem, server);
+    auto ceres = SolverFactory::create("Solver", problem, server);
     // We'll do 3 steps of motion and landmark observations.
 
     // STEP 1 --------------------------------------------------------------

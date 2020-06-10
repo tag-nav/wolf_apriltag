@@ -87,8 +87,8 @@ static ParamsProcessorBasePtr createParamsProcessorLandmarkApriltag(const std::s
 }
 
 // Register in the FactorySensor
-const bool WOLF_UNUSED registered_prc_apriltag = FactoryParamsProcessor::get().registerCreator("ProcessorTrackerLandmarkApriltag", createParamsProcessorLandmarkApriltag);
-const bool WOLF_UNUSED registered_prc_apriltag_wrapper = FactoryParamsProcessor::get().registerCreator("ProcessorTrackerLandmarkApriltag_Wrapper", createParamsProcessorLandmarkApriltag);
+const bool WOLF_UNUSED registered_prc_apriltag = FactoryParamsProcessor::registerCreator("ProcessorTrackerLandmarkApriltag", createParamsProcessorLandmarkApriltag);
+const bool WOLF_UNUSED registered_prc_apriltag_wrapper = FactoryParamsProcessor::registerCreator("ProcessorTrackerLandmarkApriltag_Wrapper", createParamsProcessorLandmarkApriltag);
 
 } // namespace [unnamed]
 
