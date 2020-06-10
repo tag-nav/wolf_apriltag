@@ -26,7 +26,7 @@ class FeatureApriltag : public FeatureBase
                         const int _tag_id, const apriltag_detection_t & _det,
                         double _rep_error1, double _rep_error2, bool _use_rotation,
                         UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
-        virtual ~FeatureApriltag();
+        ~FeatureApriltag() override;
         
         /** \brief Returns tag id
          * 

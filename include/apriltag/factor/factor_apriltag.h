@@ -31,9 +31,9 @@ class FactorApriltag : public FactorAutodiff<FactorApriltag, 6, 3, 4, 3, 4, 3, 4
 
         /** \brief Class Destructor
          */
-        virtual ~FactorApriltag();
+        ~FactorApriltag() override;
  
-        virtual std::string getTopology() const override
+        std::string getTopology() const override
         {
             return std::string("LMK");
         }

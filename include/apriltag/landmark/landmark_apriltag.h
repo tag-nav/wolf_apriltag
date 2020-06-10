@@ -29,7 +29,7 @@ class LandmarkApriltag : public LandmarkBase
          **/
 		LandmarkApriltag(Eigen::Vector7d& pose, const int& _tagid, const double& _tag_width);
 
-        virtual ~LandmarkApriltag();
+        ~LandmarkApriltag() override;
         
         /** \brief Returns tag id
          * 
@@ -49,7 +49,7 @@ class LandmarkApriltag : public LandmarkBase
          */
         static LandmarkBasePtr create(const YAML::Node& _lmk_node);
 
-        YAML::Node saveToYaml() const;
+        YAML::Node saveToYaml() const override;
 
 
     private:

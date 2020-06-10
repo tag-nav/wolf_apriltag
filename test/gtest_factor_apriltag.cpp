@@ -31,7 +31,7 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         {
             setType("ProcessorTrackerLandmarkApriltag_Wrapper");
         };
-        ~ProcessorTrackerLandmarkApriltag_Wrapper(){}
+        ~ProcessorTrackerLandmarkApriltag_Wrapper() override{}
         void setOriginPtr(const CaptureBasePtr _origin_ptr) { origin_ptr_ = _origin_ptr; }
         void setLastPtr  (const CaptureBasePtr _last_ptr)   { last_ptr_ = _last_ptr; }
         void setIncomingPtr  (const CaptureBasePtr _incoming_ptr)   { incoming_ptr_ = _incoming_ptr; }
@@ -84,7 +84,7 @@ class FactorApriltag_class : public testing::Test{
 
         Eigen::Matrix6d meas_cov;
 
-        virtual void SetUp()
+        void SetUp() override
         {
             std::string wolf_root = _WOLF_APRILTAG_ROOT_DIR;
 

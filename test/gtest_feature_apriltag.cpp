@@ -23,7 +23,7 @@ class FeatureApriltag_test : public testing::Test
         double rep_error2;
         bool use_rotation;
 
-        virtual void SetUp()
+        void SetUp() override
         {
             pose << 1,2,3,4,5,6,7;
             cov.setIdentity() * 2.0;

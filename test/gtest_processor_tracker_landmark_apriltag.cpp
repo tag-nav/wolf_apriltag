@@ -27,7 +27,7 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         {
             setType("ProcessorTrackerLandmarkApriltag_Wrapper");
         };
-        ~ProcessorTrackerLandmarkApriltag_Wrapper(){}
+        ~ProcessorTrackerLandmarkApriltag_Wrapper() override{}
         void setOriginPtr(const CaptureBasePtr _origin_ptr) { origin_ptr_ = _origin_ptr; }
         void setLastPtr  (const CaptureBasePtr _last_ptr)   { last_ptr_ = _last_ptr; }
         void setIncomingPtr  (const CaptureBasePtr _incoming_ptr)   { incoming_ptr_ = _incoming_ptr; }
@@ -66,7 +66,7 @@ WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag_Wrapper);
 // Use the following in case you want to initialize tests with predefined variables or methods.
 class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
     public:
-        virtual void SetUp()
+        void SetUp() override
         {
             wolf_root = _WOLF_APRILTAG_ROOT_DIR;
 

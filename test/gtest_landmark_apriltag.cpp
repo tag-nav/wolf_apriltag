@@ -21,7 +21,7 @@ using std::static_pointer_cast;
 
 class LandmarkApriltag_class : public testing::Test{
     public:
-        virtual void SetUp()
+        void SetUp() override
         {
             wolf_root = _WOLF_APRILTAG_ROOT_DIR;
             problem = Problem::create("PO", 3);
