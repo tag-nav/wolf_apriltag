@@ -3,7 +3,7 @@
 #include "core/common/wolf.h"
 #include "core/utils/logging.h"
 
-#include "core/ceres_wrapper/ceres_manager.h"
+#include "core/ceres_wrapper/solver_ceres.h"
 #include "core/processor/factory_processor.h"
 
 #include "vision/capture/capture_image.h"
@@ -65,7 +65,7 @@ class FactorApriltag_class : public testing::Test{
         Vector7d    pose_camera,  pose_robot,  pose_landmark;
 
         ProblemPtr      problem;
-        CeresManagerPtr ceres_manager;
+        SolverCeresPtr solver;
 
         SensorCameraPtr camera;
         ProcessorTrackerLandmarkApriltag_WrapperPtr proc_apriltag;
@@ -143,8 +143,7 @@ class FactorApriltag_class : public testing::Test{
 
             // Build problem
             problem = Problem::create("PO", 3);
-            ceres::Solver::Options options;
-            ceres_manager = std::make_shared<CeresManager>(problem, options);
+            solver = std::make_shared<SolverCeres>(problem);
 
             // Install sensor and processor
             S      = problem->installSensor("SensorCamera", "canonical", pose_camera, wolf_root + "/demos/camera_params_canonical.yaml");
@@ -250,7 +249,7 @@ TEST_F(FactorApriltag_class, solve_F1_P_perturbated)
 //    WOLF_DEBUG(F1->getState().transpose());
 
 //    solve
-    std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
+    std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
 //    WOLF_DEBUG("State after solve: ");
 //    WOLF_DEBUG(F1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
@@ -285,7 +284,7 @@ TEST_F(FactorApriltag_class, solve_F1_O_perturbated)
 //    WOLF_DEBUG(F1->getState().transpose());
 
 //    solve
-    std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
+    std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
 //    WOLF_DEBUG("State after solve: ");
 //    WOLF_DEBUG(F1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
@@ -335,7 +334,7 @@ TEST_F(FactorApriltag_class, solve_L1_P_perturbated)
     //WOLF_DEBUG(lmk1->getState().transpose());
 
 //    solve
-    std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
+    std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
     //WOLF_DEBUG("Landmark state after solve: ");
     //WOLF_DEBUG(lmk1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
@@ -368,7 +367,7 @@ TEST_F(FactorApriltag_class, solve_L1_O_perturbated)
     //WOLF_DEBUG(lmk1->getState().transpose());
 
 //    solve
-    std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
+    std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
     //WOLF_DEBUG("Landmark state after solve: ");
     //WOLF_DEBUG(lmk1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
@@ -449,7 +448,7 @@ TEST_F(FactorApriltag_class, solve_L1_PO_perturbated)
     ASSERT_TRUE(lmk1->getO()->stateUpdated());
 
 //    solve
-    std::string report = ceres_manager->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
+    std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
     //WOLF_DEBUG("Landmark state after solve: ");
     //WOLF_DEBUG(lmk1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO").transpose(), t_w_r.transpose(), 1e-6);
