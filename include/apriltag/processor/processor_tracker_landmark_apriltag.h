@@ -51,27 +51,27 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
     ParamsProcessorTrackerLandmarkApriltag(std::string _unique_name, const ParamsServer& _server):
         ParamsProcessorTrackerLandmark(_unique_name, _server)
     {
-        tag_family_                 = _server.getParam<std::string>(_unique_name            + "/tag_family");
-        tag_width_default_          = _server.getParam<double>(_unique_name                 + "/tag_width_default");
-        tag_widths_                 = _server.getParam<std::map<int, double>>(_unique_name  + "/tag_widths");
-        quad_decimate_              = _server.getParam<double>(_unique_name                 + "/quad_decimate");
-        quad_sigma_                 = _server.getParam<double>(_unique_name                 + "/quad_sigma");
-        nthreads_                   = _server.getParam<unsigned int>(_unique_name           + "/nthreads");
-        debug_                      = _server.getParam<bool>(_unique_name                   + "/debug");
-        refine_edges_               = _server.getParam<bool>(_unique_name                   + "/refine_edges");
-        std_xy_                     = _server.getParam<double>(_unique_name                 + "/std_xy");
-        std_z_                      = _server.getParam<double>(_unique_name                 + "/std_z");
-        std_rpy_                    = _server.getParam<double>(_unique_name                 + "/std_rpy");
-        std_pix_                    = _server.getParam<double>(_unique_name                 + "/std_pix");
-        min_time_vote_              = _server.getParam<double>(_unique_name                 + "/min_time_vote");
-        max_time_vote_              = _server.getParam<double>(_unique_name                 + "/max_time_vote");
-        max_features_diff_          = _server.getParam<int>(_unique_name                    + "/max_features_diff");
-        nb_vote_for_every_first_    = _server.getParam<int>(_unique_name                    + "/nb_vote_for_every_first");
-        enough_info_necessary_      = _server.getParam<bool>(_unique_name                   + "/enough_info_necessary");
-        add_3d_cstr_                = _server.getParam<bool>(_unique_name                   + "/add_3d_cstr");
-        ippe_min_ratio_             = _server.getParam<double>(_unique_name                 + "/ippe_min_ratio");
-        ippe_max_rep_error_         = _server.getParam<double>(_unique_name                 + "/ippe_max_rep_error");
-        reestimate_last_frame_      = _server.getParam<bool>(_unique_name                   + "/reestimate_last_frame");
+        tag_family_                 = _server.getParam<std::string>(prefix + _unique_name            + "/tag_family");
+        tag_width_default_          = _server.getParam<double>(prefix + _unique_name                 + "/tag_width_default");
+        tag_widths_                 = _server.getParam<std::map<int, double>>(prefix + _unique_name  + "/tag_widths");
+        quad_decimate_              = _server.getParam<double>(prefix + _unique_name                 + "/quad_decimate");
+        quad_sigma_                 = _server.getParam<double>(prefix + _unique_name                 + "/quad_sigma");
+        nthreads_                   = _server.getParam<unsigned int>(prefix + _unique_name           + "/nthreads");
+        debug_                      = _server.getParam<bool>(prefix + _unique_name                   + "/debug");
+        refine_edges_               = _server.getParam<bool>(prefix + _unique_name                   + "/refine_edges");
+        std_xy_                     = _server.getParam<double>(prefix + _unique_name                 + "/std_xy");
+        std_z_                      = _server.getParam<double>(prefix + _unique_name                 + "/std_z");
+        std_rpy_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_rpy");
+        std_pix_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_pix");
+        min_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/min_time_vote");
+        max_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/max_time_vote");
+        max_features_diff_          = _server.getParam<int>(prefix + _unique_name                    + "/max_features_diff");
+        nb_vote_for_every_first_    = _server.getParam<int>(prefix + _unique_name                    + "/nb_vote_for_every_first");
+        enough_info_necessary_      = _server.getParam<bool>(prefix + _unique_name                   + "/enough_info_necessary");
+        add_3d_cstr_                = _server.getParam<bool>(prefix + _unique_name                   + "/add_3d_cstr");
+        ippe_min_ratio_             = _server.getParam<double>(prefix + _unique_name                 + "/ippe_min_ratio");
+        ippe_max_rep_error_         = _server.getParam<double>(prefix + _unique_name                 + "/ippe_max_rep_error");
+        reestimate_last_frame_      = _server.getParam<bool>(prefix + _unique_name                   + "/reestimate_last_frame");
     }
     std::string print()
     {
@@ -112,6 +112,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         /** \brief Class constructor
          */
         ProcessorTrackerLandmarkApriltag( ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag);
+        WOLF_PROCESSOR_CREATE(ProcessorTrackerLandmarkApriltag, ParamsProcessorTrackerLandmarkApriltag);
 
         /** \brief Class Destructor
          */
@@ -171,9 +172,6 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         void configure(SensorBasePtr _sensor) override;
 
         void reestimateLastFrame();
-
-        // for factory
-        static ProcessorBasePtr create(const std::string& _unique_name, const ParamsProcessorBasePtr _params);
 
     public:
         double getTagWidth(int _id) const;

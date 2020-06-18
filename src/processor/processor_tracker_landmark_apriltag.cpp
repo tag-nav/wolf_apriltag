@@ -107,17 +107,6 @@ ProcessorTrackerLandmarkApriltag::~ProcessorTrackerLandmarkApriltag()
 }
 
 
-ProcessorBasePtr ProcessorTrackerLandmarkApriltag::create(const std::string& _unique_name, const ParamsProcessorBasePtr _params)
-{
-    auto prc_apriltag_params = std::static_pointer_cast<ParamsProcessorTrackerLandmarkApriltag>(_params);
-
-    auto prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag>(prc_apriltag_params);
-
-    prc_ptr->setName(_unique_name);
-
-    return prc_ptr;
-}
-
 void ProcessorTrackerLandmarkApriltag::preProcess()
 {
     //clear wolf detections so that new ones will be stored inside
@@ -677,5 +666,6 @@ std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
 namespace wolf
 {
 WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag)
+WOLF_REGISTER_PROCESSOR_AUTO(ProcessorTrackerLandmarkApriltag)
 }
 
