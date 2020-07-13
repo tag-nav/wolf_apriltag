@@ -152,6 +152,7 @@ class FactorApriltag_class : public testing::Test{
             ParamsProcessorTrackerLandmarkApriltagPtr params = std::make_shared<ParamsProcessorTrackerLandmarkApriltag>();
             // Need to set some parameters ? do it now !
             params->tag_family_ = "tag36h11";
+            params->time_tolerance = 1;
             //params->name        = params->tag_family_;
 
             ProcessorBasePtr proc = problem->installProcessor("ProcessorTrackerLandmarkApriltag_Wrapper", "apriltags_wrapper", camera, params);
@@ -219,7 +220,7 @@ TEST_F(FactorApriltag_class, Check_tree)
                                                               nullptr,
                                                               false,
                                                               FAC_ACTIVE);
-    ASSERT_TRUE(problem->check(0));
+    ASSERT_TRUE(problem->check(1));
 }
 
 TEST_F(FactorApriltag_class, solve_F1_P_perturbated)
@@ -232,7 +233,7 @@ TEST_F(FactorApriltag_class, solve_F1_P_perturbated)
                                                               nullptr,
                                                               false,
                                                               FAC_ACTIVE);
-    ASSERT_TRUE(problem->check(0));
+    ASSERT_TRUE(problem->check(1));
 
     // unfix F1, perturbate state
     F1->unfix();
