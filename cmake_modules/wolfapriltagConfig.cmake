@@ -77,7 +77,7 @@ endif()
 
 #Making sure wolf is looked for
 if(NOT wolf_FOUND)
-  FIND_PACKAGE(wolf REQUIRED)
+  FIND_PACKAGE(wolfcore REQUIRED)
 
   #We reverse in order to insert at the start
   list(REVERSE wolfapriltag_INCLUDE_DIRS)
