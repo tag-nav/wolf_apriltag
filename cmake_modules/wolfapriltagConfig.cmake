@@ -81,10 +81,10 @@ if(NOT wolf_FOUND)
 
   #We reverse in order to insert at the start
   list(REVERSE wolfapriltag_INCLUDE_DIRS)
-  list(APPEND wolfapriltag_INCLUDE_DIRS ${wolf_INCLUDE_DIRS})
+  list(APPEND wolfapriltag_INCLUDE_DIRS ${wolfcore_INCLUDE_DIRS})
   list(REVERSE wolfapriltag_INCLUDE_DIRS)
 
   list(REVERSE wolfapriltag_LIBRARIES)
-  list(APPEND wolfapriltag_LIBRARIES ${wolf_LIBRARIES})
+  list(APPEND wolfapriltag_LIBRARIES ${wolfcore_LIBRARIES})
   list(REVERSE wolfapriltag_LIBRARIES)
 endif()
