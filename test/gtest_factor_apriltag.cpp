@@ -237,24 +237,10 @@ TEST_F(FactorApriltag_class, solve_F1_P_perturbated)
 
     // unfix F1, perturbate state
     F1->unfix();
-    Vector3d p0 = Vector3d::Random() * 0.25;
-//    WOLF_DEBUG("Perturbation: ")
-//    WOLF_DEBUG(p0.transpose());
-    Vector7d x0(pose_robot);
+    F1->getP()->perturb();
 
-    x0.head<3>() += p0;
-    WOLF_DEBUG("State before perturbation: ");
-    WOLF_DEBUG(F1->getState().vector("PO").transpose());
-    F1->setState(x0, "PO", {3,4});
-//    WOLF_DEBUG("State after perturbation: ");
-//    WOLF_DEBUG(F1->getState().transpose());
-
-//    solve
     std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
-//    WOLF_DEBUG("State after solve: ");
-//    WOLF_DEBUG(F1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
-
 }
 
 TEST_F(FactorApriltag_class, solve_F1_O_perturbated)
@@ -270,26 +256,10 @@ TEST_F(FactorApriltag_class, solve_F1_O_perturbated)
 
     // unfix F1, perturbate state
     F1->unfix();
-    Vector3d e0 = euler_robot + Vector3d::Random() * 0.25;
-    Quaterniond e0_quat     = e2q(e0);
-    Vector4d e0_vquat = e0_quat.coeffs();
-//    WOLF_DEBUG("Perturbation: ")
-//    WOLF_DEBUG(e0.transpose());
-    Vector7d x0(pose_robot);
+    F1->getO()->perturb();
 
-    x0.tail<4>() = e0_vquat;
-    WOLF_DEBUG("State before perturbation: ");
-    WOLF_DEBUG(F1->getState().vector("PO").transpose());
-    F1->setState(x0, "PO", {3,4});
-//    WOLF_DEBUG("State after perturbation: ");
-//    WOLF_DEBUG(F1->getState().transpose());
-
-//    solve
     std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
-//    WOLF_DEBUG("State after solve: ");
-//    WOLF_DEBUG(F1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
-
 }
 
 TEST_F(FactorApriltag_class, Check_initialization)
@@ -322,22 +292,9 @@ TEST_F(FactorApriltag_class, solve_L1_P_perturbated)
 
     // unfix lmk1, perturbate state
     lmk1->unfix();
-    Vector3d p0 = Vector3d::Random() * 0.25;
-//    WOLF_DEBUG("Perturbation: ")
-//    WOLF_DEBUG(p0.transpose());
-    Vector7d x0(pose_landmark);
+    lmk1->getP()->perturb();
 
-    x0.head<3>() += p0;
-    //WOLF_DEBUG("Landmark state before perturbation: ");
-    //WOLF_DEBUG(lmk1->getState().transpose());
-    lmk1->getP()->setState(x0.head<3>());
-    //WOLF_DEBUG("Landmark state after perturbation: ");
-    //WOLF_DEBUG(lmk1->getState().transpose());
-
-//    solve
     std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
-    //WOLF_DEBUG("Landmark state after solve: ");
-    //WOLF_DEBUG(lmk1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
     ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), pose_landmark, 1e-6);
 }
@@ -355,22 +312,9 @@ TEST_F(FactorApriltag_class, solve_L1_O_perturbated)
 
     // unfix F1, perturbate state
     lmk1->unfix();
-    Vector3d e0 = euler_landmark + Vector3d::Random() * 0.25;
-    Quaterniond e0_quat     = e2q(e0);
-    Vector4d e0_vquat = e0_quat.coeffs();
-//    WOLF_DEBUG("Perturbation: ")
-//    WOLF_DEBUG(e0.transpose());
+    lmk1->getO()->perturb();
 
-    //WOLF_DEBUG("Landmark state before perturbation: ");
-    //WOLF_DEBUG(lmk1->getState().transpose());
-    lmk1->getO()->setState(e0_vquat);
-    //WOLF_DEBUG("Landmark state after perturbation: ");
-    //WOLF_DEBUG(lmk1->getState().transpose());
-
-//    solve
     std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
-    //WOLF_DEBUG("Landmark state after solve: ");
-    //WOLF_DEBUG(lmk1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), pose_robot, 1e-6);
     ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), pose_landmark, 1e-6);
 
@@ -396,23 +340,20 @@ TEST_F(FactorApriltag_class, solve_L1_PO_perturbated)
     meas << p_c_l, q_c_l.coeffs();
     f1->remove();
     f1 = std::static_pointer_cast<FeatureApriltag>(FeatureBase::emplace<FeatureApriltag>(C1, meas, meas_cov, det.id, det, rep_error1, rep_error2, use_rotation));
-    //f1->setMeasurement(meas);
 
     // emplace factor
     auto factor = FactorBase::emplace<FactorApriltag>(f1,
-                                                              S,
-                                                              F1,
-                                                              lmk1,
-                                                              f1,
-                                                              nullptr,
-                                                              false,
-                                                              FAC_ACTIVE);
+                                                      S,
+                                                      F1,
+                                                      lmk1,
+                                                      f1,
+                                                      nullptr,
+                                                      false,
+                                                      FAC_ACTIVE);
 
     // Change Landmark
     lmk1->getP()->setState(p_w_l);
     lmk1->getO()->setState(q_w_l.coeffs());
-    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), lmk1->getP()) != problem->getStateBlockPtrList().end());
-    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), lmk1->getO()) != problem->getStateBlockPtrList().end());
     ASSERT_TRUE(lmk1->getP()->stateUpdated());
     ASSERT_TRUE(lmk1->getO()->stateUpdated());
 
@@ -420,16 +361,12 @@ TEST_F(FactorApriltag_class, solve_L1_PO_perturbated)
     F1->getP()->setState(p_w_r);
     F1->getO()->setState(q_w_r.coeffs());
     F1->fix();
-    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), F1->getP()) != problem->getStateBlockPtrList().end());
-    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), F1->getO()) != problem->getStateBlockPtrList().end());
     ASSERT_TRUE(F1->getP()->stateUpdated());
     ASSERT_TRUE(F1->getO()->stateUpdated());
 
     // Change sensor extrinsics
     S->getP()->setState(p_r_c);
     S->getO()->setState(q_r_c.coeffs());
-    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), S->getP()) != problem->getStateBlockPtrList().end());
-    // ASSERT_TRUE(std::find(problem->getStateBlockPtrList().begin(), problem->getStateBlockPtrList().end(), S->getO()) != problem->getStateBlockPtrList().end());
     ASSERT_TRUE(S->getP()->stateUpdated());
     ASSERT_TRUE(S->getO()->stateUpdated());
 
@@ -441,23 +378,13 @@ TEST_F(FactorApriltag_class, solve_L1_PO_perturbated)
 
     // unfix LMK, perturbate state
     lmk1->unfix();
-    Vector3d e0_pos = p_w_l + Vector3d::Random() * 0.25;
-    Quaterniond e0_quat = q_w_l * exp_q(Vector3d::Random() * 0.1);
-    lmk1->getP()->setState(e0_pos);
-    lmk1->getO()->setState(e0_quat.coeffs());
-    ASSERT_TRUE(lmk1->getP()->stateUpdated());
-    ASSERT_TRUE(lmk1->getO()->stateUpdated());
+    lmk1->perturb();
 
-//    solve
     std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
-    //WOLF_DEBUG("Landmark state after solve: ");
-    //WOLF_DEBUG(lmk1->getState().transpose());
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO").transpose(), t_w_r.transpose(), 1e-6);
     ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO").transpose(), t_w_l.transpose(), 1e-6);
 
 }
-
-//[Class methods]
 
 int main(int argc, char **argv)
 {
