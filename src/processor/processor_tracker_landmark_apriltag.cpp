@@ -152,8 +152,8 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
 
         // set the measured pose vector
         Eigen::Vector3d translation ( c_M_t.translation() ); // translation vector in apriltag meters
-        Eigen::Vector7d pose;
-        pose << translation, R2q(c_M_t.linear()).coeffs();
+        Eigen::Matrix3d cRt = c_M_t.linear(); 
+        Eigen::Vector7d pose; pose << translation, R2q(cRt).coeffs();
 
         // compute the covariance
         // Eigen::Matrix6d cov = getVarVec().asDiagonal() ;  // fixed dummy covariance
@@ -265,7 +265,8 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr
 
     // make 7-vector for lmk (tag) pose
     pos  = w_M_t.translation();
-    quat = w_M_t.linear();
+    Eigen::Matrix3d wRt = w_M_t.linear();
+    quat.coeffs() = R2q(wRt).coeffs().transpose();
     Vector7d w_pose_t;
     w_pose_t << pos, quat.coeffs();
 
