@@ -1,4 +1,4 @@
-image: segaleran/ceres
+image: labrobotica/ceres:1.14
 
 before_script:
   ##
