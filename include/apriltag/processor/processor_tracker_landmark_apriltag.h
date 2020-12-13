@@ -73,9 +73,9 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         ippe_max_rep_error_         = _server.getParam<double>(prefix + _unique_name                 + "/ippe_max_rep_error");
         reestimate_last_frame_      = _server.getParam<bool>(prefix + _unique_name                   + "/reestimate_last_frame");
     }
-    std::string print()
+    std::string print() const override
     {
-        return "\n" + ParamsProcessorTrackerLandmark::print()                           + "\n"
+        return ParamsProcessorTrackerLandmark::print()                           + "\n"
         + "tag_family_: "               + tag_family_                                   + "\n"
         + "tag_width_default_: "        + std::to_string(tag_width_default_)            + "\n"
         + "tag_widths_: "               + converter<std::string>::convert(tag_widths_)  + "\n"
