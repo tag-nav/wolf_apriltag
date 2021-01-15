@@ -9,9 +9,6 @@
 
 #include "core/math/rotations.h"
 #include "core/state_block/state_quaternion.h"
-#include "core/factor/factor_autodiff_distance_3d.h"
-
-// April tags
 #include "apriltag/common/homography.h"
 #include "apriltag/common/zarray.h"
 
@@ -23,6 +20,7 @@
 #include <apriltag/tagCustom48h12.h>
 #include <apriltag/tagStandard41h12.h>
 #include <apriltag/tagStandard52h13.h>
+#include <core/factor/factor_distance_3d.h>
 
 
 // #include "opencv2/opencv.hpp"
@@ -524,7 +522,7 @@ void ProcessorTrackerLandmarkApriltag::resetDerived()
  
             auto capt3d = CaptureBase::emplace<CaptureBase>(getLast()->getFrame(),"Dist",getLast()->getTimeStamp());
             auto feat_dist = FeatureBase::emplace<FeatureBase>(capt3d, "Dist", dist_meas, cov0);
-            auto cstr = FactorBase::emplace<FactorAutodiffDistance3d>(feat_dist, feat_dist, ori_frame, shared_from_this(), params_->apply_loss_function, FAC_ACTIVE);
+            auto cstr = FactorBase::emplace<FactorDistance3d>(feat_dist, feat_dist, ori_frame, shared_from_this(), params_->apply_loss_function, FAC_ACTIVE);
         }
     }
     

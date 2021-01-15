@@ -5,10 +5,8 @@
 #include "core/common/wolf.h"
 #include "core/processor/processor_tracker_landmark.h"
 #include "vision/sensor/sensor_camera.h"
-#include "core/factor/factor_autodiff_distance_3d.h"
-
-// Apriltag
 #include <apriltag/apriltag.h>
+#include <core/factor/factor_distance_3d.h>
 
 // open cv
 #include <opencv/cv.h>
