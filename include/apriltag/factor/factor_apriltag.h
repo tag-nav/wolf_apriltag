@@ -33,11 +33,6 @@ class FactorApriltag : public FactorAutodiff<FactorApriltag, 6, 3, 4, 3, 4, 3, 4
          */
         ~FactorApriltag() override;
  
-        std::string getTopology() const override
-        {
-            return std::string("LMK");
-        }
-
         /** brief : compute the residual from the state blocks being iterated by the solver.
          **/
         template<typename T>
@@ -83,6 +78,7 @@ FactorApriltag::FactorApriltag(
         bool _apply_loss_function,
         FactorStatus _status) :
             FactorAutodiff("FactorApriltag",
+                           TOP_LMK,
                            _feature_ptr,
                            nullptr,
                            nullptr,
