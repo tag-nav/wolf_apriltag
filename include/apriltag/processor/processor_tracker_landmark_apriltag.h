@@ -61,11 +61,11 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         std_z_                      = _server.getParam<double>(prefix + _unique_name                 + "/std_z");
         std_rpy_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_rpy");
         std_pix_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_pix");
-        min_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/min_time_vote");
-        max_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/max_time_vote");
-        max_features_diff_          = _server.getParam<int>(prefix + _unique_name                    + "/max_features_diff");
-        nb_vote_for_every_first_    = _server.getParam<int>(prefix + _unique_name                    + "/nb_vote_for_every_first");
-        enough_info_necessary_      = _server.getParam<bool>(prefix + _unique_name                   + "/enough_info_necessary");
+        min_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/min_time_vote");
+        max_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/max_time_vote");
+        max_features_diff_          = _server.getParam<int>(prefix + _unique_name                    + "/keyframe_vote/max_features_diff");
+        nb_vote_for_every_first_    = _server.getParam<int>(prefix + _unique_name                    + "/keyframe_vote/nb_vote_for_every_first");
+        enough_info_necessary_      = _server.getParam<bool>(prefix + _unique_name                   + "/keyframe_vote/enough_info_necessary");
         add_3d_cstr_                = _server.getParam<bool>(prefix + _unique_name                   + "/add_3d_cstr");
         ippe_min_ratio_             = _server.getParam<double>(prefix + _unique_name                 + "/ippe_min_ratio");
         ippe_max_rep_error_         = _server.getParam<double>(prefix + _unique_name                 + "/ippe_max_rep_error");
