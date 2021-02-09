@@ -109,20 +109,6 @@ FIND_PACKAGE(wolfvision REQUIRED)
 
 FIND_PACKAGE(apriltag REQUIRED)
 
-#FIND_PATH(
-#    Suitesparse_INCLUDE_DIRS
-#    NAMES SuiteSparse_config.h
-#    PATHS /usr/include/suitesparse /usr/local/include/suitesparse)
-#MESSAGE("Found suitesparse_INCLUDE_DIRS:" ${Suitesparse_INCLUDE_DIRS})
-
-#IF(Suitesparse_INCLUDE_DIRS)
-#   SET(Suitesparse_FOUND TRUE)
-#   MESSAGE("Suitesparse FOUND: wolf_solver will be built.")
-#ELSE (Suitesparse_INCLUDE_DIRS)
-#   SET(Suitesparse_FOUND FALSE)
-#   MESSAGE(FATAL_ERROR "Suitesparse NOT FOUND")
-#ENDIF (Suitesparse_INCLUDE_DIRS)
-
 # Define the directory where will be the configured config.h
 SET(WOLF_CONFIG_DIR ${PROJECT_BINARY_DIR}/conf/${PROJECT_NAME}/internal)
 
@@ -150,13 +136,9 @@ INCLUDE_DIRECTORIES(${vision_utils_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
 
 #HEADERS
-SET(HDRS_COMMON
-  )
-SET(HDRS_MATH
-  )
-SET(HDRS_UTILS
-  )
 SET(HDRS_CAPTURE
+  )
+SET(HDRS_COMMON
   )
 SET(HDRS_FACTOR
 include/apriltag/factor/factor_apriltag.h
@@ -167,6 +149,8 @@ include/apriltag/feature/feature_apriltag.h
 SET(HDRS_LANDMARK
 include/apriltag/landmark/landmark_apriltag.h
   )
+SET(HDRS_MATH
+  )
 SET(HDRS_PROCESSOR
 include/apriltag/processor/processor_tracker_landmark_apriltag.h
 include/apriltag/processor/ippe.h
@@ -175,18 +159,16 @@ SET(HDRS_SENSOR
   )
 SET(HDRS_SOLVER
   )
-SET(HDRS_DTASSC
+SET(HDRS_UTILS
+  )
+SET(HDRS_YAML
   )
 
 #SOURCES
 
-SET(SRCS_COMMON
-  )
-SET(SRCS_MATH
-  )
-SET(SRCS_UTILS
-  )
 SET(SRCS_CAPTURE
+  )
+SET(SRCS_COMMON
   )
 SET(SRCS_FACTOR
   )
@@ -196,47 +178,27 @@ src/feature/feature_apriltag.cpp
 SET(SRCS_LANDMARK
 src/landmark/landmark_apriltag.cpp
   )
+SET(SRCS_MATH
+  )
 SET(SRCS_PROCESSOR
 src/processor/processor_tracker_landmark_apriltag.cpp
 src/processor/ippe.cpp
   )
 SET(SRCS_SENSOR
   )
-SET(SRCS_DTASSC
-  )
 SET(SRCS_SOLVER
+  )
+SET(SRCS_UTILS
   )
 SET(SRCS_YAML
 src/yaml/processor_tracker_landmark_apriltag_yaml.cpp
   )
-#OPTIONALS
-#optional HDRS and SRCS
-# ==================EXAMPLE===============
-# IF (Ceres_FOUND)
-#     SET(HDRS_WRAPPER
-#       include/base/solver_suitesparse/sparse_utils.h
-#       include/base/solver/solver_manager.h
-#       include/base/ceres_wrapper/ceres_manager.h
-#       include/base/ceres_wrapper/cost_function_wrapper.h
-#       include/base/ceres_wrapper/create_numeric_diff_cost_function.h
-#       include/base/ceres_wrapper/local_parametrization_wrapper.h 
-#       )
-#     SET(SRCS_WRAPPER
-#       src/solver/solver_manager.cpp
-#       src/ceres_wrapper/ceres_manager.cpp
-#       src/ceres_wrapper/local_parametrization_wrapper.cpp 
-#       )
-# ELSE(Ceres_FOUND)
-#   SET(HDRS_WRAPPER)
-#   SET(SRCS_WRAPPER)
-# ENDIF(Ceres_FOUND)
 
 # create the shared library
 ADD_LIBRARY(${PLUGIN_NAME}
   SHARED
   ${SRCS_CAPTURE}
   ${SRCS_COMMON}
-  ${SRCS_DTASSC}
   ${SRCS_FACTOR}
   ${SRCS_FEATURE}
   ${SRCS_LANDMARK}
@@ -245,7 +207,6 @@ ADD_LIBRARY(${PLUGIN_NAME}
   ${SRCS_SENSOR}
   ${SRCS_SOLVER}
   ${SRCS_UTILS}
-  ${SRCS_WRAPPER}
   ${SRCS_YAML}
   )
   
@@ -293,34 +254,26 @@ INSTALL(TARGETS ${PLUGIN_NAME} EXPORT ${PLUGIN_NAME}Targets
 
 install(EXPORT ${PLUGIN_NAME}Targets DESTINATION lib/cmake/${PLUGIN_NAME})
 #install headers
-INSTALL(FILES ${HDRS_COMMON}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/common)
-INSTALL(FILES ${HDRS_MATH}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/math)
-INSTALL(FILES ${HDRS_UTILS}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/utils)
-INSTALL(FILES ${HDRS_DTASSC}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/association)
 INSTALL(FILES ${HDRS_CAPTURE}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/capture)
+INSTALL(FILES ${HDRS_COMMON}
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/common)
 INSTALL(FILES ${HDRS_FACTOR}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/factor)
 INSTALL(FILES ${HDRS_FEATURE}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/feature)
-INSTALL(FILES ${HDRS_SENSOR}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/sensor)
-INSTALL(FILES ${HDRS_PROCESSOR}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/processor)
 INSTALL(FILES ${HDRS_LANDMARK}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/landmark)
-INSTALL(FILES ${HDRS_WRAPPER}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/ceres_wrapper)
-#INSTALL(FILES ${HDRS_SOLVER_SUITESPARSE}
-#  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver_suitesparse)
+INSTALL(FILES ${HDRS_MATH}
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/math)
+INSTALL(FILES ${HDRS_PROCESSOR}
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/processor)
+INSTALL(FILES ${HDRS_SENSOR}
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/sensor)
 INSTALL(FILES ${HDRS_SOLVER}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver)
-INSTALL(FILES ${HDRS_SERIALIZATION}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/serialization)
+INSTALL(FILES ${HDRS_UTILS}
+  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/utils)
 INSTALL(FILES ${HDRS_YAML}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/yaml)
 
