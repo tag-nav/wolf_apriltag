@@ -66,9 +66,7 @@ static ParamsProcessorBasePtr createParamsProcessorLandmarkApriltag(const std::s
         params->min_time_vote_              = vote["min_time_vote"]                  .as<double>();
         params->max_time_vote_              = vote["max_time_vote"]                  .as<double>();
         params->min_features_for_keyframe   = vote["min_features_for_keyframe"]      .as<unsigned int>();
-        params->max_features_diff_          = vote["max_features_diff"]              .as<int>();
         params->nb_vote_for_every_first_    = vote["nb_vote_for_every_first"]        .as<int>();
-        params->enough_info_necessary_      = vote["enough_info_necessary"]          .as<bool>();
         
         params->reestimate_last_frame_      = config["reestimate_last_frame"]        .as<bool>();
         params->add_3d_cstr_                = config["add_3d_cstr"]                  .as<bool>();

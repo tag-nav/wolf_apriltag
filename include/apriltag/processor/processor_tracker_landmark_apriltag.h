@@ -37,9 +37,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
     double std_pix_;
     double min_time_vote_;
     double max_time_vote_;
-    int max_features_diff_;
     int nb_vote_for_every_first_;
-    bool enough_info_necessary_;
     bool add_3d_cstr_;
     double ippe_min_ratio_;
     double ippe_max_rep_error_;
@@ -63,9 +61,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         std_pix_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_pix");
         min_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/min_time_vote");
         max_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/max_time_vote");
-        max_features_diff_          = _server.getParam<int>(prefix + _unique_name                    + "/keyframe_vote/max_features_diff");
         nb_vote_for_every_first_    = _server.getParam<int>(prefix + _unique_name                    + "/keyframe_vote/nb_vote_for_every_first");
-        enough_info_necessary_      = _server.getParam<bool>(prefix + _unique_name                   + "/keyframe_vote/enough_info_necessary");
         add_3d_cstr_                = _server.getParam<bool>(prefix + _unique_name                   + "/add_3d_cstr");
         ippe_min_ratio_             = _server.getParam<double>(prefix + _unique_name                 + "/ippe_min_ratio");
         ippe_max_rep_error_         = _server.getParam<double>(prefix + _unique_name                 + "/ippe_max_rep_error");
@@ -88,9 +84,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         + "std_pix_: "                  + std::to_string(std_pix_)                      + "\n"
         + "min_time_vote_: "            + std::to_string(min_time_vote_)                + "\n"
         + "max_time_vote_: "            + std::to_string(max_time_vote_)                + "\n"
-        + "max_features_diff_: "        + std::to_string(max_features_diff_)            + "\n"
         + "nb_vote_for_every_first_: "  + std::to_string(nb_vote_for_every_first_)      + "\n"
-        + "enough_info_necessary_: "    + std::to_string(enough_info_necessary_)        + "\n"
         + "add_3d_cstr_: "              + std::to_string(add_3d_cstr_)                  + "\n"
         + "ippe_min_ratio_: "           + std::to_string(ippe_min_ratio_)               + "\n"
         + "ippe_max_rep_error_: "       + std::to_string(ippe_max_rep_error_)           + "\n"
@@ -206,8 +200,6 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         double std_pix_;                    ///< pixel error to be propagated to a camera to tag transformation covariance
         double ippe_min_ratio_;
         double ippe_max_rep_error_;
-//        Eigen::Isometry3d c_M_ac_;           ///< aprilCamera-to-camera transform not used with solvePnP
-//        double cx_, cy_, fx_, fy_;
         Matrix3d K_;
         cv::Mat_<double> cv_K_;
         bool reestimate_last_frame_;
@@ -223,9 +215,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         double          min_time_vote_;
         double          max_time_vote_;
         unsigned int    min_features_for_keyframe_;
-        int             max_features_diff_;
         int             nb_vote_for_every_first_;
-        bool            enough_info_necessary_;
         bool            add_3d_cstr_;
         int             nb_vote_;
 

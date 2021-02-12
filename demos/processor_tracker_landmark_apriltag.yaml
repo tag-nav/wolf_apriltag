@@ -32,9 +32,7 @@ vote:
     min_time_vote:              0 # s
     max_time_vote:              0 # s
     min_features_for_keyframe:  12
-    max_features_diff:          17
     nb_vote_for_every_first:    50
-    enough_info_necessary:      true   # create kf if enough information to uniquely determine the KF position (necessary for apriltag_only slam)
 
 reestimate_last_frame: true   # for a better prior on the new keyframe: use only if no motion processor
 add_3d_cstr: true             # add 3D constraints between the KF so that they do not jump when using apriltag only

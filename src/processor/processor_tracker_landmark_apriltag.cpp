@@ -47,9 +47,7 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         min_time_vote_(_params_tracker_landmark_apriltag->min_time_vote_),
         max_time_vote_(_params_tracker_landmark_apriltag->max_time_vote_),
         min_features_for_keyframe_(_params_tracker_landmark_apriltag->min_features_for_keyframe),
-        max_features_diff_(_params_tracker_landmark_apriltag->max_features_diff_),
         nb_vote_for_every_first_(_params_tracker_landmark_apriltag->nb_vote_for_every_first_),
-        enough_info_necessary_(_params_tracker_landmark_apriltag->enough_info_necessary_),
         add_3d_cstr_(_params_tracker_landmark_apriltag->add_3d_cstr_),
         nb_vote_(0)
 
@@ -288,9 +286,11 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
 
         bool feature_already_found(false);
 
+        auto feature_april = std::static_pointer_cast<FeatureApriltag>(feature_in_image);
+
         //Loop over the landmark to find is one is associated to  feature_in_image
         for(auto it = landmark_list.begin(); it != landmark_list.end(); ++it){
-            if(std::static_pointer_cast<LandmarkApriltag>(*it)->getTagId() == std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getTagId()){
+            if(std::static_pointer_cast<LandmarkApriltag>(*it)->getTagId() == feature_april->getTagId()){
                 feature_already_found = true;
                 break;
             }
@@ -299,15 +299,17 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
         if (!feature_already_found)
         {
             for (FeatureBasePtrList::iterator it=_features_out.begin(); it != _features_out.end(); ++it)
-                if (std::static_pointer_cast<FeatureApriltag>(*it)->getTagId() == std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getTagId())
+            {
+                if (std::static_pointer_cast<FeatureApriltag>(*it)->getTagId() == feature_april->getTagId())
                 {
                     //we have a detection with the same id as the currently processed one. We remove the previous feature from the list for now
                     _features_out.erase(it);
                     //it should not be possible two detection with the same id before getting there so we can stop here.
                     break; 
                 }
+            }
             // discard features that do not have orientation information
-            if (!std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getUserotation())
+            if (!feature_april->getUserotation())
                 continue;
 
             // If the feature is not in the map & not in the list of newly detected features yet then we add it.
@@ -324,52 +326,27 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
 
 bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
 {   
-    // Necessary conditions
-    bool more_in_last = getLast()->getFeatureList().size() >= min_features_for_keyframe_;
-    // Vote for every image processed at the beginning, bypasses the others
-    if (more_in_last && (nb_vote_ < nb_vote_for_every_first_)){
-        return true;
-    }
-    // Check if enough information is provided by the measurements to determine uniquely the position of the KF
-    // Is only activated when enough_info_necessary_ is set to true
-    bool enough_info;
-    if (enough_info_necessary_){
-        int nb_userot = 0;
-        int nb_not_userot = 0;
-        for (auto it_feat = getLast()->getFeatureList().begin(); it_feat != getLast()->getFeatureList().end(); it_feat++){
-            FeatureApriltagPtr feat_apr_ptr = std::static_pointer_cast<FeatureApriltag>(*it_feat);
-            if (feat_apr_ptr->getUserotation()){
-                nb_userot++;
-            }
-            else{
-                nb_not_userot++;
-            }
-        }
-        // Condition on wether enough information is provided by the measurements:
-        // Position + rotation OR more that 3 3d translations (3 gives 2 symmetric solutions)
-        enough_info = (nb_userot > 0) || (nb_not_userot > 3);
-    }
-    else{
-        enough_info = true;
-    }
+    // if no detections in last capture, no case where it is usefull to create a KF from last
+    if (detections_last_.empty())
+        return false;
+
     double dt_incoming_origin = getIncoming()->getTimeStamp().get() - getOrigin()->getTimeStamp().get();
     bool more_than_min_time_vote = dt_incoming_origin > min_time_vote_; 
-
-    // Possible decision factors
     bool too_long_since_last_KF = dt_incoming_origin > max_time_vote_;
-    bool less_in_incoming = getIncoming()->getFeatureList().size() <  min_features_for_keyframe_;
-    int diff = getOrigin()->getFeatureList().size() - getIncoming()->getFeatureList().size();
-    bool too_big_feature_diff = (abs(diff) >=  max_features_diff_);
+    // the elapsed time since last KF is too long 
+    if (too_long_since_last_KF){
+        return true;
+    }
+    // no detection in incoming capture and a minimum time since last KF has past
+    if ((detections_incoming_.size() < min_features_for_keyframe_) and more_than_min_time_vote)
+        return true;
 
-    // Final decision logic
-    // std::cout << "\nenough_info: " << enough_info << std::endl;
-    // std::cout << "more_than_min_time_vote: " << more_than_min_time_vote << std::endl;
-    // std::cout << "more_in_last: " << more_in_last << std::endl;
-    // std::cout << "less_in_incoming: " << less_in_incoming << std::endl;
-    // std::cout << "too_long_since_last_KF: " << too_long_since_last_KF << std::endl;
-    // std::cout << "too_big_feature_diff: " << too_big_feature_diff << std::endl;
-    bool vote = enough_info && more_than_min_time_vote && more_in_last && (less_in_incoming || too_long_since_last_KF || too_big_feature_diff);
-    return vote;
+    // Vote for every image processed at the beginning if possible
+    if (nb_vote_ < nb_vote_for_every_first_){
+        return true;
+    }
+
+    return false;
 }
 
 unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBasePtrList& _landmarks_in,
@@ -557,8 +534,6 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
     FeatureBasePtrList ori_feature_list = getOrigin()->getFeatureList();
     FeatureBasePtrList last_feature_list = getLast()->getFeatureList();
 
-    // std::cout << "last_feature_list.size(): " << last_feature_list.size() << std::endl;
-    // std::cout << "ori_feature_list.size(): " << ori_feature_list.size() << std::endl;
     if (last_feature_list.size() == 0 || ori_feature_list.size() == 0){
         return;
     }
@@ -578,7 +553,6 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
                     useable_feature = true;
                     lowest_ration = ratio;
                     best_feature = last_feat_ptr;
-                    // std::cout << "Best feature id: " << best_feature->getTagId() << std::endl;
                 }
             }
         }
