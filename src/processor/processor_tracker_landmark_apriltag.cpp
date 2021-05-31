@@ -364,7 +364,7 @@ unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBaseP
             {
                 _features_out.push_back(feature_in_image);
                 double score(1.0);
-                LandmarkMatchPtr matched_landmark = std::make_shared<LandmarkMatch>(landmark_in_ptr, score); //TODO: smarter score
+                LandmarkMatchPtr matched_landmark = std::make_shared<LandmarkMatch>(landmark_in_ptr, score);
                 _feature_landmark_correspondences.emplace ( feature_in_image, matched_landmark );
                 feature_in_image->link(_capture); // since all features are created in preProcess() are unlinked
                 break;
