@@ -1,88 +1,26 @@
-image: labrobotica/ceres:1.14
-
-before_script:
-  ##
+############ YAML ANCHORS ############
+.preliminaries_template: &preliminaries_definition
   ## Install ssh-agent if not already installed, it is required by Docker.
   ## (change apt-get to yum if you use an RPM-based image)
-  ##
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
 
-  ##
   ## Run ssh-agent (inside the build environment)
-  ##
   - eval $(ssh-agent -s)
 
-  ##
   ## Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
   ## We're using tr to fix line endings which makes ed25519 keys work
   ## without extra base64 encoding.
   ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
-  ##
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh  
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   # - echo "$SSH_KNOWN_HOSTS" > $HOME/.ssh/known_hosts
   - ssh-keyscan -H -p 2202 gitlab.iri.upc.edu >> $HOME/.ssh/known_hosts
 
-  ##
-  ## Create the SSH directory and give it the right permissions
-  ##
-  - ls
+  # update apt
   - apt-get update
-  - apt-get install -y build-essential cmake 
 
-# SPDLOG
-#  - apt-get install -y libspdlog-dev
-  - if [ -d spdlog ]; then
-  -   echo "directory exists" 
-  -   if [ "$(ls -A ./spdlog)" ]; then 
-  -     echo "directory not empty" 
-  -     cd spdlog
-  -     git pull
-  -   else 
-  -     echo "directory empty" 
-  -     git clone https://github.com/gabime/spdlog.git
-  -     cd spdlog
-  -   fi
-  - else
-  -   echo "directory inexistent" 
-  -   git clone https://github.com/gabime/spdlog.git
-  -   cd spdlog
-  - fi
-  - git fetch
-  - git checkout v0.17.0
-  - mkdir -pv build
-  - cd build
-  - ls
-  - cmake -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC" -DSPDLOG_BUILD_TESTING=OFF ..
-  - make install
-  - cd ../..
-
-# YAML
-#  - apt-get install -y libyaml-cpp-dev
-  - if [ -d yaml-cpp ]; then
-  -   echo "directory exists" 
-  -   if [ "$(ls -A ./yaml-cpp)" ]; then 
-  -     echo "directory not empty" 
-  -     cd yaml-cpp
-  -     git pull
-  -   else 
-  -     echo "directory empty" 
-  -     git clone https://github.com/jbeder/yaml-cpp.git
-  -     cd yaml-cpp
-  -   fi
-  - else
-  -   echo "directory inexistent" 
-  -   git clone https://github.com/jbeder/yaml-cpp.git
-  -   cd yaml-cpp
-  - fi
-  - mkdir -pv build
-  - cd build
-  - ls
-  - cmake -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC" -DYAML_CPP_BUILD_TESTS=OFF ..
-  - make install
-  - cd ../..
-#Wolf core
+.install_wolf_template: &install_wolf_definition
   - git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/wolf.git
   - cd wolf
   - mkdir -pv build
@@ -93,15 +31,65 @@ before_script:
   - make install
   - cd ../..
 
-wolf_build_and_test:
-  stage: build
+.install_visionutils_template: &install_visionutils_definition
+  - git clone https://gitlab.iri.upc.edu/labrobotica/algorithms/vision_utils.git
+  - cd laser_scan_utils
+  - mkdir -pv build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=release ..
+  - make -j$(nproc)
+  - make install
+  - cd ../..
+
+.install_wolfvision_template: &install_wolfvision_definition
+  - git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/plugins/vision.git
+  - cd vision
+  - mkdir -pv build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
+  - make -j$(nproc)
+  - ctest -j$(nproc)
+  - make install
+  - cd ../..
+
+.install_apriltag_template: &install_apriltag_definition
+  - echo "TO BE IMPLEMENTED"
+#TODO
+
+.build_and_test_template: &build_and_test_definition
+  - mkdir -pv build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
+  - make -j$(nproc)
+  - ctest -j$(nproc)
+  - make install
+
+############ UBUNTU 16.04 TESTS ############
+wolf_build_and_test_none:xenial:
+  image: labrobotica/wolf_vision_deps:16.04
   except:
     - master
+  before_script:
+    - *preliminaries_definition
+    - *install_wolf_definition
+    - *install_visionutils_definition
+    - *install_wolfvision_definition
+    - *install_apriltag_definition
+    - ldconfig # update links (shared libraries)
   script:
-    - mkdir -pv build
-    - cd build
-    - ls # we can check whether the directory was already full
-    - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-    - make -j$(nproc)
-    - ctest -j$(nproc)
-    - make install
+    - *build_and_test_definition
+
+############ UBUNTU 18.04 TESTS ############
+wolf_build_and_test_none:bionic:
+  image: labrobotica/wolf_vision_deps:18.04
+  except:
+    - master
+  before_script:
+    - *preliminaries_definition
+    - *install_wolf_definition
+    - *install_visionutils_definition
+    - *install_wolfvision_definition
+    - *install_apriltag_definition
+    - ldconfig # update links (shared libraries)
+  script:
+    - *build_and_test_definition
