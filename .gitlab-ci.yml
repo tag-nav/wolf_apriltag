@@ -25,9 +25,11 @@
   -   echo "directory wolf exists"
   -   cd wolf
   -   git pull
+  -   git checkout $WOLF_CORE_BRANCH
   - else
   -   git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/wolf.git
   -   cd wolf
+  -   git checkout $WOLF_CORE_BRANCH
   - fi
   - mkdir -pv build
   - cd build
@@ -96,7 +98,7 @@
   - make install
 
 ############ UBUNTU 16.04 TESTS ############
-wolf_build_and_test_none:xenial:
+build_and_test:xenial:
   image: labrobotica/wolf_vision_deps:16.04
   cache:
     - key: wolf-xenial
@@ -124,7 +126,7 @@ wolf_build_and_test_none:xenial:
     - *build_and_test_definition
 
 ############ UBUNTU 18.04 TESTS ############
-wolf_build_and_test_none:bionic:
+build_and_test:bionic:
   image: labrobotica/wolf_vision_deps:18.04
   cache:
     - key: wolf-bionic
