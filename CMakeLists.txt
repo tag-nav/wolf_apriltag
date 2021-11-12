@@ -98,15 +98,7 @@ ENDIF(BUILD_EXAMPLES OR BUILD_TESTS)
 
 
 #find dependencies.
-# ============EXAMPLE==================
-FIND_PACKAGE(wolfcore REQUIRED)
-
-FIND_PACKAGE(vision_utils REQUIRED)
-
-FIND_PACKAGE(OpenCV REQUIRED)
-
 FIND_PACKAGE(wolfvision REQUIRED)
-
 FIND_PACKAGE(apriltag REQUIRED)
 
 # Define the directory where will be the configured config.h
@@ -127,13 +119,10 @@ message("CONFIG DIRECTORY ${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_BINARY_DIR}/conf")
 
 #INCLUDES SECTION
-# ============EXAMPLE==================
 INCLUDE_DIRECTORIES(${wolfcore_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${wolfvision_INCLUDE_DIRS})
 include_directories(BEFORE "include")
 INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${vision_utils_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
 
 #HEADERS
 SET(HDRS_CAPTURE
@@ -224,17 +213,15 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolfcore_LIBRARIES})
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${OpenCV_LIBS})
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${OPENCV_LDFLAGS})
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolfvision_LIBRARIES})
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${vision_utils_LIBRARY})
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} apriltag)
 #Link the created libraries
 #===============EXAMPLE=========================
 # IF (Ceres_FOUND)
 #     TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${CERES_LIBRARIES})
 # ENDIF(Ceres_FOUND)
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolfvision_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} apriltag)
+
+
 
 
 #Build tests
