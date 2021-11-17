@@ -34,8 +34,8 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-  - make -j2
-  - ctest -j2
+  - make -j$WOLF_N_PROC
+  - ctest -j$WOLF_N_PROC
   - make install
   - cd ../..
 
@@ -51,8 +51,8 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release ..
-  - make -j2
-  - ctest -j2
+  - make -j$WOLF_N_PROC
+  - ctest -j$WOLF_N_PROC
   - make install
   - cd ../..
 
@@ -68,8 +68,8 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-  - make -j2
-  - ctest -j2
+  - make -j$WOLF_N_PROC
+  - ctest -j$WOLF_N_PROC
   - make install
   - cd ../..
 
@@ -85,7 +85,7 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release ..
-  - make -j2
+  - make -j$WOLF_N_PROC
   - make install
   - cd ../..
 
@@ -93,8 +93,8 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-  - make -j2
-  - ctest -j2
+  - make -j$WOLF_N_PROC
+  - ctest -j$WOLF_N_PROC
   - make install
 
 ############ UBUNTU 16.04 TESTS ############
