@@ -54,6 +54,7 @@
   - make -j$WOLF_N_PROC
   - ctest -j$WOLF_N_PROC
   - make install
+  - ldconfig
   - cd ../..
 
 .install_wolfvision_template: &install_wolfvision_definition
@@ -69,7 +70,7 @@
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
   - make -j$WOLF_N_PROC
-  #- ctest -j$WOLF_N_PROC
+  - ctest -j$WOLF_N_PROC
   - make install
   - cd ../..
 
