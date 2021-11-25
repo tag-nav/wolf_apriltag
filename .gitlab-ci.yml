@@ -95,6 +95,8 @@
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
   - make -j$WOLF_N_PROC
   - ctest -j$WOLF_N_PROC
+  - ./../bin/gtest_processor_tracker_landmark_apriltag
+  - ./../bin/gtest_factor_apriltag
   - make install
 
 ############ UBUNTU 16.04 TESTS ############
