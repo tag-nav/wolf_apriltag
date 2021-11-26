@@ -1,3 +1,7 @@
+stages:
+  - license
+  - build_and_test
+
 ############ YAML ANCHORS ############
 .preliminaries_template: &preliminaries_definition
   ## Install ssh-agent if not already installed, it is required by Docker.
@@ -20,7 +24,45 @@
   # update apt
   - apt-get update
 
+  # create 'ci_deps' folder (if not exists)
+  - mkdir -pv ci_deps
+
+.license_header_template: &license_header_definition
+  - cd $CI_PROJECT_DIR
+
+  # configure git
+  - export CI_NEW_BRANCH=ci_processing$RANDOM
+  - echo creating new temporary branch... $CI_NEW_BRANCH
+  - git config --global user.email "${CI_EMAIL}"
+  - git config --global user.name "${CI_USERNAME}"
+  - git checkout -b $CI_NEW_BRANCH # temporary branch
+
+  # license headers
+  - export CURRENT_YEAR=$( date +'%Y' )
+  - echo "current year:" ${CURRENT_YEAR}
+  - if [ -f license_header_${CURRENT_YEAR}.txt ]; then
+      # add license headers to new files
+  -   echo "File license_header_${CURRENT_YEAR}.txt already exists. License headers are assumed to be updated. Adding headers to new files..."
+  -   ./ci_deps/wolf/wolf_scripts/license_manager.sh --add --path=. --license-header=license_header_${CURRENT_YEAR}.txt --exclude=ci_deps
+  - else
+      # update license headers of all files
+  -   export PREV_YEAR=$(( CURRENT_YEAR-1 ))
+  -   echo "Creating new file license_header_${CURRENT_YEAR}.txt..."
+  -   git mv license_header_${PREV_YEAR}.txt license_header_${CURRENT_YEAR}.txt
+  -   sed -i "s/${PREV_YEAR}/${PREV_YEAR},${CURRENT_YEAR}/g" license_header_${CURRENT_YEAR}.txt
+  -   ./ci_deps/wolf/wolf_scripts/license_manager.sh --update --path=. --license-header=license_header_${CURRENT_YEAR}.txt --exclude=ci_deps
+  - fi
+
+  # push changes (if any)
+  - if git commit -a -m "[skip ci] license headers added or modified" ; then
+  -   git remote set-url --push origin "ssh://git@gitlab.iri.upc.edu:2202/${CI_PROJECT_PATH}.git"
+  -   git push origin $CI_NEW_BRANCH:${CI_COMMIT_REF_NAME}
+  - else
+  -   echo "No changes, nothing to commit!"
+  - fi
+
 .install_wolf_template: &install_wolf_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
   - if [ -d wolf ]; then
   -   echo "directory wolf exists"
   -   cd wolf
@@ -34,12 +76,12 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-  - make -j$WOLF_N_PROC
-  - ctest -j$WOLF_N_PROC
+  - make -j$(nproc)
+  - ctest -j$(nproc)
   - make install
-  - cd ../..
 
 .install_visionutils_template: &install_visionutils_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
   - if [ -d vision_utils ]; then
   -   echo "directory vision_utils exists"
   -   cd vision_utils
@@ -51,13 +93,12 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release ..
-  - make -j$WOLF_N_PROC
-  - ctest -j$WOLF_N_PROC
+  - make -j$(nproc)
+  - ctest -j$(nproc)
   - make install
-  - ldconfig
-  - cd ../..
 
 .install_wolfvision_template: &install_wolfvision_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
   - if [ -d vision ]; then
   -   echo "directory vision exists"
   -   cd vision
@@ -69,12 +110,12 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-  - make -j$WOLF_N_PROC
-  - ctest -j$WOLF_N_PROC
+  - make -j$(nproc)
+  - ctest -j$(nproc)
   - make install
-  - cd ../..
 
 .install_apriltag_template: &install_apriltag_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
   - if [ -d apriltaglib ]; then
   -   echo "directory apriltaglib exists"
   -   cd apriltaglib
@@ -86,35 +127,51 @@
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release ..
-  - make -j$WOLF_N_PROC
+  - make -j$(nproc)
   - make install
-  - cd ../..
 
 .build_and_test_template: &build_and_test_definition
+  - cd $CI_PROJECT_DIR
   - mkdir -pv build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-  - make -j$WOLF_N_PROC
-  - ./../bin/gtest_factor_apriltag | ./../bin/gtest_processor_tracker_landmark_apriltag
-  - ctest -j$WOLF_N_PROC
+  - make -j$(nproc)
+  - ctest -j$(nproc)
   - make install
 
-############ UBUNTU 16.04 TESTS ############
-build_and_test:xenial:
+############ LICENSE HEADERS ############
+license_headers:
+  stage: license
   image: labrobotica/wolf_vision_deps:16.04
   cache:
     - key: wolf-xenial
       paths:
-      - wolf/
+      - ci_deps/wolf/
+  except:
+    - master
+  before_script:
+    - *preliminaries_definition
+    - *install_wolf_definition
+  script:
+    - *license_header_definition
+
+############ UBUNTU 16.04 TESTS ############
+build_and_test:xenial:
+  stage: build_and_test
+  image: labrobotica/wolf_vision_deps:16.04
+  cache:
+    - key: wolf-xenial
+      paths:
+      - ci_deps/wolf/
     - key: visionutils-xenial
       paths:
-      - vision_utils/
+      - ci_deps/vision_utils/
     - key: vision-xenial
       paths:
-      - vision/
+      - ci_deps/vision/
     - key: apriltaglib-xenial
       paths:
-      - apriltaglib/
+      - ci_deps/apriltaglib/
   except:
     - master
   before_script:
@@ -129,20 +186,21 @@ build_and_test:xenial:
 
 ############ UBUNTU 18.04 TESTS ############
 build_and_test:bionic:
+  stage: build_and_test
   image: labrobotica/wolf_vision_deps:18.04
   cache:
     - key: wolf-bionic
       paths:
-      - wolf/
+      - ci_deps/wolf/
     - key: visionutils-bionic
       paths:
-      - vision_utils/
+      - ci_deps/vision_utils/
     - key: vision-bionic
       paths:
-      - vision/
+      - ci_deps/vision/
     - key: apriltaglib-bionic
       paths:
-      - apriltaglib/
+      - ci_deps/apriltaglib/
   except:
     - master
   before_script:
