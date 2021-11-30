@@ -506,7 +506,7 @@ void ProcessorTrackerLandmarkApriltag::advanceDerived()
 void ProcessorTrackerLandmarkApriltag::resetDerived()
 {   
     // Add 3d distance constraint between 2 frames
-    if (getProblem()->getProcessorIsMotionMap().empty() && add_3d_cstr_){
+    if (getProblem()->getMotionProviderMap().empty() && add_3d_cstr_){
         if ((getOrigin() != nullptr) && 
             (getOrigin()->getFrame() != nullptr) && 
             (getOrigin() != getLast()) &&
@@ -524,7 +524,7 @@ void ProcessorTrackerLandmarkApriltag::resetDerived()
         }
     }
     
-    if (getProblem()->getProcessorIsMotionMap().empty() && reestimate_last_frame_){
+    if (getProblem()->getMotionProviderMap().empty() && reestimate_last_frame_){
         reestimateLastFrame();
     }
 
