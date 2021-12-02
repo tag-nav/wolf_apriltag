@@ -111,6 +111,8 @@ stages:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
   - make -j$(nproc)
+  - updatedb
+  - locate libopencv_xfeatures2d.so.3.3
   - ./../bin/gtest_sensor_camera
   - ctest -j$(nproc)
   - make install
