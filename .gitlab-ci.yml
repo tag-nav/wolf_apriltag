@@ -111,6 +111,7 @@ stages:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
   - make -j$(nproc)
+  - ./../bin/gtest_sensor_camera
   - ctest -j$(nproc)
   - make install
 
@@ -136,6 +137,7 @@ stages:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
   - make -j$(nproc)
+  - ./../bin/gtest_processor_tracker_landmark_apriltag
   - ctest -j$(nproc)
   - make install
 
