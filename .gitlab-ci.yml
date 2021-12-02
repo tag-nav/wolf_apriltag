@@ -79,6 +79,7 @@ stages:
   - make -j$(nproc)
   - ctest -j$(nproc)
   - make install
+  - ldconfig
 
 .install_visionutils_template: &install_visionutils_definition
   - cd ${CI_PROJECT_DIR}/ci_deps
@@ -96,6 +97,7 @@ stages:
   - make -j$(nproc)
   - ctest -j$(nproc)
   - make install
+  - ldconfig
 
 .install_wolfvision_template: &install_wolfvision_definition
   - cd ${CI_PROJECT_DIR}/ci_deps
@@ -111,11 +113,10 @@ stages:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
   - make -j$(nproc)
-  - updatedb
-  - locate libopencv_xfeatures2d.so.3.3
   - ./../bin/gtest_sensor_camera
   - ctest -j$(nproc)
   - make install
+  - ldconfig
 
 .install_apriltag_template: &install_apriltag_definition
   - cd ${CI_PROJECT_DIR}/ci_deps
@@ -132,6 +133,7 @@ stages:
   - cmake -DCMAKE_BUILD_TYPE=release ..
   - make -j$(nproc)
   - make install
+  - ldconfig
 
 .build_and_test_template: &build_and_test_definition
   - cd $CI_PROJECT_DIR
@@ -142,6 +144,7 @@ stages:
   - ./../bin/gtest_processor_tracker_landmark_apriltag
   - ctest -j$(nproc)
   - make install
+  - ldconfig
 
 ############ LICENSE HEADERS ############
 license_headers:
