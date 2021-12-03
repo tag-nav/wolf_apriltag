@@ -11,7 +11,7 @@ ENDIF(wolfapriltag_INCLUDE_DIRS)
 FIND_LIBRARY(
     wolfapriltag_LIBRARIES
     NAMES libwolfapriltag.so libwolfapriltag.dylib
-    PATHS /usr/local/lib/iri-algorithms)
+    PATHS /usr/local/lib)
 IF(wolfapriltag_LIBRARIES)
   MESSAGE("Found wolf apriltag lib: ${wolfapriltag_LIBRARIES}")
 ELSE(wolfapriltag_LIBRARIES)
@@ -88,3 +88,8 @@ if(NOT wolf_FOUND)
   list(APPEND wolfapriltag_LIBRARIES ${wolfcore_LIBRARIES})
   list(REVERSE wolfapriltag_LIBRARIES)
 endif()
+
+# provide both INCLUDE_DIR and INCLUDE_DIRS
+SET(wolfapriltag_INCLUDE_DIR ${wolfapriltag_INCLUDE_DIRS})
+# provide both LIBRARY and LIBRARIES 
+SET(wolfapriltag_LIBRARY ${wolfapriltag_LIBRARIES})
