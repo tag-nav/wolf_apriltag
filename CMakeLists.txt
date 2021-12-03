@@ -1,5 +1,5 @@
 # Pre-requisites about cmake itself
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0005 NEW) 
@@ -8,11 +8,11 @@ endif(COMMAND cmake_policy)
 # MAC OSX RPATH
 SET(CMAKE_MACOSX_RPATH true)
 
-
 # The project name
 PROJECT(apriltag)
 set(PLUGIN_NAME wolf${PROJECT_NAME})
 
+MESSAGE("Starting ${PROJECT_NAME} CMakeLists ...")
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
@@ -43,7 +43,6 @@ if(UNIX)
     "${CMAKE_CXX_FLAGS} -Werror=all -Werror=extra -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-missing-field-initializers")
 endif(UNIX)
 
-
 IF(NOT BUILD_TESTS)
   OPTION(BUILD_TESTS "Build Unit tests" ON)
 ENDIF(NOT BUILD_TESTS)
@@ -68,16 +67,11 @@ if(BUILD_TESTS)
     enable_testing()
 endif()
 
-MESSAGE("Starting ${PROJECT_NAME} CMakeLists ...")
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-
 #CMAKE modules
-
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules")
 MESSAGE(STATUS ${CMAKE_MODULE_PATH})
 
 # Some wolf compilation options
-
 IF((CMAKE_BUILD_TYPE MATCHES DEBUG) OR (CMAKE_BUILD_TYPE MATCHES debug) OR (CMAKE_BUILD_TYPE MATCHES Debug))
   set(_WOLF_DEBUG true)
 ENDIF()
@@ -91,7 +85,6 @@ IF(BUILD_EXAMPLES OR BUILD_TESTS)
   string(TOUPPER ${PROJECT_NAME} UPPER_NAME)
   set(_WOLF_ROOT_DIR ${CMAKE_SOURCE_DIR})
 ENDIF(BUILD_EXAMPLES OR BUILD_TESTS)
-
 
 #find dependencies.
 FIND_PACKAGE(wolfvision REQUIRED)
@@ -121,10 +114,6 @@ include_directories(BEFORE "include")
 INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIRS})
 
 #HEADERS
-SET(HDRS_CAPTURE
-  )
-SET(HDRS_COMMON
-  )
 SET(HDRS_FACTOR
 include/apriltag/factor/factor_apriltag.h
   )
@@ -134,46 +123,21 @@ include/apriltag/feature/feature_apriltag.h
 SET(HDRS_LANDMARK
 include/apriltag/landmark/landmark_apriltag.h
   )
-SET(HDRS_MATH
-  )
 SET(HDRS_PROCESSOR
 include/apriltag/processor/processor_tracker_landmark_apriltag.h
 include/apriltag/processor/ippe.h
   )
-SET(HDRS_SENSOR
-  )
-SET(HDRS_SOLVER
-  )
-SET(HDRS_UTILS
-  )
-SET(HDRS_YAML
-  )
 
 #SOURCES
-
-SET(SRCS_CAPTURE
-  )
-SET(SRCS_COMMON
-  )
-SET(SRCS_FACTOR
-  )
 SET(SRCS_FEATURE
 src/feature/feature_apriltag.cpp
   )
 SET(SRCS_LANDMARK
 src/landmark/landmark_apriltag.cpp
   )
-SET(SRCS_MATH
-  )
 SET(SRCS_PROCESSOR
 src/processor/processor_tracker_landmark_apriltag.cpp
 src/processor/ippe.cpp
-  )
-SET(SRCS_SENSOR
-  )
-SET(SRCS_SOLVER
-  )
-SET(SRCS_UTILS
   )
 SET(SRCS_YAML
 src/yaml/processor_tracker_landmark_apriltag_yaml.cpp
@@ -182,19 +146,11 @@ src/yaml/processor_tracker_landmark_apriltag_yaml.cpp
 # create the shared library
 ADD_LIBRARY(${PLUGIN_NAME}
   SHARED
-  ${SRCS_CAPTURE}
-  ${SRCS_COMMON}
-  ${SRCS_FACTOR}
   ${SRCS_FEATURE}
   ${SRCS_LANDMARK}
-  ${SRCS_MATH}
   ${SRCS_PROCESSOR}
-  ${SRCS_SENSOR}
-  ${SRCS_SOLVER}
-  ${SRCS_UTILS}
   ${SRCS_YAML}
   )
-  
   
 # Set compiler options
 # ====================
@@ -208,7 +164,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
 endif()
 
-
 #Link the created libraries
 #===============EXAMPLE=========================
 # IF (Ceres_FOUND)
@@ -216,9 +171,6 @@ endif()
 # ENDIF(Ceres_FOUND)
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolfvision_LIBRARIES})
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} apriltag)
-
-
-
 
 #Build tests
 #===============EXAMPLE=========================
@@ -228,37 +180,22 @@ IF(BUILD_TESTS)
 ENDIF(BUILD_TESTS)
 
 #install library
-
 #=============================================================
 INSTALL(TARGETS ${PLUGIN_NAME} EXPORT ${PLUGIN_NAME}Targets
       RUNTIME DESTINATION bin
-      LIBRARY DESTINATION lib/iri-algorithms
-      ARCHIVE DESTINATION lib/iri-algorithms)
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib)
 
 install(EXPORT ${PLUGIN_NAME}Targets DESTINATION lib/cmake/${PLUGIN_NAME})
 #install headers
-INSTALL(FILES ${HDRS_CAPTURE}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/capture)
-INSTALL(FILES ${HDRS_COMMON}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/common)
 INSTALL(FILES ${HDRS_FACTOR}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/factor)
 INSTALL(FILES ${HDRS_FEATURE}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/feature)
 INSTALL(FILES ${HDRS_LANDMARK}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/landmark)
-INSTALL(FILES ${HDRS_MATH}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/math)
 INSTALL(FILES ${HDRS_PROCESSOR}
   DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/processor)
-INSTALL(FILES ${HDRS_SENSOR}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/sensor)
-INSTALL(FILES ${HDRS_SOLVER}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/solver)
-INSTALL(FILES ${HDRS_UTILS}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/utils)
-INSTALL(FILES ${HDRS_YAML}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/yaml)
 
 FILE(WRITE ${PROJECT_NAME}.found "")
 INSTALL(FILES ${PROJECT_NAME}.found
