@@ -100,7 +100,7 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
             // set prior
             VectorComposite x0("PO", {Vector3d(0,0,0), Quaterniond::Identity().coeffs()});
             VectorComposite s0("PO", {Vector3d(1,1,1), Vector3d(1,1,1)});
-            F1 = problem->setPriorFactor(x0, s0, 0.0, 0.1);
+            F1 = problem->setPriorFactor(x0, s0, 0.0);
 
             // minimal config for the processor to be operative
             C1 = CaptureBase::emplace<CapturePose>(F1, 1.0, sen, Vector7d(), Matrix6d());
