@@ -76,9 +76,8 @@ stages:
   - fi
   - mkdir -pv build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_DEMOS=ON -DBUILD_TESTS=OFF ..
   - make -j$(nproc)
-  - ctest -j$(nproc)
   - make install
   - ldconfig
 
@@ -96,7 +95,6 @@ stages:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=release ..
   - make -j$(nproc)
-  - ctest -j$(nproc)
   - make install
   - ldconfig
 
@@ -112,10 +110,8 @@ stages:
   - fi
   - mkdir -pv build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_TESTS=OFF ..
   - make -j$(nproc)
-  - ./../bin/gtest_sensor_camera
-  - ctest -j$(nproc)
   - make install
   - ldconfig
 
@@ -140,7 +136,7 @@ stages:
   - cd $CI_PROJECT_DIR
   - mkdir -pv build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_TESTS=ON ..
   - make -j$(nproc)
   - ./../bin/gtest_processor_tracker_landmark_apriltag
   - ctest -j$(nproc)
