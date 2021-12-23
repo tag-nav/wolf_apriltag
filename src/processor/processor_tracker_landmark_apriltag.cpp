@@ -261,13 +261,13 @@ FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _fe
                                                               LandmarkBasePtr _landmark_ptr)
 {
     return FactorBase::emplace<FactorApriltag>(_feature_ptr,
-                                                       getSensor(),
-                                                       getLast()->getFrame(),
-                                                       std::static_pointer_cast<LandmarkApriltag>(_landmark_ptr),
-                                                       std::static_pointer_cast<FeatureApriltag> (_feature_ptr ),
-                                                       shared_from_this(),
-                                                       params_->apply_loss_function,
-                                                       FAC_ACTIVE);
+                                               getSensor(),
+                                               getLast()->getFrame(),
+                                               std::static_pointer_cast<LandmarkApriltag>(_landmark_ptr),
+                                               std::static_pointer_cast<FeatureApriltag> (_feature_ptr ),
+                                               shared_from_this(),
+                                               params_->apply_loss_function,
+                                               FAC_ACTIVE);
 }
 
 LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr _feature_ptr)
