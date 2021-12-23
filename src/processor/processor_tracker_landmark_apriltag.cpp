@@ -19,20 +19,25 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 //--------LICENSE_END--------
+
+// this plugin
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag.h"
 #include "apriltag/landmark/landmark_apriltag.h"
 #include "apriltag/factor/factor_apriltag.h"
 #include "apriltag/processor/ippe.h"
 
-#include "vision/capture/capture_image.h"
-#include "vision/math/pinhole_tools.h"
+// dependent plugin
+#include <vision/capture/capture_image.h>
+#include <vision/math/pinhole_tools.h>
 
-#include "core/math/rotations.h"
-#include "core/state_block/state_quaternion.h"
-#include "apriltag/common/homography.h"
-#include "apriltag/common/zarray.h"
+// wolf
+#include <core/math/rotations.h>
+#include <core/state_block/state_quaternion.h>
 
+// apriltag library
+#include <apriltag/common/homography.h>
+#include <apriltag/common/zarray.h>
 #include <apriltag/tag16h5.h>
 #include <apriltag/tag25h9.h>
 #include <apriltag/tag36h11.h>
@@ -43,8 +48,7 @@
 #include <apriltag/tagStandard52h13.h>
 #include <core/factor/factor_distance_3d.h>
 
-
-// #include "opencv2/opencv.hpp"
+// opencv
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/eigen.hpp>
 
@@ -56,9 +60,6 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         ProcessorTrackerLandmark("ProcessorTrackerLandmarkApriltag", "PO", _params_tracker_landmark_apriltag ),
         tag_widths_(_params_tracker_landmark_apriltag->tag_widths_),
         tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
-        std_xy_ (_params_tracker_landmark_apriltag->std_xy_ ),
-        std_z_  (_params_tracker_landmark_apriltag->std_z_  ),
-        std_rpy_(_params_tracker_landmark_apriltag->std_rpy_),
         std_pix_(_params_tracker_landmark_apriltag->std_pix_),
         ippe_min_ratio_(_params_tracker_landmark_apriltag->ippe_min_ratio_),
         ippe_max_rep_error_(_params_tracker_landmark_apriltag->ippe_max_rep_error_),
@@ -93,8 +94,6 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         WOLF_ERROR("Unrecognized tag family name: ", famname, ". Use e.g. \"tag36h11\".");
         exit(-1);
     }
-
-    // tag_family_.black_border     = _params_tracker_landmark_apriltag->tag_black_border_;  // not anymore in apriltag 3
 
     detector_ = apriltag_detector_create();
     apriltag_detector_add_family(detector_, tag_family_);
@@ -411,14 +410,6 @@ double ProcessorTrackerLandmarkApriltag::getTagWidth(int _id) const
         return tag_widths_.at(_id);
     else
         return tag_width_default_;
-}
-
-Eigen::Vector6d ProcessorTrackerLandmarkApriltag::getVarVec()
-{
-    Eigen::Vector6d var_vec;
-    var_vec << std_xy_*std_xy_, std_xy_*std_xy_, std_z_*std_z_, std_rpy_*std_rpy_, std_rpy_*std_rpy_, std_rpy_*std_rpy_;
-
-    return var_vec;
 }
 
 Eigen::Matrix6d ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vector3d const &t, Eigen::Matrix3d const &R, Eigen::Matrix3d const &K, double const &tag_width, double const &sig_q)

@@ -245,7 +245,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeaturesDuplicated)
     Eigen::Vector3d ori; //Euler angles in rad
     Eigen::Quaterniond quat;
     Eigen::Vector7d pose;
-    Eigen::Matrix6d meas_cov( (prc_apr->getVarVec()).asDiagonal() );
+    Eigen::Matrix6d meas_cov( Matrix6d::Identity() );
     int tag_id;
 
     // feature 0
@@ -289,7 +289,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeatures)
     Eigen::Vector3d ori; //Euler angles in rad
     Eigen::Quaterniond quat;
     Eigen::Vector7d pose;
-    Eigen::Matrix6d meas_cov( (prc_apr->getVarVec()).asDiagonal() );
+    Eigen::Matrix6d meas_cov( Matrix6d::Identity() );
     int tag_id;
 
     // feature 0

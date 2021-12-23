@@ -76,9 +76,9 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         nthreads_                   = _server.getParam<unsigned int>(prefix + _unique_name           + "/nthreads");
         debug_                      = _server.getParam<bool>(prefix + _unique_name                   + "/debug");
         refine_edges_               = _server.getParam<bool>(prefix + _unique_name                   + "/refine_edges");
-        std_xy_                     = _server.getParam<double>(prefix + _unique_name                 + "/std_xy");
-        std_z_                      = _server.getParam<double>(prefix + _unique_name                 + "/std_z");
-        std_rpy_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_rpy");
+//        std_xy_                     = _server.getParam<double>(prefix + _unique_name                 + "/std_xy");
+//        std_z_                      = _server.getParam<double>(prefix + _unique_name                 + "/std_z");
+//        std_rpy_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_rpy");
         std_pix_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_pix");
         min_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/min_time_vote");
         max_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/max_time_vote");
@@ -99,9 +99,9 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         + "nthreads_: "                 + std::to_string(nthreads_)                     + "\n"
         + "debug_: "                    + std::to_string(debug_)                        + "\n"
         + "refine_edges_: "             + std::to_string(refine_edges_)                 + "\n"
-        + "std_xy_: "                   + std::to_string(std_xy_)                       + "\n"
-        + "std_z_: "                    + std::to_string(std_z_)                        + "\n"
-        + "std_rpy_: "                  + std::to_string(std_rpy_)                      + "\n"
+//        + "std_xy_: "                   + std::to_string(std_xy_)                       + "\n"
+//        + "std_z_: "                    + std::to_string(std_z_)                        + "\n"
+//        + "std_rpy_: "                  + std::to_string(std_rpy_)                      + "\n"
         + "std_pix_: "                  + std::to_string(std_pix_)                      + "\n"
         + "min_time_vote_: "            + std::to_string(min_time_vote_)                + "\n"
         + "max_time_vote_: "            + std::to_string(max_time_vote_)                + "\n"
@@ -189,7 +189,6 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
     public:
         double getTagWidth(int _id) const;
         std::string getTagFamily() const;
-        Eigen::Vector6d getVarVec();
         FeatureBasePtrList getIncomingDetections() const;
         FeatureBasePtrList getLastDetections() const;
         Eigen::Isometry3d opencvPoseEstimation(apriltag_detection_t *_det, cv::Mat_<double>, double _tag_width);
@@ -217,7 +216,6 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         cv::Mat grayscale_image_;
         apriltag_detector_t* detector_;
         apriltag_family_t* tag_family_;
-        double std_xy_, std_z_, std_rpy_;   ///< dummy std values for covariance computation
         double std_pix_;                    ///< pixel error to be propagated to a camera to tag transformation covariance
         double ippe_min_ratio_;
         double ippe_max_rep_error_;
