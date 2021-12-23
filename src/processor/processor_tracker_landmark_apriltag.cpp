@@ -76,53 +76,62 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
     // configure apriltag detector
     std::string famname(_params_tracker_landmark_apriltag->tag_family_);
     if (famname == "tag16h5")
-        tag_family_ = *tag16h5_create();
+        tag_family_ = tag16h5_create();
     else if (famname == "tag25h9")
-        tag_family_ = *tag25h9_create();
+        tag_family_ = tag25h9_create();
     else if (famname == "tag36h11")
-        tag_family_ = *tag36h11_create();
-    else if (famname == "tagCircle21h7")
-        tag_family_ = *tagCircle21h7_create();
+        tag_family_ = tag36h11_create();
     else if (famname == "tagCircle49h12")
-        tag_family_ = *tagCircle49h12_create();
+        tag_family_ = tagCircle49h12_create();
     else if (famname == "tagCustom48h12")
-        tag_family_ = *tagCustom48h12_create();
+        tag_family_ = tagCustom48h12_create();
     else if (famname == "tagStandard41h12")
-        tag_family_ = *tagStandard41h12_create();
+        tag_family_ = tagStandard41h12_create();
     else if (famname == "tagStandard52h13")
-        tag_family_ = *tagStandard52h13_create();
+        tag_family_ = tagStandard52h13_create();
     else {
-        WOLF_ERROR(famname, ": Unrecognized tag family name. Use e.g. \"tag36h11\".");
+        WOLF_ERROR("Unrecognized tag family name: ", famname, ". Use e.g. \"tag36h11\".");
         exit(-1);
     }
 
     // tag_family_.black_border     = _params_tracker_landmark_apriltag->tag_black_border_;  // not anymore in apriltag 3
 
-    detector_ = *apriltag_detector_create();
-    apriltag_detector_add_family(&detector_, &tag_family_);
+    detector_ = apriltag_detector_create();
+    apriltag_detector_add_family(detector_, tag_family_);
 
-    detector_.quad_decimate     = _params_tracker_landmark_apriltag->quad_decimate_;
-    detector_.quad_sigma        = _params_tracker_landmark_apriltag->quad_sigma_;
-    detector_.nthreads          = _params_tracker_landmark_apriltag->nthreads_;
-    detector_.debug             = _params_tracker_landmark_apriltag->debug_;
-    detector_.refine_edges      = _params_tracker_landmark_apriltag->refine_edges_;
+    detector_->quad_decimate     = _params_tracker_landmark_apriltag->quad_decimate_;
+    detector_->quad_sigma        = _params_tracker_landmark_apriltag->quad_sigma_;
+    detector_->nthreads          = _params_tracker_landmark_apriltag->nthreads_;
+    detector_->debug             = _params_tracker_landmark_apriltag->debug_;
+    detector_->refine_edges      = _params_tracker_landmark_apriltag->refine_edges_;
 }
 
 // Destructor
 ProcessorTrackerLandmarkApriltag::~ProcessorTrackerLandmarkApriltag()
 {
-    // destroy raw pointers in detector_
-    //apriltag_detector_destroy(&detector_); cannot be used because it is trying to free() the detector_ itself that is not implemented as a raw pointer in our case
-    timeprofile_destroy(detector_.tp);
-    apriltag_detector_clear_families(&detector_);
-    zarray_destroy(detector_.tag_families);
-    workerpool_destroy(detector_.wp);
+    // destroy family
+    std::string famname(tag_family_->name);
+    if (famname == "tag16h5")
+        tag16h5_destroy(tag_family_);
+    else if (famname == "tag25h9")
+        tag25h9_destroy(tag_family_);
+    else if (famname == "tag36h11")
+        tag36h11_destroy(tag_family_);
+    else if (famname == "tagCircle49h12")
+        tagCircle49h12_destroy(tag_family_);
+    else if (famname == "tagCustom48h12")
+        tagCustom48h12_destroy(tag_family_);
+    else if (famname == "tagStandard41h12")
+        tagStandard41h12_destroy(tag_family_);
+    else if (famname == "tagStandard52h13")
+        tagStandard52h13_destroy(tag_family_);
+    else {
+        WOLF_ERROR("This is impossible");
+    }
 
-    //free raw pointers in tag_family_
-    free(tag_family_.name);
-    free(tag_family_.codes);
+    // destroy detector
+    apriltag_detector_destroy(detector_);
 }
-
 
 void ProcessorTrackerLandmarkApriltag::preProcess()
 {
@@ -144,7 +153,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                     };
 
     // run Apriltag detector
-    zarray_t *detections = apriltag_detector_detect(&detector_, &im);
+    zarray_t *detections = apriltag_detector_detect(detector_, &im);
     // loop all detections
     for (int i = 0; i < zarray_size(detections); i++) {
         apriltag_detection_t *det;
@@ -649,7 +658,7 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
 
 std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
 {
-    return tag_family_.name;
+    return tag_family_->name;
 }
 
 } // namespace wolf

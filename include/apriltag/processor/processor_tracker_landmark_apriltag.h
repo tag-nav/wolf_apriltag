@@ -129,7 +129,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
 
         /** \brief Class Destructor
          */
-        ~ProcessorTrackerLandmarkApriltag() override;
+        ~ProcessorTrackerLandmarkApriltag();
 
         void preProcess() override;
         void postProcess() override;
@@ -215,8 +215,8 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         std::map<int, double> tag_widths_;  ///< each tag's width indexed by tag_id
         double tag_width_default_;          ///< all tags widths defaut to this
         cv::Mat grayscale_image_;
-        apriltag_detector_t detector_;
-        apriltag_family_t tag_family_;
+        apriltag_detector_t* detector_;
+        apriltag_family_t* tag_family_;
         double std_xy_, std_z_, std_rpy_;   ///< dummy std values for covariance computation
         double std_pix_;                    ///< pixel error to be propagated to a camera to tag transformation covariance
         double ippe_min_ratio_;
