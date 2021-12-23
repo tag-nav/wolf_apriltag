@@ -78,17 +78,14 @@ ENDIF()
 
 option(_WOLF_TRACE "Enable wolf tracing macro" ON)
 
-# Does this has any other interest
-# but for the examples ?
-# yes, for the tests !
-IF(BUILD_EXAMPLES OR BUILD_TESTS)
-  string(TOUPPER ${PROJECT_NAME} UPPER_NAME)
-  set(_WOLF_ROOT_DIR ${CMAKE_SOURCE_DIR})
-ENDIF(BUILD_EXAMPLES OR BUILD_TESTS)
 
-#find dependencies.
+# ============ DEPENDENCIES ============ 
 FIND_PACKAGE(wolfvision REQUIRED)
 FIND_PACKAGE(apriltag REQUIRED)
+
+ #============ CONFIG.H ============  
+string(TOUPPER ${PROJECT_NAME} UPPER_NAME)
+set(_WOLF_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
 # Define the directory where will be the configured config.h
 SET(WOLF_CONFIG_DIR ${PROJECT_BINARY_DIR}/conf/${PROJECT_NAME}/internal)
@@ -107,13 +104,13 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/internal/config.h.in "${WOLF_CONFIG_D
 message("CONFIG DIRECTORY ${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_BINARY_DIR}/conf")
 
-#INCLUDES SECTION
+# ============ INCLUDES ============ 
 INCLUDE_DIRECTORIES(${wolfcore_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${wolfvision_INCLUDE_DIRS})
-include_directories(BEFORE "include")
+INCLUDE_DIRECTORIES(BEFORE "include")
 INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIRS})
 
-#HEADERS
+# ============ HEADERS ============ 
 SET(HDRS_FACTOR
 include/apriltag/factor/factor_apriltag.h
   )
@@ -128,7 +125,7 @@ include/apriltag/processor/processor_tracker_landmark_apriltag.h
 include/apriltag/processor/ippe.h
   )
 
-#SOURCES
+# ============ SOURCES ============ 
 SET(SRCS_FEATURE
 src/feature/feature_apriltag.cpp
   )
