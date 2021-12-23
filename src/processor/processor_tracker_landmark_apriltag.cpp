@@ -199,11 +199,13 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
     apriltag_detections_destroy(detections);
 }
 
-void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *_det, cv::Mat_<double> _K, double _tag_width,
-                            Eigen::Isometry3d &_M1,
-                            double &_rep_error1,
-                            Eigen::Isometry3d &_M2,
-                            double &_rep_error2){
+void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *_det,
+                                                          cv::Mat_<double> _K,
+                                                          double _tag_width,
+                                                          Eigen::Isometry3d &_M1,
+                                                          double &_rep_error1,
+                                                          Eigen::Isometry3d &_M2,
+                                                          double &_rep_error2){
 
     // get corners from det
     std::vector<cv::Point2d> corners_pix(4);
@@ -359,15 +361,15 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
     if (detections_last_.empty())
         return false;
 
-    double dt_incoming_origin = getIncoming()->getTimeStamp().get() - getOrigin()->getTimeStamp().get();
-    bool more_than_min_time_vote = dt_incoming_origin > min_time_vote_; 
-    bool too_long_since_last_KF = dt_incoming_origin > max_time_vote_;
+    double dt_incoming_origin = getIncoming()->getTimeStamp() - getOrigin()->getTimeStamp();
+    bool more_than_min_time_vote = dt_incoming_origin >= min_time_vote_;
+    bool too_long_since_last_KF = dt_incoming_origin >= max_time_vote_;
     // the elapsed time since last KF is too long 
     if (too_long_since_last_KF){
         return true;
     }
     // no detection in incoming capture and a minimum time since last KF has past
-    if ((detections_incoming_.size() < min_features_for_keyframe_) and more_than_min_time_vote)
+    if ((detections_incoming_.size() <= min_features_for_keyframe_) and more_than_min_time_vote)
         return true;
 
     // Vote for every image processed at the beginning if possible
@@ -412,7 +414,11 @@ double ProcessorTrackerLandmarkApriltag::getTagWidth(int _id) const
         return tag_width_default_;
 }
 
-Eigen::Matrix6d ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vector3d const &t, Eigen::Matrix3d const &R, Eigen::Matrix3d const &K, double const &tag_width, double const &sig_q)
+Eigen::Matrix6d ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vector3d const &t,
+                                                                     Eigen::Matrix3d const &R,
+                                                                     Eigen::Matrix3d const &K,
+                                                                     double const &tag_width,
+                                                                     double const &sig_q)
 {
     // Same order as the 2d corners (anti clockwise, looking at the tag).
     // Looking at the tag, the reference frame is
@@ -453,9 +459,13 @@ Eigen::Matrix6d ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vect
 
 }
 
-void ProcessorTrackerLandmarkApriltag::pinholeHomogeneous(Eigen::Matrix3d const & K, Eigen::Vector3d const & t,
-                                                          Eigen::Matrix3d const & R, Eigen::Vector3d const & p,
-                                                          Eigen::Vector3d &h, Eigen::Matrix3d &J_h_T, Eigen::Matrix3d &J_h_R)
+void ProcessorTrackerLandmarkApriltag::pinholeHomogeneous(Eigen::Matrix3d const & K,
+                                                          Eigen::Vector3d const & t,
+                                                          Eigen::Matrix3d const & R,
+                                                          Eigen::Vector3d const & p,
+                                                          Eigen::Vector3d &h,
+                                                          Eigen::Matrix3d &J_h_T,
+                                                          Eigen::Matrix3d &J_h_R)
 {
     // Pinhole projection + jacobians
     h =  K * (t + R * p);

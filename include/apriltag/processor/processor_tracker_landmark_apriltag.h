@@ -54,7 +54,6 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
     bool debug_;
     bool refine_edges_;
 
-    double std_xy_, std_z_, std_rpy_;
     double std_pix_;
     double min_time_vote_;
     double max_time_vote_;
@@ -76,9 +75,6 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         nthreads_                   = _server.getParam<unsigned int>(prefix + _unique_name           + "/nthreads");
         debug_                      = _server.getParam<bool>(prefix + _unique_name                   + "/debug");
         refine_edges_               = _server.getParam<bool>(prefix + _unique_name                   + "/refine_edges");
-//        std_xy_                     = _server.getParam<double>(prefix + _unique_name                 + "/std_xy");
-//        std_z_                      = _server.getParam<double>(prefix + _unique_name                 + "/std_z");
-//        std_rpy_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_rpy");
         std_pix_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_pix");
         min_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/min_time_vote");
         max_time_vote_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/max_time_vote");
@@ -99,9 +95,6 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         + "nthreads_: "                 + std::to_string(nthreads_)                     + "\n"
         + "debug_: "                    + std::to_string(debug_)                        + "\n"
         + "refine_edges_: "             + std::to_string(refine_edges_)                 + "\n"
-//        + "std_xy_: "                   + std::to_string(std_xy_)                       + "\n"
-//        + "std_z_: "                    + std::to_string(std_z_)                        + "\n"
-//        + "std_rpy_: "                  + std::to_string(std_rpy_)                      + "\n"
         + "std_pix_: "                  + std::to_string(std_pix_)                      + "\n"
         + "min_time_vote_: "            + std::to_string(min_time_vote_)                + "\n"
         + "max_time_vote_: "            + std::to_string(max_time_vote_)                + "\n"
@@ -191,17 +184,25 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         std::string getTagFamily() const;
         FeatureBasePtrList getIncomingDetections() const;
         FeatureBasePtrList getLastDetections() const;
-        Eigen::Isometry3d opencvPoseEstimation(apriltag_detection_t *_det, cv::Mat_<double>, double _tag_width);
-        Eigen::Isometry3d umichPoseEstimation(apriltag_detection_t *_det, cv::Mat_<double>, double _tag_width);
-        void ippePoseEstimation(apriltag_detection_t *_det, cv::Mat_<double>, double _tag_width,
-                                    Eigen::Isometry3d &_M1,
-                                    double &_rep_error1,
-                                    Eigen::Isometry3d &_M2,
-                                    double &_rep_error2);
-        Eigen::Matrix6d computeInformation(Eigen::Vector3d const &_t, Eigen::Matrix3d const &_R, Eigen::Matrix3d const &_K, double const &_tag_width, double const &_sig_q);
-        void pinholeHomogeneous(Eigen::Matrix3d const & _K, Eigen::Vector3d const & _t,
-                                Eigen::Matrix3d const & _R, Eigen::Vector3d const & _p,
-                                Eigen::Vector3d &_h, Eigen::Matrix3d &_J_h_T, Eigen::Matrix3d &_J_h_R);
+        void ippePoseEstimation(apriltag_detection_t *_det,
+                                cv::Mat_<double> _K,
+                                double _tag_width,
+                                Eigen::Isometry3d &_M1,
+                                double &_rep_error1,
+                                Eigen::Isometry3d &_M2,
+                                double &_rep_error2);
+        Eigen::Matrix6d computeInformation(Eigen::Vector3d const &_t,
+                                           Eigen::Matrix3d const &_R,
+                                           Eigen::Matrix3d const &_K,
+                                           double const &_tag_width,
+                                           double const &_sig_q);
+        void pinholeHomogeneous(Eigen::Matrix3d const & _K,
+                                Eigen::Vector3d const & _t,
+                                Eigen::Matrix3d const & _R,
+                                Eigen::Vector3d const & _p,
+                                Eigen::Vector3d &_h,
+                                Eigen::Matrix3d &_J_h_T,
+                                Eigen::Matrix3d &_J_h_R);
         void cornersToPose(const std::vector<cv::Point2d> &_img_pts,
                            const std::vector<double> &_k_vec,
                            Eigen::Isometry3d &_M);
