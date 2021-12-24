@@ -53,7 +53,7 @@ class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmark
         void setLastPtr  (const CaptureBasePtr _last_ptr)   { last_ptr_ = _last_ptr; }
         void setIncomingPtr  (const CaptureBasePtr _incoming_ptr)   { incoming_ptr_ = _incoming_ptr; }
         unsigned int getMinFeaturesForKeyframe (){return min_features_for_keyframe_;}
-        double getMinTimeVote (){return min_time_vote_;}
+        double getMinTimeVote (){return min_time_span_;}
         void setIncomingDetections(const FeatureBasePtrList _incoming_detections) { detections_incoming_ = _incoming_detections; }
         void setLastDetections(const FeatureBasePtrList _last_detections) { detections_last_ = _last_detections; }
 

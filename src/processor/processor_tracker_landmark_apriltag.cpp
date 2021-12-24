@@ -66,8 +66,8 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         cv_K_(3,3),
         reestimate_last_frame_(_params_tracker_landmark_apriltag->reestimate_last_frame_),
         n_reset_(0),
-        min_time_vote_(_params_tracker_landmark_apriltag->min_time_vote_),
-        max_time_vote_(_params_tracker_landmark_apriltag->max_time_vote_),
+        min_time_span_(_params_tracker_landmark_apriltag->min_time_span_),
+        max_time_span_(_params_tracker_landmark_apriltag->max_time_span_),
         min_features_for_keyframe_(_params_tracker_landmark_apriltag->min_features_for_keyframe),
         nb_vote_for_every_first_(_params_tracker_landmark_apriltag->nb_vote_for_every_first_),
         add_3d_cstr_(_params_tracker_landmark_apriltag->add_3d_cstr_),
@@ -357,19 +357,19 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
 
 bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
 {   
-    // if no detections in last capture, no case where it is usefull to create a KF from last
+    // if no detections in last capture, no case where it is useful to create a KF from last
     if (detections_last_.empty())
         return false;
 
-    double dt_incoming_origin = getIncoming()->getTimeStamp() - getOrigin()->getTimeStamp();
-    bool more_than_min_time_vote = dt_incoming_origin >= min_time_vote_;
-    bool too_long_since_last_KF = dt_incoming_origin >= max_time_vote_;
+    double dt = getIncoming()->getTimeStamp() - getOrigin()->getTimeStamp();
+
     // the elapsed time since last KF is too long 
-    if (too_long_since_last_KF){
+    if (dt > max_time_span_ + wolf::Constants::EPS){
         return true;
     }
-    // no detection in incoming capture and a minimum time since last KF has past
-    if ((detections_incoming_.size() <= min_features_for_keyframe_) and more_than_min_time_vote)
+
+    // too few detections in incoming capture and a minimum time since last KF has past
+    if ((detections_incoming_.size() <= min_features_for_keyframe_) and (dt >= min_time_span_))
         return true;
 
     // Vote for every image processed at the beginning if possible

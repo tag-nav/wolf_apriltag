@@ -81,8 +81,8 @@ static ParamsProcessorBasePtr createParamsProcessorLandmarkApriltag(const std::s
 
         YAML::Node vote                     = config["vote"];
         params->voting_active               = vote["voting active"]                  .as<bool>();
-        params->min_time_vote_              = vote["min_time_vote"]                  .as<double>();
-        params->max_time_vote_              = vote["max_time_vote"]                  .as<double>();
+        params->min_time_span_              = vote["min_time_vote"]                  .as<double>();
+        params->max_time_span_              = vote["max_time_vote"]                  .as<double>();
         params->min_features_for_keyframe   = vote["min_features_for_keyframe"]      .as<unsigned int>();
         params->nb_vote_for_every_first_    = vote["nb_vote_for_every_first"]        .as<int>();
         
