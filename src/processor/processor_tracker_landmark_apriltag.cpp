@@ -364,7 +364,7 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
     double dt = getIncoming()->getTimeStamp() - getOrigin()->getTimeStamp();
 
     // the elapsed time since last KF is too long 
-    if (dt > max_time_span_ + wolf::Constants::EPS){
+    if (dt > max_time_span_ + 1e-5){
         return true;
     }
 
