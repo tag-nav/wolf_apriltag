@@ -192,7 +192,13 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         }
 
         // add to detected features list
-        detections_incoming_.push_back(std::make_shared<FeatureApriltag>(pose, info, tag_id, *det, rep_error1, rep_error2, use_rotation, 
+        detections_incoming_.push_back(std::make_shared<FeatureApriltag>(pose,
+                                                                         info,
+                                                                         tag_id,
+                                                                         *det,
+                                                                         rep_error1,
+                                                                         rep_error2,
+                                                                         use_rotation,
                                                                          FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
     }
 
@@ -272,20 +278,22 @@ FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _fe
 
 LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr _feature_ptr)
 {
+    Quaterniond quat_tmp;
+
     // world to rob
-    Vector3d pos = getLast()->getFrame()->getP()->getState();
-    Quaterniond quat (getLast()->getFrame()->getO()->getState().data());
-    Eigen::Isometry3d w_M_r = Eigen::Translation<double,3>(pos.head(3)) * quat;
+    Vector3d pos            = getLast()->getFrame()->getP()->getState();
+    quat_tmp.coeffs()       = getLast()->getFrame()->getO()->getState();
+    Eigen::Isometry3d w_M_r = Eigen::Translation<double,3>(pos.head(3)) * quat_tmp;
 
     // rob to camera
-    pos = getSensor()->getP()->getState();
-    quat.coeffs() = getSensor()->getO()->getState();
-    Eigen::Isometry3d r_M_c = Eigen::Translation<double,3>(pos.head(3)) * quat;
+    pos                     = getSensor()->getP()->getState();
+    quat_tmp.coeffs()       = getSensor()->getO()->getState();
+    Eigen::Isometry3d r_M_c = Eigen::Translation<double,3>(pos.head(3)) * quat_tmp;
 
     // camera to lmk (tag)
-    pos = _feature_ptr->getMeasurement().head(3);
-    quat.coeffs() = _feature_ptr->getMeasurement().tail(4);
-    Eigen::Isometry3d c_M_t   = Eigen::Translation<double,3>(pos) * quat;
+    pos                     = _feature_ptr->getMeasurement().head(3);
+    quat_tmp.coeffs()       = _feature_ptr->getMeasurement().tail(4);
+    Eigen::Isometry3d c_M_t = Eigen::Translation<double,3>(pos) * quat_tmp;
 
     // world to lmk (tag)
     Eigen::Isometry3d w_M_t = w_M_r * r_M_c * c_M_t;
@@ -293,9 +301,9 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr
     // make 7-vector for lmk (tag) pose
     pos  = w_M_t.translation();
     Eigen::Matrix3d wRt = w_M_t.linear();
-    quat.coeffs() = R2q(wRt).coeffs().transpose();
+    quat_tmp.coeffs() = R2q(wRt).coeffs().transpose();
     Vector7d w_pose_t;
-    w_pose_t << pos, quat.coeffs();
+    w_pose_t << pos, quat_tmp.coeffs();
 
     FeatureApriltagPtr feat_april = std::static_pointer_cast<FeatureApriltag>(_feature_ptr);
     int tag_id = feat_april->getTagId();

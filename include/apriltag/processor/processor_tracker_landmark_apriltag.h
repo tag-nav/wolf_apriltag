@@ -136,9 +136,9 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
          * \return the number of landmarks found
          */
         unsigned int findLandmarks(const LandmarkBasePtrList& _landmarks_in,
-                                           const CaptureBasePtr& _capture,
-                                           FeatureBasePtrList& _features_out,
-                                           LandmarkMatchMap& _feature_landmark_correspondences) override;
+                                   const CaptureBasePtr& _capture,
+                                   FeatureBasePtrList& _features_out,
+                                   LandmarkMatchMap& _feature_landmark_correspondences) override;
 
         /** \brief Vote for KeyFrame generation
          *

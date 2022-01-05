@@ -43,9 +43,13 @@ class FeatureApriltag : public FeatureBase
 {
     public:
 
-        FeatureApriltag(const Eigen::Vector7d & _measurement, const Eigen::Matrix6d & _meas_covariance,
-                        const int _tag_id, const apriltag_detection_t & _det,
-                        double _rep_error1, double _rep_error2, bool _use_rotation,
+        FeatureApriltag(const Eigen::Vector7d & _measurement,
+                        const Eigen::Matrix6d & _meas_covariance,
+                        const int _tag_id,
+                        const apriltag_detection_t & _det,
+                        double _rep_error1,
+                        double _rep_error2,
+                        bool _use_rotation,
                         UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
         ~FeatureApriltag() override;
         
