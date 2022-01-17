@@ -1,3 +1,24 @@
+//--------LICENSE_START--------
+//
+// Copyright (C) 2020,2021,2022 Institut de Robòtica i Informàtica Industrial, CSIC-UPC.
+// Authors: Joan Solà Ortega (jsola@iri.upc.edu)
+// All rights reserved.
+//
+// This file is part of WOLF
+// WOLF is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//--------LICENSE_END--------
 #ifndef FEATURE_APRILTAG_H_
 #define FEATURE_APRILTAG_H_
 
@@ -7,8 +28,8 @@
 //std includes
 
 //external library incudes
-#include "apriltag.h"
-#include "common/zarray.h"
+#include "apriltag/apriltag.h"
+#include "apriltag/common/zarray.h"
 
 // opencv
 #include <opencv2/features2d.hpp>
@@ -22,25 +43,29 @@ class FeatureApriltag : public FeatureBase
 {
     public:
 
-        FeatureApriltag(const Eigen::Vector7s & _measurement, const Eigen::Matrix6s & _meas_covariance,
-                        const int _tag_id, const apriltag_detection_t & _det,
-                        Scalar _rep_error1, Scalar _rep_error2, bool _use_rotation,
+        FeatureApriltag(const Eigen::Vector7d & _measurement,
+                        const Eigen::Matrix6d & _meas_covariance,
+                        const int _tag_id,
+                        const apriltag_detection_t & _det,
+                        double _rep_error1,
+                        double _rep_error2,
+                        bool _use_rotation,
                         UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
-        virtual ~FeatureApriltag();
+        ~FeatureApriltag() override;
         
         /** \brief Returns tag id
          * 
          * Returns tag id
          * 
          **/
-        Scalar getTagId() const; 
+        double getTagId() const; 
 
         const apriltag_detection_t& getDetection() const;
 
         const std::vector<cv::Point2d>& getTagCorners() const;
 
-        Scalar getRepError1() const;
-        Scalar getRepError2() const;
+        double getRepError1() const;
+        double getRepError2() const;
         bool getUserotation() const;
 
 
@@ -48,8 +73,8 @@ class FeatureApriltag : public FeatureBase
         int tag_id_;
         std::vector<cv::Point2d> tag_corners_;
         apriltag_detection_t detection_;
-        Scalar rep_error1_;
-        Scalar rep_error2_;
+        double rep_error1_;
+        double rep_error2_;
         bool use_rotation_;
         
 };

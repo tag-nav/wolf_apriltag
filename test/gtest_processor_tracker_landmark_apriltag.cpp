@@ -1,13 +1,35 @@
-#include "utils_gtest.h"
+//--------LICENSE_START--------
+//
+// Copyright (C) 2020,2021,2022 Institut de Robòtica i Informàtica Industrial, CSIC-UPC.
+// Authors: Joan Solà Ortega (jsola@iri.upc.edu)
+// All rights reserved.
+//
+// This file is part of WOLF
+// WOLF is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//--------LICENSE_END--------
+#include <core/utils/utils_gtest.h>
 
 #include "core/common/wolf.h"
 #include "core/utils/logging.h"
 #include "core/capture/capture_pose.h"
-#include "core/processor/processor_factory.h"
+#include "core/processor/factory_processor.h"
 
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag.h"
 #include "apriltag/landmark/landmark_apriltag.h"
+#include "apriltag/internal/config.h"
 using namespace Eigen;
 using namespace wolf;
 using std::static_pointer_cast;
@@ -21,38 +43,36 @@ WOLF_PTR_TYPEDEFS(ProcessorTrackerLandmarkApriltag_Wrapper);
 class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmarkApriltag
 {
     public:
-        ProcessorTrackerLandmarkApriltag_Wrapper(ProcessorParamsTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
+        ProcessorTrackerLandmarkApriltag_Wrapper(ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
             ProcessorTrackerLandmarkApriltag(_params_tracker_landmark_apriltag)
         {
-            setType("TRACKER LANDMARK APRILTAG WRAPPER");
+            setType("ProcessorTrackerLandmarkApriltag_Wrapper");
         };
-        ~ProcessorTrackerLandmarkApriltag_Wrapper(){}
+        ~ProcessorTrackerLandmarkApriltag_Wrapper() override{}
         void setOriginPtr(const CaptureBasePtr _origin_ptr) { origin_ptr_ = _origin_ptr; }
         void setLastPtr  (const CaptureBasePtr _last_ptr)   { last_ptr_ = _last_ptr; }
         void setIncomingPtr  (const CaptureBasePtr _incoming_ptr)   { incoming_ptr_ = _incoming_ptr; }
         unsigned int getMinFeaturesForKeyframe (){return min_features_for_keyframe_;}
-        Scalar getMinTimeVote (){return min_time_vote_;}
+        double getMinTimeVote (){return min_time_span_;}
         void setIncomingDetections(const FeatureBasePtrList _incoming_detections) { detections_incoming_ = _incoming_detections; }
         void setLastDetections(const FeatureBasePtrList _last_detections) { detections_last_ = _last_detections; }
 
         // for factory
-        static ProcessorBasePtr create(const std::string& _unique_name, const ProcessorParamsBasePtr _params, const SensorBasePtr sensor_ptr = nullptr)
+        static ProcessorBasePtr create(const std::string& _unique_name, const ParamsProcessorBasePtr _params)
         {
-            std::shared_ptr<ProcessorParamsTrackerLandmarkApriltag> prc_apriltag_params_;
-            if (_params)
-                prc_apriltag_params_ = std::static_pointer_cast<ProcessorParamsTrackerLandmarkApriltag>(_params);
-            else
-                prc_apriltag_params_ = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
+            auto prc_apriltag_params_ = std::static_pointer_cast<ParamsProcessorTrackerLandmarkApriltag>(_params);
 
-            ProcessorTrackerLandmarkApriltag_WrapperPtr prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag_Wrapper>(prc_apriltag_params_);
+            auto prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag_Wrapper>(prc_apriltag_params_);
+
             prc_ptr->setName(_unique_name);
+
             return prc_ptr;
         }
 
 };
 namespace wolf{
 // Register in the Factories
-WOLF_REGISTER_PROCESSOR("TRACKER LANDMARK APRILTAG WRAPPER", ProcessorTrackerLandmarkApriltag_Wrapper);
+WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag_Wrapper);
 }
 ////////////////////////////////////////////////////////////////
 
@@ -67,22 +87,23 @@ WOLF_REGISTER_PROCESSOR("TRACKER LANDMARK APRILTAG WRAPPER", ProcessorTrackerLan
 // Use the following in case you want to initialize tests with predefined variables or methods.
 class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
     public:
-        virtual void SetUp()
+        void SetUp() override
         {
-            wolf_root = _WOLF_ROOT_DIR;
+            wolf_root = _WOLF_APRILTAG_ROOT_DIR;
 
             // configure wolf problem
-            problem = Problem::create("PO 3D");
-            sen = problem->installSensor("CAMERA", "camera", (Vector7s()<<0,0,0,0,0,0,1).finished(), wolf_root + "/src/examples/camera_params_canonical.yaml");
-            prc     = problem->installProcessor("TRACKER LANDMARK APRILTAG WRAPPER", "apriltags_wrapper", "camera", wolf_root + "/src/examples/processor_tracker_landmark_apriltag.yaml");
+            problem = Problem::create("PO", 3);
+            sen = problem->installSensor("SensorCamera", "camera", (Vector7d()<<0,0,0,0,0,0,1).finished(), wolf_root + "/test/camera_params_canonical.yaml");
+            prc     = problem->installProcessor("ProcessorTrackerLandmarkApriltag_Wrapper", "apriltags_wrapper", "camera", wolf_root + "/test/processor_tracker_landmark_apriltag.yaml");
             prc_apr = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(prc);
 
             // set prior
-            F1 = problem->setPrior((Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), 0.0, 0.1);
+            VectorComposite x0("PO", {Vector3d(0,0,0), Quaterniond::Identity().coeffs()});
+            VectorComposite s0("PO", {Vector3d(1,1,1), Vector3d(1,1,1)});
+            F1 = problem->setPriorFactor(x0, s0, 0.0);
 
             // minimal config for the processor to be operative
-            C1 = std::make_shared<CapturePose>(1.0, sen, Vector7s(), Matrix6s());
-            F1->addCapture(C1);
+            C1 = CaptureBase::emplace<CapturePose>(F1, 1.0, sen, Vector7d(), Matrix6d());
             prc_apr->setOriginPtr(C1);
             prc_apr->setLastPtr(C1);
 
@@ -109,8 +130,8 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
         FrameBasePtr            F1;
         CaptureBasePtr          C1;
         apriltag_detection_t    det;
-        Scalar                  rep_error1;
-        Scalar                  rep_error2;
+        double                  rep_error1;
+        double                  rep_error2;
         bool                    use_rotation;
 };
 ////////////////////////////////////////////////////////////////
@@ -121,103 +142,154 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
 //                                                            //
 TEST(ProcessorTrackerLandmarkApriltag, Constructor)
 {
-    std::string s1;
-    std::string s2;
+    ParamsProcessorTrackerLandmarkApriltagPtr params = std::make_shared<ParamsProcessorTrackerLandmarkApriltag>();
 
-    ProcessorParamsTrackerLandmarkApriltagPtr params = std::make_shared<ProcessorParamsTrackerLandmarkApriltag>();
+    ProcessorTrackerLandmarkApriltagPtr p;
+
     params->tag_family_ = "tag36h11";
-    ProcessorTrackerLandmarkApriltagPtr p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
-    ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
-
-    params->tag_family_ = "tag36h10";
     p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
     ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
 
-    params->tag_family_ = "tag36artoolkit";
+    /* The following families are commented to speed up the test
+    params->tag_family_ = "tag16h5";
     p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
-    ASSERT_TRUE(p->getTagFamily() == "artoolkit"); // This tagfamily is stored differently by apriltag library
+    ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
 
     params->tag_family_ = "tag25h9";
     p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
     ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
 
-    params->tag_family_ = "tag25h7";
+    params->tag_family_ = "tagStandard41h12";
     p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
     ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+
+    params->tag_family_ = "tagCircle49h12";
+    p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
+    ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+
+    params->tag_family_ = "tagCustom48h12";
+    p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
+    ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+
+    params->tag_family_ = "tagStandard52h13";
+    p = std::make_shared<ProcessorTrackerLandmarkApriltag>(params);
+    ASSERT_TRUE(p->getTagFamily() == params->tag_family_);
+    */
 
     params->tag_family_ = "wrong_family";
     WOLF_INFO("The following runtime error \"Unrecognized tag family name. Use e.g. \"tag36h11\".\" is expected and does not imply a failed test:");
     ASSERT_DEATH( { std::make_shared<ProcessorTrackerLandmarkApriltag>(params); }, "" );
 }
 
-TEST_F(ProcessorTrackerLandmarkApriltag_class, voteForKeyFrame)
+// TEST_F(ProcessorTrackerLandmarkApriltag_class, voteForKeyFrame)
+// {
+//     //////////////////////////////////////
+//     //////////////////////////////////////
+//     // TODO: GTEST IMPLEMENTATION IS WRONG
+//     //////////////////////////////////////
+//     //////////////////////////////////////
+//     double min_time_vote = prc_apr->getMinTimeVote();
+//     unsigned int min_features_for_keyframe = prc_apr->getMinFeaturesForKeyframe();
+//     double start_ts = 2.0;
+
+//     CaptureBasePtr Ca = CaptureBase::emplace<CapturePose>(F1, start_ts, sen, Vector7d(), Matrix6d());
+//     CaptureBasePtr Cb = CaptureBase::emplace<CapturePose>(F1, start_ts + min_time_vote/2, sen, Vector7d(), Matrix6d());
+//     CaptureBasePtr Cc = CaptureBase::emplace<CapturePose>(F1, start_ts + 2*min_time_vote, sen, Vector7d(), Matrix6d());
+//     CaptureBasePtr Cd = CaptureBase::emplace<CapturePose>(F1, start_ts + 2.5*min_time_vote, sen, Vector7d(), Matrix6d());
+//     CaptureBasePtr Ce = CaptureBase::emplace<CapturePose>(F1, start_ts + 3*min_time_vote, sen, Vector7d(), Matrix6d());
+
+//     for (int i=0; i < min_features_for_keyframe; i++){
+//         det.id = i;
+//         FeatureBase::emplace<FeatureApriltag>(Ca, (Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), i, det, rep_error1, rep_error2, use_rotation);
+//         FeatureBase::emplace<FeatureApriltag>(Cc, (Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), i, det, rep_error1, rep_error2, use_rotation);
+//         if (i != min_features_for_keyframe-1){
+//             FeatureBase::emplace<FeatureApriltag>(Cd, (Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), i, det, rep_error1, rep_error2, use_rotation);
+//             FeatureBase::emplace<FeatureApriltag>(Ce, (Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), i, det, rep_error1, rep_error2, use_rotation);
+//         }
+//     }
+
+//     // CASE 1: Not enough time between origin and incoming
+//     prc_apr->setOriginPtr(Ca);
+//     prc_apr->setIncomingPtr(Cb);
+//     ASSERT_FALSE(prc_apr->voteForKeyFrame());
+
+//     // CASE 2: Enough time but still too many features in image to trigger a KF
+//     prc_apr->setOriginPtr(Ca);
+//     prc_apr->setLastPtr(Cb);
+//     prc_apr->setIncomingPtr(Cc);
+//     ASSERT_FALSE(prc_apr->voteForKeyFrame());
+
+//     // // CASE 3: Enough time, enough features in last, not enough features in incoming
+//     // prc_apr->setOriginPtr(Ca);
+//     // prc_apr->setLastPtr(Cc);
+//     // prc_apr->setIncomingPtr(Cd);
+//     // ASSERT_TRUE(prc_apr->voteForKeyFrame());
+
+//     // // CASE 4: Enough time, not enough features in last, not enough features in incoming
+//     // prc_apr->setOriginPtr(Ca);
+//     // prc_apr->setLastPtr(Cd);
+//     // prc_apr->setIncomingPtr(Ce);
+//     // ASSERT_FALSE(prc_apr->voteForKeyFrame());
+// }
+
+TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeaturesDuplicated)
 {
-    Scalar min_time_vote = prc_apr->getMinTimeVote();
-    unsigned int min_features_for_keyframe = prc_apr->getMinFeaturesForKeyframe();
-    Scalar start_ts = 2.0;
+    // No detected features
+    FeatureBasePtrList features_out;
+    prc_apr->detectNewFeatures(1, C1, features_out);
+    ASSERT_EQ(features_out.size(), 0);
 
-    CaptureBasePtr Ca = std::make_shared<CapturePose>(start_ts, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cb = std::make_shared<CapturePose>(start_ts + min_time_vote/2, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cc = std::make_shared<CapturePose>(start_ts + 2*min_time_vote, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Cd = std::make_shared<CapturePose>(start_ts + 2.5*min_time_vote, sen, Vector7s(), Matrix6s());
-    CaptureBasePtr Ce = std::make_shared<CapturePose>(start_ts + 3*min_time_vote, sen, Vector7s(), Matrix6s());
+    // Some detected features TODO
+    FeatureBasePtrList features_in;
+    Eigen::Vector3d pos;
+    Eigen::Vector3d ori; //Euler angles in rad
+    Eigen::Quaterniond quat;
+    Eigen::Vector7d pose;
+    Eigen::Matrix6d meas_cov( Matrix6d::Identity() );
+    int tag_id;
 
-    for (int i=0; i < min_features_for_keyframe; i++){
-        det.id = i;
-        FeatureApriltagPtr f = std::make_shared<FeatureApriltag>((Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), i, det, rep_error1, rep_error2, use_rotation);
-        Ca->addFeature(f);
-        Ca->addFeature(f);
-        Cc->addFeature(f);
-        if (i != min_features_for_keyframe-1){
-            Cd->addFeature(f);
-            Ce->addFeature(f);
-        }
-    }
-    F1->addCapture(Ca);
-    F1->addCapture(Cb);
-    F1->addCapture(Cc);
-    F1->addCapture(Cd);
-    F1->addCapture(Ce);
+    // feature 0
+    pos << 0,2,0;
+    ori << M_TORAD * 0, M_TORAD * 0, M_TORAD * 0;
+    quat = e2q(ori);
+    pose << pos, quat.coeffs();
+    tag_id = 0;
+    det.id = tag_id;
+    FeatureBasePtr f0 = std::make_shared<FeatureApriltag>(pose, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation);
 
-    // CASE 1: Not enough time between origin and incoming
-    prc_apr->setOriginPtr(Ca);
-    prc_apr->setIncomingPtr(Cb);
-    ASSERT_FALSE(prc_apr->voteForKeyFrame());
+    // feature 1 (with same id of feature 0)
+    pos << 1,2,0;
+    ori << M_TORAD * 0, M_TORAD * 0, M_TORAD * 0;
+    quat = e2q(ori);
+    pose << pos, quat.coeffs();
+    tag_id = 0;
+    det.id = tag_id;
+    FeatureBasePtr f1 = std::make_shared<FeatureApriltag>(pose, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation);
 
-    // CASE 2: Enough time but still too many features in image to trigger a KF
-    prc_apr->setOriginPtr(Ca);
-    prc_apr->setLastPtr(Cb);
-    prc_apr->setIncomingPtr(Cc);
-    ASSERT_FALSE(prc_apr->voteForKeyFrame());
+    features_in.push_back(f0);
+    features_in.push_back(f1);
 
-    // CASE 3: Enough time, enough features in last, not enough features in incoming
-    prc_apr->setOriginPtr(Ca);
-    prc_apr->setLastPtr(Cc);
-    prc_apr->setIncomingPtr(Cd);
-    ASSERT_TRUE(prc_apr->voteForKeyFrame());
-
-    // CASE 4: Enough time, not enough features in last, not enough features in incoming
-    prc_apr->setOriginPtr(Ca);
-    prc_apr->setLastPtr(Cd);
-    prc_apr->setIncomingPtr(Ce);
-    ASSERT_FALSE(prc_apr->voteForKeyFrame());
-
+    // We just added two features with the same id in the list.
+    prc_apr->setLastDetections(features_in);
+    // at this point we have 0 detections in last, 2 detections in incoming with same id.
+    prc_apr->detectNewFeatures(2, C1, features_out);
+    ASSERT_EQ(features_out.size(), 1); // detectNewFeatures should keep only one in the final list of new detected features
 }
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeatures)
 {
     // No detected features
     FeatureBasePtrList features_out;
-    prc_apr->detectNewFeatures(1, features_out);
+    prc_apr->detectNewFeatures(1, C1, features_out);
     ASSERT_EQ(features_out.size(), 0);
 
     // Some detected features TODO
     FeatureBasePtrList features_in;
-    Eigen::Vector3s pos;
-    Eigen::Vector3s ori; //Euler angles in rad
-    Eigen::Quaternions quat;
-    Eigen::Vector7s pose;
-    Eigen::Matrix6s meas_cov( (prc_apr->getVarVec()).asDiagonal() );
+    Eigen::Vector3d pos;
+    Eigen::Vector3d ori; //Euler angles in rad
+    Eigen::Quaterniond quat;
+    Eigen::Vector7d pose;
+    Eigen::Matrix6d meas_cov( Matrix6d::Identity() );
     int tag_id;
 
     // feature 0
@@ -247,122 +319,106 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeatures)
     det.id = tag_id;
     FeatureBasePtr f2 = std::make_shared<FeatureApriltag>(pose, meas_cov, tag_id, det, rep_error1, rep_error2, use_rotation);
 
-    features_in.push_back(f0);
-    features_in.push_back(f0);
-
-    // We just added twice the same feature in the list.
-    prc_apr->setLastDetections(features_in);
-    // at this point we have 0 detections in last, 2 detections in incoming with same id. We should keep only one in the final list of new detected features
-    prc_apr->detectNewFeatures(2, features_out);
-    ASSERT_EQ(features_out.size(), 1);
-
-    //we add new different features in the list
-    features_in.clear();
+    //we add different features in the list
     features_in.push_back(f0);
     features_in.push_back(f1);
-    //these features are set as the incoming detections due to processing an image
+    //these features are set as the predetected features in last to processing an image
     prc_apr->setLastDetections(features_in);
-    // at this point we have 0 detections in last, 2 detections in incoming with different ids, thus we should have 2 new detected features (if max_features set to >= 2)
-    prc_apr->detectNewFeatures(2, features_out);
+    // at this point we have 0 detections in last, 2 detections in predetected features with different ids, thus we should have 2 new detected features (if max_features set to >= 2)
+    prc_apr->detectNewFeatures(2, C1, features_out);
     ASSERT_EQ(features_out.size(), 2);
 
-    // Put some of the features in the graph with createLandmark() and detect some of them as well as others with detectNewFeatures() running again.
-    WOLF_WARN("call to function createLandmark() in unit test for detectNewFeatures().")
-    C1->addFeature(f0);
-    LandmarkBasePtr lmk0 = prc_apr->createLandmark(f0);
-    C1->addFeature(f1);
-    LandmarkBasePtr lmk1 = prc_apr->createLandmark(f1);
-
-    // Add landmarks to the map
-    LandmarkBasePtrList landmark_list;
-    landmark_list.push_back(lmk0);
-    landmark_list.push_back(lmk1);
-    problem->addLandmarkList(landmark_list);
-    //problem->print(4,1,1,1);
+    // Put some of the features in the graph with emplaceLandmark() and detect some of them as well as others with detectNewFeatures() running again.
+    WOLF_WARN("call to function emplaceLandmark() in unit test for detectNewFeatures().")
+    WOLF_INFO("emplacing 0....");
+    LandmarkBasePtr lmk0 = prc_apr->emplaceLandmark(f0);
+    WOLF_INFO("emplacing 1....");
+    LandmarkBasePtr lmk1 = prc_apr->emplaceLandmark(f1);
 
     // Add 1 one more new feature to the detection list
     features_in.push_back(f2);
     prc_apr->setLastDetections(features_in);
-    // At this point we have 2 landmarks (for f0 and f1), and 3 detections (f0, f1 and f2).
-    // Hence we should 1 new detected feature : f2
+    // At this point we have 2 landmarks (for f0 and f1), and 3 predetected features (f0, f1 and f2).
+    // Hence we should have 1 new detected feature : f2
     features_out.clear();
-    prc_apr->detectNewFeatures(2, features_out);
+    WOLF_INFO("detecting....");
+    prc_apr->detectNewFeatures(2, C1, features_out);
     ASSERT_EQ(features_out.size(), 1);
     ASSERT_EQ(std::static_pointer_cast<FeatureApriltag>(features_out.front())->getTagId(), 2);
 }
 
-TEST_F(ProcessorTrackerLandmarkApriltag_class, createLandmark)
+TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
 {
-    Vector7s pose_landmark((Vector7s()<<0,0,0,0,0,0,1).finished());
+    Vector7d pose_landmark((Vector7d()<<0,0,0,0,0,0,1).finished());
     det.id = 1;
-    FeatureApriltagPtr f1 = std::make_shared<FeatureApriltag>(pose_landmark, Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
+    FeatureBasePtr f1 = FeatureBase::emplace<FeatureApriltag>(C1,pose_landmark, Matrix6d::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
 
-    C1->addFeature(f1);
-    LandmarkBasePtr lmk = prc_apr->createLandmark(f1);
+    LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
-    ASSERT_TRUE(lmk_april->getType() == "APRILTAG");
-    ASSERT_MATRIX_APPROX(lmk_april->getState(), pose_landmark, 1e-6);
+    ASSERT_TRUE(lmk_april->getMap() != nullptr);
+    ASSERT_TRUE(lmk_april->getType() == "LandmarkApriltag");
+    ASSERT_MATRIX_APPROX(lmk_april->getState().vector("PO"), pose_landmark, 1e-6);
 }
 
-TEST_F(ProcessorTrackerLandmarkApriltag_class, createFactor)
+TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)
 {
     det.id = 1;
-    FeatureApriltagPtr f1 = std::make_shared<FeatureApriltag>((Vector7s()<<0,0,0,0,0,0,1).finished(), Matrix6s::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
+    FeatureBasePtr f1 = FeatureBase::emplace<FeatureApriltag>(C1,(Vector7d()<<0,0,0,0,0,0,1).finished(), Matrix6d::Identity(), 1, det, rep_error1, rep_error2, use_rotation);
 
-    C1->addFeature(f1);
-    LandmarkBasePtr lmk = prc_apr->createLandmark(f1);
+    LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
 
-    FactorBasePtr ctr = prc_apr->createFactor(f1, lmk);
+    FactorBasePtr ctr = prc_apr->emplaceFactor(f1, lmk);
 
-    ASSERT_TRUE(ctr->getType() == "AUTODIFF APRILTAG");
+    ASSERT_TRUE(ctr->getFeature() == f1);
+    ASSERT_TRUE(ctr->getType() == "FactorApriltag");
 }
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
 {
-    Scalar cx = 320;
-    Scalar cy = 240;
-    Scalar fx = 320;
-    Scalar fy = 320;
-    Eigen::Matrix3s K;
+    double cx = 320;
+    double cy = 240;
+    double fx = 320;
+    double fy = 320;
+    Eigen::Matrix3d K;
     K <<  fx,  0, cx,
           0,  fy, cy,
           0,    0,   1;
-    Eigen::Vector3s t; t << 0.0, 0.0, 0.4;
-    Eigen::Vector3s v; v << 0.2, 0.0, 0.0;
-    Scalar tag_width = 0.05;
-    Scalar s = tag_width/2;
-    Eigen::Vector3s p1; p1 <<  s,  s, 0; // bottom right
-    Eigen::Vector3s p2; p2 << -s,  s, 0; // bottom left
+    Eigen::Vector3d t; t << 0.0, 0.0, 0.4;
+    Eigen::Vector3d v; v << 0.2, 0.0, 0.0;
+    double tag_width = 0.05;
+    double s = tag_width/2;
+    Eigen::Vector3d p1; p1 <<  s,  s, 0; // bottom right
+    Eigen::Vector3d p2; p2 << -s,  s, 0; // bottom left
 
     // Got from Matlab code:
     // Top left corner
-    Eigen::Vector3s h1_matlab; h1_matlab <<   137.5894, 105.0325, 0.4050;
-    Eigen::Matrix3s J_h_T1_matlab;
+    Eigen::Vector3d h1_matlab; h1_matlab <<   137.5894, 105.0325, 0.4050;
+    Eigen::Matrix3d J_h_T1_matlab;
     J_h_T1_matlab << 320,  0, 320,
                      0,  320, 240,
                      0,    0,   1;
-    Eigen::Matrix3s J_h_R1_matlab;
+    Eigen::Matrix3d J_h_R1_matlab;
     J_h_R1_matlab << 7.8405, -7.8405, -6.4106,
                      4.2910, -4.2910,  9.0325,
                      0.0245, -0.0245,  0.0050;
     // Top right corner
-    Eigen::Vector3s h2_matlab; h2_matlab << 121.5894, 105.0325, 0.4050;
-    Eigen::Matrix3s J_h_T2_matlab;
+    Eigen::Vector3d h2_matlab; h2_matlab << 121.5894, 105.0325, 0.4050;
+    Eigen::Matrix3d J_h_T2_matlab;
     J_h_T2_matlab << 320,  0, 320,
                      0,  320, 240,
                      0,    0,   1;
-    Eigen::Matrix3s J_h_R2_matlab;
+    Eigen::Matrix3d J_h_R2_matlab;
     J_h_R2_matlab << 7.8405, 7.8405, -9.5894,
                      4.2910, 4.2910, -9.0325,
                      0.0245, 0.0245, -0.0050;
 
-    Eigen::Vector3s h1;
-    Eigen::Matrix3s J_h_T1;
-    Eigen::Matrix3s J_h_R1;
-    Eigen::Vector3s h2;
-    Eigen::Matrix3s J_h_T2;
-    Eigen::Matrix3s J_h_R2;
+    Eigen::Vector3d h1;
+    Eigen::Matrix3d J_h_T1;
+    Eigen::Matrix3d J_h_R1;
+    Eigen::Vector3d h2;
+    Eigen::Matrix3d J_h_T2;
+    Eigen::Matrix3d J_h_R2;
 
     prc_apr->pinholeHomogeneous(K, t, v2R(v), p1, h1, J_h_T1, J_h_R1);
     prc_apr->pinholeHomogeneous(K, t, v2R(v), p2, h2, J_h_T2, J_h_R2);
@@ -374,11 +430,11 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
     ASSERT_MATRIX_APPROX(J_h_T2, J_h_T2_matlab, 1e-3);
     ASSERT_MATRIX_APPROX(J_h_R2, J_h_R2_matlab, 1e-3);
 
-    Scalar sig_q = 2;
-    Eigen::Matrix6s transformation_info = prc_apr->computeInformation(t, v2R(v), K, tag_width, sig_q);
+    double sig_q = 2;
+    Eigen::Matrix6d transformation_info = prc_apr->computeInformation(t, v2R(v), K, tag_width, sig_q);
 
     // From Matlab
-//    Eigen::Matrix6s transformation_cov_matlab;
+//    Eigen::Matrix6d transformation_cov_matlab;
 //    transformation_cov_matlab <<
 //    0.0000,    0.0000,   -0.0000,    0.0000,   -0.0002,    0.0000,
 //    0.0000,    0.0000,   -0.0000,    0.0002,    0.0000,    0.0000,
@@ -387,7 +443,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
 //   -0.0002,    0.0000,   -0.0000,    0.0000,    0.1074,   -0.0106,
 //    0.0000,    0.0000,    0.0000,    0.0000,   -0.0106,    0.0023;
 
-    Eigen::Matrix6s transformation_info_matlab;
+    Eigen::Matrix6d transformation_info_matlab;
     transformation_info_matlab <<
     6.402960973553990,                   0,   0.000000000000000,  -0.000000000000000,   0.009809735541319,   0.001986080274985,
                     0,   6.402960973553990,   0.014610695222409,  -0.008824560412472,   0.000000000000000,   0.000000000000000,

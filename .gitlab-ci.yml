@@ -1,70 +1,247 @@
-image: segaleran/ceres
+stages:
+  - license
+  - build_and_test
 
-before_script:
-  - ls
+############ YAML ANCHORS ############
+.preliminaries_template: &preliminaries_definition
+  ## Install ssh-agent if not already installed, it is required by Docker.
+  ## (change apt-get to yum if you use an RPM-based image)
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+
+  ## Run ssh-agent (inside the build environment)
+  - eval $(ssh-agent -s)
+
+  ## Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+  ## We're using tr to fix line endings which makes ed25519 keys work
+  ## without extra base64 encoding.
+  ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh  
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  # - echo "$SSH_KNOWN_HOSTS" > $HOME/.ssh/known_hosts
+  - ssh-keyscan -H -p 2202 gitlab.iri.upc.edu >> $HOME/.ssh/known_hosts
+
+  # update apt
   - apt-get update
-  - apt-get install -y build-essential cmake 
 
-# SPDLOG
-#  - apt-get install -y libspdlog-dev
-  - if [ -d spdlog ]; then
-  -   echo "directory exists" 
-  -   if [ "$(ls -A ./spdlog)" ]; then 
-  -     echo "directory not empty" 
-  -     cd spdlog
-  -     git pull
-  -   else 
-  -     echo "directory empty" 
-  -     git clone https://github.com/gabime/spdlog.git
-  -     cd spdlog
-  -   fi
+  # create 'ci_deps' folder (if not exists)
+  - mkdir -pv ci_deps
+
+.license_header_template: &license_header_definition
+  - cd $CI_PROJECT_DIR
+
+  # configure git
+  - export CI_NEW_BRANCH=ci_processing$RANDOM
+  - echo creating new temporary branch... $CI_NEW_BRANCH
+  - git config --global user.email "${CI_EMAIL}"
+  - git config --global user.name "${CI_USERNAME}"
+  - git checkout -b $CI_NEW_BRANCH # temporary branch
+
+  # license headers
+  - export CURRENT_YEAR=$( date +'%Y' )
+  - echo "current year:" ${CURRENT_YEAR}
+  - if [ -f license_header_${CURRENT_YEAR}.txt ]; then
+      # add license headers to new files
+  -   echo "File license_header_${CURRENT_YEAR}.txt already exists. License headers are assumed to be updated. Adding headers to new files..."
+  -   ./ci_deps/wolf/wolf_scripts/license_manager.sh --add --path=. --license-header=license_header_${CURRENT_YEAR}.txt --exclude=ci_deps
   - else
-  -   echo "directory inexistent" 
-  -   git clone https://github.com/gabime/spdlog.git
-  -   cd spdlog
+      # update license headers of all files
+  -   export PREV_YEAR=$(( CURRENT_YEAR-1 ))
+  -   echo "Creating new file license_header_${CURRENT_YEAR}.txt..."
+  -   git mv license_header_${PREV_YEAR}.txt license_header_${CURRENT_YEAR}.txt
+  -   sed -i "s/${PREV_YEAR}/${PREV_YEAR},${CURRENT_YEAR}/g" license_header_${CURRENT_YEAR}.txt
+  -   ./ci_deps/wolf/wolf_scripts/license_manager.sh --update --path=. --license-header=license_header_${CURRENT_YEAR}.txt --exclude=ci_deps
   - fi
-  - git fetch
-  - git checkout v0.17.0
+
+  # push changes (if any)
+  - if git commit -a -m "[skip ci] license headers added or modified" ; then
+  -   git remote set-url --push origin "ssh://git@gitlab.iri.upc.edu:2202/${CI_PROJECT_PATH}.git"
+  -   git push origin $CI_NEW_BRANCH:${CI_COMMIT_REF_NAME}
+  - else
+  -   echo "No changes, nothing to commit!"
+  - fi
+
+.install_wolf_template: &install_wolf_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
+  - if [ -d wolf ]; then
+  -   echo "directory wolf exists"
+  -   cd wolf
+  -   git checkout devel
+  -   git pull
+  -   git checkout $WOLF_CORE_BRANCH
+  - else
+  -   git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/wolf.git
+  -   cd wolf
+  -   git checkout $WOLF_CORE_BRANCH
+  - fi
   - mkdir -pv build
   - cd build
-  - ls
-  - cmake -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC" -DSPDLOG_BUILD_TESTING=OFF ..
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_DEMOS=ON -DBUILD_TESTS=OFF ..
+  - make -j$(nproc)
   - make install
-  - cd ../..
+  - ldconfig
 
-# YAML
-#  - apt-get install -y libyaml-cpp-dev
-  - if [ -d yaml-cpp ]; then
-  -   echo "directory exists" 
-  -   if [ "$(ls -A ./yaml-cpp)" ]; then 
-  -     echo "directory not empty" 
-  -     cd yaml-cpp
-  -     git pull
-  -   else 
-  -     echo "directory empty" 
-  -     git clone https://github.com/jbeder/yaml-cpp.git
-  -     cd yaml-cpp
-  -   fi
+.install_visionutils_template: &install_visionutils_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
+  - if [ -d vision_utils ]; then
+  -   echo "directory vision_utils exists"
+  -   cd vision_utils
+  -   git pull
   - else
-  -   echo "directory inexistent" 
-  -   git clone https://github.com/jbeder/yaml-cpp.git
-  -   cd yaml-cpp
+  -   git clone https://gitlab.iri.upc.edu/labrobotica/algorithms/vision_utils.git
+  -   cd vision_utils
   - fi
   - mkdir -pv build
   - cd build
-  - ls
-  - cmake -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC" -DYAML_CPP_BUILD_TESTS=OFF ..
+  - cmake -DCMAKE_BUILD_TYPE=release ..
+  - make -j$(nproc)
   - make install
-  - cd ../..
+  - ldconfig
 
-wolf_build_and_test:
-  stage: build
+.install_wolfvision_template: &install_wolfvision_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
+  - if [ -d vision ]; then
+  -   echo "directory vision exists"
+  -   cd vision
+  -   git pull
+  - else
+  -   git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/plugins/vision.git
+  -   cd vision
+  - fi
+  - mkdir -pv build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_TESTS=OFF ..
+  - make -j$(nproc)
+  - make install
+  - ldconfig
+
+.install_apriltag_template: &install_apriltag_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
+  - if [ -d apriltaglib ]; then
+  -   echo "directory apriltaglib exists"
+  -   cd apriltaglib
+  -   git pull
+  - else
+  -   git clone https://github.com/AprilRobotics/apriltag apriltaglib
+  -   cd apriltaglib
+  - fi
+  - mkdir -pv build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=release ..
+  - make -j$(nproc)
+  - make install
+  - ldconfig
+
+.build_and_test_template: &build_and_test_definition
+  - cd $CI_PROJECT_DIR
+  - mkdir -pv build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_TESTS=ON ..
+  - make -j$(nproc)
+  - ./../bin/gtest_processor_tracker_landmark_apriltag
+  - ctest -j$(nproc)
+  - make install
+  - ldconfig
+
+############ LICENSE HEADERS ############
+license_headers:
+  stage: license
+  image: labrobotica/wolf_vision_deps:16.04
+  cache:
+    - key: wolf-xenial
+      paths:
+      - ci_deps/wolf/
   except:
     - master
+  before_script:
+    - *preliminaries_definition
+    - *install_wolf_definition
   script:
-    - mkdir -pv build
-    - cd build
-    - ls # we can check whether the directory was already full
-    - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
-    - make
-    - ctest
+    - *license_header_definition
+
+############ UBUNTU 16.04 TESTS ############
+build_and_test:xenial:
+  stage: build_and_test
+  image: labrobotica/wolf_vision_deps:16.04
+  cache:
+    - key: wolf-xenial
+      paths:
+      - ci_deps/wolf/
+    - key: visionutils-xenial
+      paths:
+      - ci_deps/vision_utils/
+    - key: vision-xenial
+      paths:
+      - ci_deps/vision/
+    - key: apriltaglib-xenial
+      paths:
+      - ci_deps/apriltaglib/
+  except:
+    - master
+  before_script:
+    - *preliminaries_definition
+    - *install_wolf_definition
+    - *install_visionutils_definition
+    - *install_wolfvision_definition
+    - *install_apriltag_definition
+    - ldconfig # update links (shared libraries)
+  script:
+    - *build_and_test_definition
+
+############ UBUNTU 18.04 TESTS ############
+build_and_test:bionic:
+  stage: build_and_test
+  image: labrobotica/wolf_vision_deps:18.04
+  cache:
+    - key: wolf-bionic
+      paths:
+      - ci_deps/wolf/
+    - key: visionutils-bionic
+      paths:
+      - ci_deps/vision_utils/
+    - key: vision-bionic
+      paths:
+      - ci_deps/vision/
+    - key: apriltaglib-bionic
+      paths:
+      - ci_deps/apriltaglib/
+  except:
+    - master
+  before_script:
+    - *preliminaries_definition
+    - *install_wolf_definition
+    - *install_visionutils_definition
+    - *install_wolfvision_definition
+    - *install_apriltag_definition
+    - ldconfig # update links (shared libraries)
+  script:
+    - *build_and_test_definition
+
+############ UBUNTU 20.04 TESTS ############
+build_and_test:focal:
+  stage: build_and_test
+  image: labrobotica/wolf_vision_deps:20.04
+  cache:
+    - key: wolf-focal
+      paths:
+      - ci_deps/wolf/
+    - key: visionutils-focal
+      paths:
+      - ci_deps/vision_utils/
+    - key: vision-focal
+      paths:
+      - ci_deps/vision/
+    - key: apriltaglib-focal
+      paths:
+      - ci_deps/apriltaglib/
+  except:
+    - master
+  before_script:
+    - *preliminaries_definition
+    - *install_wolf_definition
+    - *install_visionutils_definition
+    - *install_wolfvision_definition
+    - *install_apriltag_definition
+    - ldconfig # update links (shared libraries)
+  script:
+    - *build_and_test_definition
