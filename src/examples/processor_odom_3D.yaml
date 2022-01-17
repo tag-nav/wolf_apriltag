@@ -1,8 +1,0 @@
-processor type: "ODOM 3D"              # This must match the KEY used in the SensorFactory. Otherwise it is an error.
-processor name: "Main odometer"        # This is ignored. The name provided to the SensorFactory prevails
-time tolerance:         0.01  # seconds
-keyframe vote:
-    max time span:      0.2   # seconds
-    max buffer length:  10    # motion deltas
-    dist traveled:      0.5   # meters
-    angle turned:       0.1   # radians (1 rad approx 57 deg, approx 60 deg)

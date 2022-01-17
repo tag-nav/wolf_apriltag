@@ -1,8 +1,0 @@
-sensor type: "ODOM 3D"              # This must match the KEY used in the SensorFactory. Otherwise it is an error.
-sensor name: "Main odometer"        # This is ignored. The name provided to the SensorFactory prevails
-motion variances: 
-    disp_to_disp:   0.000001  # m^2   / m
-    disp_to_rot:    0.000001  # rad^2 / m
-    rot_to_rot:     0.000001  # rad^2 / rad
-    min_disp_var:   0.00000001  # m^2
-    min_rot_var:    0.00000001  # rad^2
