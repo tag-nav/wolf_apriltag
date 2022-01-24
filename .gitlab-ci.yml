@@ -69,10 +69,10 @@ stages:
   -   git checkout devel
   -   git pull
   -   git checkout $WOLF_CORE_BRANCH
+  -   git pull
   - else
-  -   git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/wolf.git
+  -   git clone -b $WOLF_CORE_BRANCH ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/wolf.git
   -   cd wolf
-  -   git checkout $WOLF_CORE_BRANCH
   - fi
   - mkdir -pv build
   - cd build
@@ -103,9 +103,12 @@ stages:
   - if [ -d vision ]; then
   -   echo "directory vision exists"
   -   cd vision
+  -   git checkout devel
+  -   git pull
+  -   git checkout $WOLF_VISION_BRANCH
   -   git pull
   - else
-  -   git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/plugins/vision.git
+  -   git clone -b $WOLF_VISION_BRANCH ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/plugins/vision.git
   -   cd vision
   - fi
   - mkdir -pv build
