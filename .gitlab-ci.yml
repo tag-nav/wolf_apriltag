@@ -149,7 +149,7 @@ stages:
 ############ LICENSE HEADERS ############
 license_headers:
   stage: license
-  image: labrobotica/wolf_vision_deps:16.04
+  image: labrobotica/wolf_vision_deps:20.04
   cache:
     - key: wolf-xenial
       paths:
@@ -161,35 +161,6 @@ license_headers:
     - *install_wolf_definition
   script:
     - *license_header_definition
-
-############ UBUNTU 16.04 TESTS ############
-build_and_test:xenial:
-  stage: build_and_test
-  image: labrobotica/wolf_vision_deps:16.04
-  cache:
-    - key: wolf-xenial
-      paths:
-      - ci_deps/wolf/
-    - key: visionutils-xenial
-      paths:
-      - ci_deps/vision_utils/
-    - key: vision-xenial
-      paths:
-      - ci_deps/vision/
-    - key: apriltaglib-xenial
-      paths:
-      - ci_deps/apriltaglib/
-  except:
-    - master
-  before_script:
-    - *preliminaries_definition
-    - *install_wolf_definition
-    - *install_visionutils_definition
-    - *install_wolfvision_definition
-    - *install_apriltag_definition
-    - ldconfig # update links (shared libraries)
-  script:
-    - *build_and_test_definition
 
 ############ UBUNTU 18.04 TESTS ############
 build_and_test:bionic:
