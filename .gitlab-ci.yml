@@ -151,7 +151,7 @@ license_headers:
   stage: license
   image: labrobotica/wolf_vision_deps:20.04
   cache:
-    - key: wolf-xenial
+    - key: wolf-focal
       paths:
       - ci_deps/wolf/
   except:
