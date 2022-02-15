@@ -81,11 +81,11 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 6, 3, 4, 3,
             // double prints stuff
             WOLF_TRACE("KF", kf, " L", lmk, "; ", s, _M);
         }
-        template<typename D1, typename D2, typename D3>
-        Matrix<typename D2::Scalar, 2, 1> pinholeProj(const MatrixBase<D1>& K,
-                                                      const MatrixBase<D1>& p_c_l,
-                                                      const Eigen::Quaternion<typename D2::Scalar>& q_c_l,
-                                                      const MatrixBase<D3>& l_corn) const;
+        template<typename D1>
+        Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProj(const Eigen::Matrix3d& K,
+                                                             const Eigen::MatrixBase<D1>& p_c_l,
+                                                             const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
+                                                             const Eigen::Vector3d& l_corn) const;
 };
 
 } // namespace wolf
@@ -131,17 +131,19 @@ FactorApriltagProj::~FactorApriltagProj()
 }
 
 
-template<typename D1, typename D2, typename D3>
-Matrix<typename D2::Scalar, 2, 1> FactorApriltagProj::pinholeProj(const MatrixBase<D1>& K,
-                                                                  const MatrixBase<D1>& p_c_l,
-                                                                  const Eigen::Quaternion<typename D2::Scalar>& q_c_l,
-                                                                  const MatrixBase<D3>& l_corn) const
+template<typename D1>
+Eigen::Matrix<typename D1::Scalar, 2, 1> FactorApriltagProj::pinholeProj(const Eigen::Matrix3d& K,
+                                                                         const Eigen::MatrixBase<D1>& p_c_l,
+                                                                         const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
+                                                                         const Eigen::Vector3d& l_corn) const
 {
-    typedef typename D2::Scalar T;
-    Matrix<T, 3, 1> h =  K * (p_c_l + q_c_l * l_corn);
-    Matrix<T, 2, 1> pix;
+    MatrixSizeCheck<3,1>::check(p_c_l);
+
+    typedef typename D1::Scalar T;
+    Eigen::Matrix<T, 3, 1> h =  K.cast<T>() * (p_c_l + q_c_l * l_corn.cast<T>());
+    Eigen::Matrix<T, 2, 1> pix;
     pix(0) = h(0)/h(2);
-    pix(0) = h(1)/h(2);
+    pix(1) = h(1)/h(2);
     return pix;
 }
 
@@ -173,7 +175,8 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
 
     //////////////////////////////////////
     // Detected corner projections
-    Vector8d corners_det = getMeasurement();
+    // >>>>>>> JV: COMMENTED TO AVOID UNNECESSARY ALLOCATION
+    //Vector8d corners_det = getMeasurement();
 
     //////////////////////////////////////
     // Expected corner projections
@@ -181,11 +184,11 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
     //////////////////////////////////////
     // Camera matrix (put somewhere else)
     // get camera intrinsic parameters
-    Eigen::Vector4d k(getSensor()->getIntrinsic()->getState()); //[cx cy fx fy]
-    Matrix3d K;
-    K << k(2),    0, k(0),
-             0, k(3), k(1),
-             0,    0,    1;
+    Eigen::Vector4d k = getSensor()->getIntrinsic()->getState(); //[cx cy fx fy]
+    Eigen::Matrix3d K;
+    K << k(2), 0,    k(0),
+         0,    k(3), k(1),
+         0,    0,    1;
     //////////////////////////////////////
 
 
@@ -195,25 +198,28 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
     // Same order as the 2d corners (anti clockwise, looking at the tag).
     // Looking at the tag, the reference frame is
     // X = Right, Y = Down, Z = Inside the plane
+    // >>>>>>> JV: COULD THIS BE PRECOMPUTED AT CONSTRUCTION TIME?
     double s = tag_width/2;
-    std::vector<Vector3d> l_corn_vec;
-    Vector3d l_corn1; l_corn1 << -s,  s, 0; // bottom left
-    Vector3d l_corn2; l_corn2 <<  s,  s, 0; // bottom right
-    Vector3d l_corn3; l_corn3 <<  s, -s, 0; // top right
-    Vector3d l_corn4; l_corn4 << -s, -s, 0; // top left
+    Eigen::Vector3d l_corn1; l_corn1 << -s,  s, 0; // bottom left
+    Eigen::Vector3d l_corn2; l_corn2 <<  s,  s, 0; // bottom right
+    Eigen::Vector3d l_corn3; l_corn3 <<  s, -s, 0; // top right
+    Eigen::Vector3d l_corn4; l_corn4 << -s, -s, 0; // top left
     
 
     Eigen::Matrix<T, 8, 1> corners_exp;
-    corners_exp.block(0,0,2,0) = pinholeProj(K, p_c_l, q_c_l, l_corn1);
-    // corners_exp.block(2,0,2,0) = pinholeProj(K, p_c_l, q_c_l, l_corn2);
-    // corners_exp.block(4,0,2,0) = pinholeProj(K, p_c_l, q_c_l, l_corn3);
-    // corners_exp.block(6,0,2,0) = pinholeProj(K, p_c_l, q_c_l, l_corn4);
+    corners_exp.segment(2,0) = pinholeProj(K, p_c_l, q_c_l, l_corn1);
+    corners_exp.segment(2,2) = pinholeProj(K, p_c_l, q_c_l, l_corn2);
+    corners_exp.segment(2,4) = pinholeProj(K, p_c_l, q_c_l, l_corn3);
+    corners_exp.segment(2,6) = pinholeProj(K, p_c_l, q_c_l, l_corn4);
 
     // Error
-    Eigen::Matrix<T, 8, 1> err = corners_exp - corners_det;
+    // >>>>>>> JV: COMMENTED TO AVOID UNNECESSARY ALLOCATION
+    //Eigen::Matrix<T, 8, 1> err = corners_exp - getMeasurement();
 
     // Residual
-    residuals = getMeasurementSquareRootInformationUpper().cast<T>() * err;
+    // >>>>>>> JV: COMMENTED TO AVOID UNNECESSARY ALLOCATION
+    //residuals = getMeasurementSquareRootInformationUpper().cast<T>() * err;
+    residuals = getMeasurementSquareRootInformationUpper().cast<T>() * (corners_exp - getMeasurement());
 
     return true;
 }
