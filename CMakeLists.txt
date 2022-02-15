@@ -113,9 +113,11 @@ INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIRS})
 # ============ HEADERS ============ 
 SET(HDRS_FACTOR
 include/apriltag/factor/factor_apriltag.h
+include/apriltag/factor/factor_apriltag_proj.h
   )
 SET(HDRS_FEATURE
 include/apriltag/feature/feature_apriltag.h
+include/apriltag/feature/feature_apriltag_proj.h
   )
 SET(HDRS_LANDMARK
 include/apriltag/landmark/landmark_apriltag.h
@@ -128,6 +130,7 @@ include/apriltag/processor/ippe.h
 # ============ SOURCES ============ 
 SET(SRCS_FEATURE
 src/feature/feature_apriltag.cpp
+src/feature/feature_apriltag_proj.cpp
   )
 SET(SRCS_LANDMARK
 src/landmark/landmark_apriltag.cpp

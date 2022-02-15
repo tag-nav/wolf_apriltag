@@ -17,3 +17,6 @@ target_link_libraries(gtest_processor_tracker_landmark_apriltag ${PLUGIN_NAME})
 
 wolf_add_gtest(gtest_factor_apriltag gtest_factor_apriltag.cpp)
 target_link_libraries(gtest_factor_apriltag ${PLUGIN_NAME})
+
+wolf_add_gtest(gtest_factor_apriltag_proj gtest_factor_apriltag_proj.cpp)
+target_link_libraries(gtest_factor_apriltag_proj ${PLUGIN_NAME})
