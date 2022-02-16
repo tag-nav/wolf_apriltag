@@ -36,7 +36,7 @@ namespace wolf
 
 WOLF_PTR_TYPEDEFS(FactorApriltagProj);
 
-class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 6, 3, 4, 3, 4, 3, 4>
+class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3, 4, 3, 4>
 {
     public:
 
@@ -81,11 +81,12 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 6, 3, 4, 3,
             // double prints stuff
             WOLF_TRACE("KF", kf, " L", lmk, "; ", s, _M);
         }
+        
         template<typename D1>
-        Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProj(const Eigen::Matrix3d& K,
+        static Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProj(const Eigen::Matrix3d& K,
                                                              const Eigen::MatrixBase<D1>& p_c_l,
                                                              const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
-                                                             const Eigen::Vector3d& l_corn) const;
+                                                             const Eigen::Vector3d& l_corn);
 };
 
 } // namespace wolf
@@ -135,15 +136,17 @@ template<typename D1>
 Eigen::Matrix<typename D1::Scalar, 2, 1> FactorApriltagProj::pinholeProj(const Eigen::Matrix3d& K,
                                                                          const Eigen::MatrixBase<D1>& p_c_l,
                                                                          const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
-                                                                         const Eigen::Vector3d& l_corn) const
+                                                                         const Eigen::Vector3d& l_corn)
 {
     MatrixSizeCheck<3,1>::check(p_c_l);
 
     typedef typename D1::Scalar T;
     Eigen::Matrix<T, 3, 1> h =  K.cast<T>() * (p_c_l + q_c_l * l_corn.cast<T>());
+
     Eigen::Matrix<T, 2, 1> pix;
     pix(0) = h(0)/h(2);
     pix(1) = h(1)/h(2);
+
     return pix;
 }
 
@@ -164,19 +167,13 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
     Eigen::Map<const Eigen::Quaternion<T>> q_w_r(_o_keyframe);
     Eigen::Map<const Eigen::Matrix<T,3,1>> p_w_l(_p_landmark);
     Eigen::Map<const Eigen::Quaternion<T>> q_w_l(_o_landmark);
-    Eigen::Map<Eigen::Matrix<T,6,1>> residuals(_residuals);
+    Eigen::Map<Eigen::Matrix<T,8,1>> residuals(_residuals);
 
     // Expected relative camera-lmk transformation
     // Expected measurement
     Eigen::Quaternion<T> q_c_w = (q_w_r * q_r_c).conjugate();
     Eigen::Quaternion<T> q_c_l = q_c_w * q_w_l;
     Eigen::Matrix<T,3,1> p_c_l = q_c_w * (-(p_w_r + q_w_r * p_r_c) + p_w_l);
-
-
-    //////////////////////////////////////
-    // Detected corner projections
-    // >>>>>>> JV: COMMENTED TO AVOID UNNECESSARY ALLOCATION
-    //Vector8d corners_det = getMeasurement();
 
     //////////////////////////////////////
     // Expected corner projections
@@ -207,48 +204,15 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
     
 
     Eigen::Matrix<T, 8, 1> corners_exp;
-    corners_exp.segment(2,0) = pinholeProj(K, p_c_l, q_c_l, l_corn1);
+    corners_exp.segment(0,2) = pinholeProj(K, p_c_l, q_c_l, l_corn1);
     corners_exp.segment(2,2) = pinholeProj(K, p_c_l, q_c_l, l_corn2);
-    corners_exp.segment(2,4) = pinholeProj(K, p_c_l, q_c_l, l_corn3);
-    corners_exp.segment(2,6) = pinholeProj(K, p_c_l, q_c_l, l_corn4);
+    corners_exp.segment(4,2) = pinholeProj(K, p_c_l, q_c_l, l_corn3);
+    corners_exp.segment(6,2) = pinholeProj(K, p_c_l, q_c_l, l_corn4);
 
-    // Error
-    // >>>>>>> JV: COMMENTED TO AVOID UNNECESSARY ALLOCATION
-    //Eigen::Matrix<T, 8, 1> err = corners_exp - getMeasurement();
-
-    // Residual
-    // >>>>>>> JV: COMMENTED TO AVOID UNNECESSARY ALLOCATION
-    //residuals = getMeasurementSquareRootInformationUpper().cast<T>() * err;
-    residuals = getMeasurementSquareRootInformationUpper().cast<T>() * (corners_exp - getMeasurement());
+    residuals = getMeasurementSquareRootInformationUpper().cast<T>() * (corners_exp - getMeasurement().cast<T>());
 
     return true;
 }
-
-
-////////////////////////
-////////////////////////
-////////////////////////
-////////////////////////
-// Eigen::Vector6d FactorApriltagProj::residual() const
-// {
-//     Eigen::Vector6d res;
-//     double * p_camera, * o_camera, * p_frame, * o_frame, * p_tag, * o_tag;
-//     p_camera = getCapture()->getSensorP()->getState().data();
-//     o_camera = getCapture()->getSensorO()->getState().data();
-//     p_frame  = getCapture()->getFrame()->getP()->getState().data();
-//     o_frame  = getCapture()->getFrame()->getO()->getState().data();
-//     p_tag    = getLandmarkOther()->getP()->getState().data();
-//     o_tag    = getLandmarkOther()->getO()->getState().data();
-
-//     operator() (p_camera, o_camera, p_frame, o_frame, p_tag, o_tag, res.data());
-
-//     return res;
-// }
-
-// double FactorApriltagProj::cost() const
-// {
-//     return residual().squaredNorm();
-// }
 
 } // namespace wolf
 
