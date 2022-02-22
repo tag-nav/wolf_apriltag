@@ -66,7 +66,7 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3,
                           const T* const _o_landmark, 
                           T* _residuals) const;
 
-        Eigen::Vector6d residual() const;
+        Eigen::Vector8d residual() const;
         double cost() const;
 
         // print function only for double (not Jet)
@@ -142,10 +142,7 @@ Eigen::Matrix<typename D1::Scalar, 2, 1> FactorApriltagProj::pinholeProj(const E
 
     typedef typename D1::Scalar T;
     Eigen::Matrix<T, 3, 1> h =  K.cast<T>() * (p_c_l + q_c_l * l_corn.cast<T>());
-
-    Eigen::Matrix<T, 2, 1> pix;
-    pix(0) = h(0)/h(2);
-    pix(1) = h(1)/h(2);
+    Eigen::Matrix<T, 2, 1> pix; pix << h(0)/h(2), h(1)/h(2);
 
     return pix;
 }
@@ -212,6 +209,29 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
     residuals = getMeasurementSquareRootInformationUpper().cast<T>() * (corners_exp - getMeasurement().cast<T>());
 
     return true;
+}
+
+
+Eigen::Vector8d FactorApriltagProj::residual() const
+{
+    Eigen::Vector8d res;
+    double * p_camera, * o_camera, * p_frame, * o_frame, * p_tag, * o_tag;
+    p_camera = getCapture()->getSensorP()->getState().data();
+    o_camera = getCapture()->getSensorO()->getState().data();
+    p_frame  = getCapture()->getFrame()->getP()->getState().data();
+    o_frame  = getCapture()->getFrame()->getO()->getState().data();
+    p_tag    = getLandmarkOther()->getP()->getState().data();
+    o_tag    = getLandmarkOther()->getO()->getState().data();
+
+    operator() (p_camera, o_camera, p_frame, o_frame, p_tag, o_tag, res.data());
+
+    return res;
+}
+
+
+double FactorApriltagProj::cost() const
+{
+    return residual().squaredNorm();
 }
 
 } // namespace wolf

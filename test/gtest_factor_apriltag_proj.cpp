@@ -122,26 +122,31 @@ class FactorApriltagProj_class : public testing::Test{
         Vector3d p_c2_l;
         Quaterniond q_c2_l;
 
-        Matrix3d K;
-
+        // WOLF
         ProblemPtr     problem;
         SolverCeresPtr solver;
-
         SensorCameraPtr camera;
         ProcessorTrackerLandmarkApriltag_WrapperPtr proc_apriltag;
 
-        SensorBasePtr   S;
         FrameBasePtr    F1;
         CaptureImagePtr C1;
         FeatureApriltagProjPtr  f1;
-        FeatureApriltagProjPtr  f2;
         LandmarkApriltagPtr lmk1;
         FactorApriltagProjPtr fac_a1;
-        FactorApriltagProjPtr fac_a2;
-        apriltag_detection_t det;
         
-        Eigen::Matrix8d meas_cov;
+        // Apriltag
+        apriltag_detection_t det;
         double tag_width;
+        Matrix3d K;
+
+        // corners in tag frame
+        Eigen::Vector3d l_corn1; 
+        Eigen::Vector3d l_corn2; 
+        Eigen::Vector3d l_corn3; 
+        Eigen::Vector3d l_corn4; 
+        Vector8d meas1;
+        Vector8d meas2;
+        Eigen::Matrix8d meas_cov;
 
         void SetUp() override
         {
@@ -178,18 +183,16 @@ class FactorApriltagProj_class : public testing::Test{
             // ground truth needed for individual tests
             // robot pose 1
             p_w_r1 << 0,0,0;
-            Vector3d euler_w_r1; euler_w_r1 << 0,0,0;
+            Vector3d euler_w_r1; euler_w_r1 << 0.0, 0.0, 0.0;
             q_w_r1 = e2q(euler_w_r1);
             // robot pose 2
             p_w_r2 << 0,-0.1,0;
-            Vector3d euler_w_r2; euler_w_r2 << 0,0,0;
+            Vector3d euler_w_r2; euler_w_r2 << 0.1, 0.1, 0.1;
             q_w_r2 = e2q(euler_w_r2);
             // extrinsics
             p_r_c << 0,0,0;
             Vector3d euler_r_c; euler_r_c << toRad(-90.0), 0, toRad(-90.0);  // put FLOATS otherwise 0
             q_r_c = e2q(euler_r_c);
-            Matrix3d R = q_r_c.toRotationMatrix();
-            std::cout << R << std::endl;
             // landmark (same orientation as camera of robot frame 1 (r1))
             p_w_l << 1,0,0;
             Vector3d euler_w_l; euler_w_l << toRad(-90.0), 0, toRad(-90.0);
@@ -210,7 +213,6 @@ class FactorApriltagProj_class : public testing::Test{
             p_c2_l = pose_c2_l.segment<3>(0);
             q_c2_l = Quaterniond(pose_c2_l.segment<4>(3));
 
-
             Vector7d pose_w_r1; pose_w_r1 << p_w_r1, q_w_r1.coeffs() ;
             Vector7d pose_w_r2; pose_w_r2 << p_w_r2, q_w_r2.coeffs() ;
             Vector7d pose_r_c; pose_r_c << p_r_c, q_r_c.coeffs() ;
@@ -221,13 +223,13 @@ class FactorApriltagProj_class : public testing::Test{
             solver = std::make_shared<SolverCeres>(problem);
 
             // Install sensor and processor
-            S      = problem->installSensor("SensorCamera", "canonical", pose_r_c, wolf_root + "/demos/camera_params_canonical.yaml");
+            SensorBasePtr S      = problem->installSensor("SensorCamera", "canonical", pose_r_c, wolf_root + "/demos/camera_params_canonical.yaml");
             camera = std::static_pointer_cast<SensorCamera>(S);
 
             Vector4d k = camera->getIntrinsic()->getState(); //[cx cy fx fy]
             K << k(2), 0,    k(0),
-                0,    k(3), k(1),
-                0,    0,    1;
+                 0,    k(3), k(1),
+                 0,    0,    1;
 
             ParamsProcessorTrackerLandmarkApriltagPtr params = std::make_shared<ParamsProcessorTrackerLandmarkApriltag>();
             // Need to set some parameters ? do it now !
@@ -240,7 +242,7 @@ class FactorApriltagProj_class : public testing::Test{
 
             // F1 is be origin KF
             VectorComposite x0(pose_w_r1, "PO", {3,4});
-            VectorComposite s0("PO", {Vector3d(1,1,1), Vector3d(1,1,1)});
+            VectorComposite s0("PO", {Vector3d(0.01,0.01,0.01), Vector3d(0.01,0.01,0.01)});
             F1 = problem->setPriorFactor(x0, s0, 0.0);
 
             // emplace dummy capture & set as last and origin
@@ -248,7 +250,7 @@ class FactorApriltagProj_class : public testing::Test{
             proc_apriltag->setOriginPtr(C1);
             proc_apriltag->setLastPtr(C1);
 
-            meas_cov = 1*Eigen::Matrix8d::Identity();  // pixel noise
+            meas_cov = Eigen::Matrix8d::Identity();  // pixel noise
             int tag_id = 1;
 
             // unused
@@ -265,7 +267,24 @@ class FactorApriltagProj_class : public testing::Test{
             tag_width = 0.2;
             lmk1 = LandmarkBase::emplace<LandmarkApriltag>(problem->getMap(), pose_w_l, 42, tag_width);
 
+            double s = tag_width/2;
+            l_corn1 << -s,  s, 0; // bottom left
+            l_corn2 <<  s,  s, 0; // bottom right
+            l_corn3 <<  s, -s, 0; // top right
+            l_corn4 << -s, -s, 0; // top left
 
+            // Measurement for first keyframe
+            meas1 << FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
+                     FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
+                     FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
+                     FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
+
+            // Measurement for second keyframe
+            meas2 << FactorApriltagProj::pinholeProj(K, p_c2_l, q_c2_l, l_corn1),
+                     FactorApriltagProj::pinholeProj(K, p_c2_l, q_c2_l, l_corn2),
+                     FactorApriltagProj::pinholeProj(K, p_c2_l, q_c2_l, l_corn3),
+                     FactorApriltagProj::pinholeProj(K, p_c2_l, q_c2_l, l_corn4);
+            
         }
 };
 
@@ -275,7 +294,7 @@ TEST_F(FactorApriltagProj_class, Constructor)
     Vector8d meas = Vector8d::Zero();
     f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas, meas_cov, det.id, tag_width, det));
     FactorApriltagProjPtr factor = std::make_shared<FactorApriltagProj>(
-            S,
+            camera,
             F1,
             lmk1,
             f1,
@@ -291,66 +310,74 @@ TEST_F(FactorApriltagProj_class, Constructor)
 
 TEST_F(FactorApriltagProj_class, problem_1KF)
 {
-
-    double s = tag_width/2;
-    Eigen::Vector3d l_corn1; l_corn1 << -s,  s, 0; // bottom left
-    Eigen::Vector3d l_corn2; l_corn2 <<  s,  s, 0; // bottom right
-    Eigen::Vector3d l_corn3; l_corn3 <<  s, -s, 0; // top right
-    Eigen::Vector3d l_corn4; l_corn4 << -s, -s, 0; // top left
-
-
-    Vector8d meas;
-    meas << FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
-            FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
-            FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
-            FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
-
-
-    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas, meas_cov, det.id, tag_width, det));
+    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, det.id, tag_width, det));
 
     //emplace feature and landmark
-    auto factor = FactorBase::emplace<FactorApriltagProj>(f1,
-                                                          S,
-                                                          F1,
-                                                          lmk1,
-                                                          f1,
-                                                          nullptr,
-                                                          false,
-                                                          FAC_ACTIVE);
+    auto factor = FactorBase::emplace<FactorApriltagProj>(f1, camera, F1, lmk1, f1, nullptr, false, FAC_ACTIVE);
+
     ASSERT_TRUE(problem->check(0));
-    problem->print(4,1,1,1);
 
-    ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), posiquat2pose(p_w_r1, q_w_r1), 1e-6);
-
-    // // unfix F1, perturbate state
-    // F1->unfix();
-    // F1->getP()->perturb();
-    // problem->print(4,1,1,1);
     problem->perturb();
+    solver->solve(SolverManager::ReportVerbosity::BRIEF); // 0: nothing, 1: BriefReport, 2: FullReport
 
-    std::string report = solver->solve(SolverManager::ReportVerbosity::QUIET); // 0: nothing, 1: BriefReport, 2: FullReport
-    problem->print(4,1,1,1);
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), posiquat2pose(p_w_r1, q_w_r1), 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), posiquat2pose(p_w_l, q_w_l), 1e-6);
 
+    // // Reproject solution
+    // Isometry3d T_w_l_post = pose2iso(lmk1->getState().vector("PO"));
+    // Isometry3d T_w_r1 = pose2iso(p_w_r1, q_w_r1);
+    // Isometry3d T_r_c = pose2iso(p_r_c, q_r_c);
 
+    // Isometry3d T_c1_l = (T_w_r1*T_r_c).inverse() * T_w_l_post;
+    // Vector3d p_c1_l = T_c1_l.translation();
+    // Quaterniond q_c1_l = Quaterniond(T_c1_l.rotation());
 
-    Isometry3d T_w_l_post = pose2iso(lmk1->getState().vector("PO"));
-    Isometry3d T_w_r1 = pose2iso(p_w_r1, q_w_r1);
-    Isometry3d T_r_c = pose2iso(p_r_c, q_r_c);
-
-    Isometry3d T_c1_l = (T_w_r1*T_r_c).inverse() * T_w_l_post;
-    Vector3d p_c1_l = T_c1_l.translation();
-    Quaterniond q_c1_l = Quaterniond(T_c1_l.rotation());
-
-    Vector8d proj_post;
-    proj_post << FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
-                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
-                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
-                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
-    std::cout << "proj_post" << std::endl;
-    std::cout << proj_post.transpose() << std::endl;
+    // Vector8d proj_post;
+    // proj_post << FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
+    //              FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
+    //              FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
+    //              FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
+    // std::cout << "\n\n\nproj_post" << std::endl;
+    // std::cout << proj_post.transpose() << std::endl;
 
 }
+
+
+
+
+TEST_F(FactorApriltagProj_class, problem_2KF)
+{
+    // Create frame and dummy capture for second KF
+    FrameBasePtr F2 = problem->emplaceFrame(2, posiquat2pose(p_w_r2, q_w_r2));
+    CaptureImagePtr C2 = std::static_pointer_cast<CaptureImage>(CaptureBase::emplace<CaptureImage>(F2, 1, camera, cv::Mat(2,2,CV_8UC1)));
+
+    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, det.id, tag_width, det));
+    auto f2 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C2, meas2, meas_cov, det.id, tag_width, det));
+
+    //emplace feature and landmark
+    auto factor1 = FactorBase::emplace<FactorApriltagProj>(f1, camera, F1, lmk1, f1, nullptr, false, FAC_ACTIVE);
+    auto factor2 = FactorBase::emplace<FactorApriltagProj>(f2, camera, F2, lmk1, f2, nullptr, false, FAC_ACTIVE);
+
+    ASSERT_TRUE(problem->check(0));
+
+    problem->perturb(0.5);
+    solver->solve(SolverManager::ReportVerbosity::BRIEF); // 0: nothing, 1: BriefReport, 2: FullReport
+
+    ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), posiquat2pose(p_w_r1, q_w_r1), 1e-6);
+    ASSERT_MATRIX_APPROX(F2->getState().vector("PO"), posiquat2pose(p_w_r2, q_w_r2), 1e-6);
+    ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), posiquat2pose(p_w_l, q_w_l), 1e-6);
+
+    // camera->unfixExtrinsics(); // not observable
+    // camera->getP()->unfix(); // not observable
+    // camera->getO()->unfix(); // not observable
+    // problem->perturb(0.1);
+    // problem->print(4,1,1,1);
+    // std::string report = solver->solve(SolverManager::ReportVerbosity::BRIEF); // 0: nothing, 1: BriefReport, 2: FullReport
+    // std::cout << report << std::endl;
+    // problem->print(4,1,1,1);
+
+}
+
 
 
 

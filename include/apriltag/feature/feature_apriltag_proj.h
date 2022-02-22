@@ -46,9 +46,9 @@ class FeatureApriltagProj : public FeatureBase
         FeatureApriltagProj(const Eigen::Vector8d & _measurement,
                         const Eigen::Matrix8d & _meas_covariance,
                         const int _tag_id,
-                        const int _tag_width,
+                        const double _tag_width,
                         const apriltag_detection_t & _det,
-                        UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
+                        UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
         ~FeatureApriltagProj() override;
         
         /** \brief Returns tag id

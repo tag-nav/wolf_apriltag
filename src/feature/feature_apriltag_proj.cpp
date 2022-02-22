@@ -26,7 +26,7 @@ namespace wolf {
 FeatureApriltagProj::FeatureApriltagProj(const Eigen::Vector8d & _measurement,
                                          const Eigen::Matrix8d & _meas_uncertainty,
                                          const int _tag_id,
-                                         const int _tag_width,
+                                         const double _tag_width,
                                          const apriltag_detection_t & _det,
                                          UncertaintyType _uncertainty_type) :
     FeatureBase("FeatureApriltagProj", _measurement, _meas_uncertainty, _uncertainty_type),
