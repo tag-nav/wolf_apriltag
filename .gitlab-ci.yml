@@ -69,10 +69,10 @@ stages:
   -   git checkout devel
   -   git pull
   -   git checkout $WOLF_CORE_BRANCH
+  -   git pull
   - else
-  -   git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/wolf.git
+  -   git clone -b $WOLF_CORE_BRANCH ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/wolf.git
   -   cd wolf
-  -   git checkout $WOLF_CORE_BRANCH
   - fi
   - mkdir -pv build
   - cd build
@@ -103,9 +103,12 @@ stages:
   - if [ -d vision ]; then
   -   echo "directory vision exists"
   -   cd vision
+  -   git checkout devel
+  -   git pull
+  -   git checkout $WOLF_VISION_BRANCH
   -   git pull
   - else
-  -   git clone ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/plugins/vision.git
+  -   git clone -b $WOLF_VISION_BRANCH ssh://git@gitlab.iri.upc.edu:2202/mobile_robotics/wolf_projects/wolf_lib/plugins/vision.git
   -   cd vision
   - fi
   - mkdir -pv build
@@ -146,9 +149,9 @@ stages:
 ############ LICENSE HEADERS ############
 license_headers:
   stage: license
-  image: labrobotica/wolf_vision_deps:16.04
+  image: labrobotica/wolf_vision_deps:20.04
   cache:
-    - key: wolf-xenial
+    - key: wolf-focal
       paths:
       - ci_deps/wolf/
   except:
@@ -158,35 +161,6 @@ license_headers:
     - *install_wolf_definition
   script:
     - *license_header_definition
-
-############ UBUNTU 16.04 TESTS ############
-build_and_test:xenial:
-  stage: build_and_test
-  image: labrobotica/wolf_vision_deps:16.04
-  cache:
-    - key: wolf-xenial
-      paths:
-      - ci_deps/wolf/
-    - key: visionutils-xenial
-      paths:
-      - ci_deps/vision_utils/
-    - key: vision-xenial
-      paths:
-      - ci_deps/vision/
-    - key: apriltaglib-xenial
-      paths:
-      - ci_deps/apriltaglib/
-  except:
-    - master
-  before_script:
-    - *preliminaries_definition
-    - *install_wolf_definition
-    - *install_visionutils_definition
-    - *install_wolfvision_definition
-    - *install_apriltag_definition
-    - ldconfig # update links (shared libraries)
-  script:
-    - *build_and_test_definition
 
 ############ UBUNTU 18.04 TESTS ############
 build_and_test:bionic:
