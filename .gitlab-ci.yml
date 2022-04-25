@@ -154,8 +154,6 @@ license_headers:
     - key: wolf-focal
       paths:
       - ci_deps/wolf/
-  except:
-    - master
   before_script:
     - *preliminaries_definition
     - *install_wolf_definition
@@ -179,8 +177,6 @@ build_and_test:bionic:
     - key: apriltaglib-bionic
       paths:
       - ci_deps/apriltaglib/
-  except:
-    - master
   before_script:
     - *preliminaries_definition
     - *install_wolf_definition
@@ -208,8 +204,6 @@ build_and_test:focal:
     - key: apriltaglib-focal
       paths:
       - ci_deps/apriltaglib/
-  except:
-    - master
   before_script:
     - *preliminaries_definition
     - *install_wolf_definition
