@@ -47,7 +47,7 @@ macro(wolf_report_not_found REASON_MSG)
   # FindPackage() use the camelcase library name, not uppercase.
   if (wolfapriltag_FIND_QUIETLY)
     message(STATUS "Failed to find wolf apriltag- " ${REASON_MSG} ${ARGN})
-  else (wolfapriltag_FIND_REQUIRED)
+  elseif(wolfapriltag_FIND_REQUIRED)
     message(FATAL_ERROR "Failed to find wolf apriltag - " ${REASON_MSG} ${ARGN})
   else()
     # Neither QUIETLY nor REQUIRED, use SEND_ERROR which emits an error
