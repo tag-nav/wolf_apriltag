@@ -182,8 +182,10 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
     public:
         double getTagWidth(int _id) const;
         std::string getTagFamily() const;
-        FeatureBasePtrList getIncomingDetections() const;
-        FeatureBasePtrList getLastDetections() const;
+        FeatureBaseConstPtrList getIncomingDetections() const;
+        FeatureBasePtrList getIncomingDetections();
+        FeatureBaseConstPtrList getLastDetections() const;
+        FeatureBasePtrList getLastDetections();
         void ippePoseEstimation(apriltag_detection_t *_det,
                                 cv::Mat_<double> _K,
                                 double _tag_width,

@@ -485,12 +485,28 @@ void ProcessorTrackerLandmarkApriltag::pinholeHomogeneous(Eigen::Matrix3d const 
     J_h_R = -K * R * p_hat;
 }
 
-FeatureBasePtrList ProcessorTrackerLandmarkApriltag::getIncomingDetections() const
+FeatureBaseConstPtrList ProcessorTrackerLandmarkApriltag::getIncomingDetections() const
+{
+    FeatureBaseConstPtrList list_const;
+    for (auto && obj : detections_incoming_)
+        list_const.push_back(obj);
+    return list_const;
+}
+
+FeatureBasePtrList ProcessorTrackerLandmarkApriltag::getIncomingDetections()
 {
     return detections_incoming_;
 }
 
-FeatureBasePtrList ProcessorTrackerLandmarkApriltag::getLastDetections() const
+FeatureBaseConstPtrList ProcessorTrackerLandmarkApriltag::getLastDetections() const
+{
+    FeatureBaseConstPtrList list_const;
+    for (auto && obj : detections_last_)
+        list_const.push_back(obj);
+    return list_const;
+}
+
+FeatureBasePtrList ProcessorTrackerLandmarkApriltag::getLastDetections()
 {
     return detections_last_;
 }
