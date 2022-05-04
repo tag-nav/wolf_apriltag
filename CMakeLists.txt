@@ -16,7 +16,8 @@ MESSAGE("Starting ${PROJECT_NAME} CMakeLists ...")
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-SET(CMAKE_INSTALL_PREFIX /usr/local)
+set(INCLUDE_INSTALL_DIR include/iri-algorithms/wolf)
+set(LIB_INSTALL_DIR lib/)
 
 IF (NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE "DEBUG")
@@ -80,6 +81,7 @@ option(_WOLF_TRACE "Enable wolf tracing macro" ON)
 
 
 # ============ DEPENDENCIES ============ 
+FIND_PACKAGE(wolfcore REQUIRED)
 FIND_PACKAGE(wolfvision REQUIRED)
 FIND_PACKAGE(apriltag REQUIRED)
 
@@ -163,10 +165,8 @@ endif()
 
 #Link the created libraries
 #===============EXAMPLE=========================
-# IF (Ceres_FOUND)
-#     TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${CERES_LIBRARIES})
-# ENDIF(Ceres_FOUND)
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolfvision_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} wolfcore)
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} wolfvision)
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} apriltag)
 
 #Build tests
@@ -176,32 +176,55 @@ IF(BUILD_TESTS)
   add_subdirectory(test)
 ENDIF(BUILD_TESTS)
 
+
 #install library
 #=============================================================
 INSTALL(TARGETS ${PLUGIN_NAME} EXPORT ${PLUGIN_NAME}Targets
-      RUNTIME DESTINATION bin
-      LIBRARY DESTINATION lib
-      ARCHIVE DESTINATION lib)
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+  ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+)
+install(EXPORT ${PLUGIN_NAME}Targets DESTINATION lib/${PLUGIN_NAME}/cmake)
 
-install(EXPORT ${PLUGIN_NAME}Targets DESTINATION lib/cmake/${PLUGIN_NAME})
+
+# Configure the package installation
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  ${CMAKE_SOURCE_DIR}/cmake_modules/${PLUGIN_NAME}Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PLUGIN_NAME}Config.cmake
+  INSTALL_DESTINATION ${LIB_INSTALL_DIR}/${PLUGIN_NAME}/cmake
+  PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
+)
+
+install(
+  FILES 
+  ${CMAKE_CURRENT_BINARY_DIR}/${PLUGIN_NAME}Config.cmake
+  DESTINATION 
+  ${LIB_INSTALL_DIR}/${PLUGIN_NAME}/cmake
+)
+
+# Specifies include directories to use when compiling the plugin target
+# This way, include_directories does not need to be called in plugins depending on this one
+target_include_directories(${PLUGIN_NAME} INTERFACE
+  $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
+)
+
 #install headers
 INSTALL(FILES ${HDRS_FACTOR}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/factor)
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/factor)
 INSTALL(FILES ${HDRS_FEATURE}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/feature)
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/feature)
 INSTALL(FILES ${HDRS_LANDMARK}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/landmark)
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/landmark)
 INSTALL(FILES ${HDRS_PROCESSOR}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/processor)
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/processor)
 
 FILE(WRITE ${PROJECT_NAME}.found "")
 INSTALL(FILES ${PROJECT_NAME}.found
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME})
+  DESTINATION ${INCLUDE_INSTALL_DIR})
 
 INSTALL(FILES "${WOLF_CONFIG_DIR}/config.h"
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/internal)
-
-INSTALL(FILES "${CMAKE_SOURCE_DIR}/cmake_modules/${PLUGIN_NAME}Config.cmake" DESTINATION "lib/cmake/${PLUGIN_NAME}")
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/internal)
 
 INSTALL(DIRECTORY ${SPDLOG_INCLUDE_DIRS} DESTINATION "include/iri-algorithms/")
 
