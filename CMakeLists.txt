@@ -79,6 +79,8 @@ FIND_PACKAGE(apriltag REQUIRED)
 
  #============ CONFIG.H ============  
 set(_WOLF_ROOT_DIR ${CMAKE_SOURCE_DIR})
+# variable used to compile the config.h.in file
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 
 # Define the directory where will be the configured config.h
 SET(WOLF_CONFIG_DIR ${PROJECT_BINARY_DIR}/conf/${PROJECT_NAME}/internal)
