@@ -23,14 +23,15 @@
 #define _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 
 //Wolf includes
-#include "core/common/wolf.h"
-#include "core/processor/processor_tracker_landmark.h"
-#include "vision/sensor/sensor_camera.h"
-#include <apriltag/apriltag.h>
+#include <vision/sensor/sensor_camera.h>
+#include <core/processor/processor_tracker_landmark.h>
 #include <core/factor/factor_distance_3d.h>
 
+// apriltag library
+#include <apriltag/apriltag.h>
+
 // open cv
-#include <opencv/cv.h>
+#include <opencv2/core.hpp>
 
 
 namespace wolf
