@@ -22,15 +22,16 @@
 #ifndef _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 #define _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 
-// this plugin
-#include "apriltag/processor/processor_tracker_landmark_apriltag.h"
-#include "apriltag/feature/feature_apriltag.h"
-#include "apriltag/landmark/landmark_apriltag.h"
-#include "apriltag/processor/ippe.h"
+//Wolf includes
+#include <vision/sensor/sensor_camera.h>
+#include <core/processor/processor_tracker_landmark.h>
+#include <core/factor/factor_distance_3d.h>
 
-// dependent plugin
-#include <vision/capture/capture_image.h>
-#include <vision/math/pinhole_tools.h>
+// apriltag library
+#include <apriltag/apriltag.h>
+
+// open cv
+#include <opencv2/core.hpp>
 
 // wolf
 #include <core/math/rotations.h>
