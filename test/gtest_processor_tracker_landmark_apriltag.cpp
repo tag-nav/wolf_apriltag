@@ -371,7 +371,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)
     FactorBasePtr ctr = prc_apr->emplaceFactor(f1, lmk);
 
     ASSERT_TRUE(ctr->getFeature() == f1);
-    ASSERT_TRUE(ctr->getType() == "FactorApriltag");
+    ASSERT_TRUE(ctr->getType() == "FactorRelativePose3dWithExtrinsics");
 }
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)

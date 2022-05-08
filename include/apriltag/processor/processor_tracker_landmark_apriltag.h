@@ -22,24 +22,26 @@
 #ifndef _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 #define _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 
-//Wolf includes
+// Wolf apriltag includes
+#include "apriltag/feature/feature_apriltag.h"
+#include "apriltag/landmark/landmark_apriltag.h"
+
+// IPPE (copy from https://github.com/tobycollins/IPPE)
+#include "ippe.h"
+
+// Wolf vision
+#include <vision/math/pinhole_tools.h>
+#include <vision/capture/capture_image.h>
 #include <vision/sensor/sensor_camera.h>
-#include <core/processor/processor_tracker_landmark.h>
-#include <core/factor/factor_distance_3d.h>
 
-// apriltag library
-#include <apriltag/apriltag.h>
-
-// open cv
-#include <opencv2/core.hpp>
-
-// wolf
+// Wolf core
 #include <core/math/rotations.h>
-#include <core/state_block/state_quaternion.h>
+#include <core/state_block/state_quaternion.h>  /// REMOVE?
 #include <core/factor/factor_relative_pose_3d_with_extrinsics.h>
 #include <core/processor/processor_tracker_landmark.h>
 
-// apriltag library
+// apriltag detection Michigan library
+#include <apriltag/apriltag.h>
 #include <apriltag/common/homography.h>
 #include <apriltag/common/zarray.h>
 #include <apriltag/tag16h5.h>
@@ -54,6 +56,8 @@
 #include "apriltag/common/zarray.h"
 
 // opencv
+// OpenCV
+#include <opencv2/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/eigen.hpp>
 
