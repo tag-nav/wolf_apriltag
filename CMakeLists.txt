@@ -73,7 +73,7 @@ option(_WOLF_TRACE "Enable wolf tracing macro" ON)
 
 
 # ============ DEPENDENCIES ============ 
-FIND_PACKAGE(wolfcore REQUIRED)
+FIND_PACKAGE(wolfcore REQUIRED CONFIG)
 FIND_PACKAGE(wolfvision REQUIRED)
 FIND_PACKAGE(apriltag REQUIRED)
 
@@ -216,7 +216,7 @@ INSTALL(DIRECTORY ${SPDLOG_INCLUDE_DIRS} DESTINATION "include/iri-algorithms/")
 
 export(PACKAGE ${PLUGIN_NAME})
 
-FIND_PACKAGE(Doxygen)
+FIND_PACKAGE(Doxygen MODULE)
 
 FIND_PATH(IRI_DOC_DIR doxygen.conf ${CMAKE_SOURCE_DIR}/doc/iri_doc/)
 IF (IRI_DOC_DIR)
