@@ -30,7 +30,7 @@
 // wolf
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "core/yaml/yaml_conversion.h"
-#include "core/common/factory.h"
+#include "core/processor/factory_processor.h"
 
 // yaml-cpp library
 #include <yaml-cpp/yaml.h>
