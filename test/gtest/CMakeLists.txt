@@ -5,15 +5,7 @@ if(${CMAKE_VERSION} VERSION_LESS "3.11.0")
   include(ExternalProject)
 
   set(GTEST_FORCE_SHARED_CRT ON)
-  set(GTEST_DISABLE_PTHREADS OFF)
-
-  # For some reason I need to disable PTHREADS
-  # with g++ (Ubuntu 4.9.3-8ubuntu2~14.04) 4.9.3
-  # This is a known issue for MinGW :
-  # https://github.com/google/shaderc/pull/174
-  #if(MINGW)
-  #    set(GTEST_DISABLE_PTHREADS ON)
-  #endif()
+  set(GTEST_DISABLE_PTHREADS ON) # without this in ubuntu 18.04 we get linking errors
 
   # Download GoogleTest
   ExternalProject_Add(googletest
@@ -63,7 +55,13 @@ else()
     GIT_REPOSITORY https://github.com/google/googletest.git 
     GIT_TAG main)
 
-  FetchContent_MakeAvailable(googletest)
+  #FetchContent_MakeAvailable(googletest)
+  # Disable installation of googletest: https://stackoverflow.com/questions/65527126/disable-install-for-fetchcontent
+  FetchContent_GetProperties(googletest)
+  if(NOT googletest_POPULATED)
+    FetchContent_Populate(googletest)
+    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
     
 endif()
   
