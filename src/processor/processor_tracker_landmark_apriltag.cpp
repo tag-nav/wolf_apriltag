@@ -20,37 +20,7 @@
 //
 //--------LICENSE_END--------
 
-// this plugin
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
-#include "apriltag/feature/feature_apriltag.h"
-#include "apriltag/landmark/landmark_apriltag.h"
-#include "apriltag/factor/factor_apriltag.h"
-#include "apriltag/processor/ippe.h"
-
-// dependent plugin
-#include <vision/capture/capture_image.h>
-#include <vision/math/pinhole_tools.h>
-
-// wolf
-#include <core/math/rotations.h>
-#include <core/state_block/state_quaternion.h>
-
-// apriltag library
-#include <apriltag/common/homography.h>
-#include <apriltag/common/zarray.h>
-#include <apriltag/tag16h5.h>
-#include <apriltag/tag25h9.h>
-#include <apriltag/tag36h11.h>
-#include <apriltag/tagCircle21h7.h>
-#include <apriltag/tagCircle49h12.h>
-#include <apriltag/tagCustom48h12.h>
-#include <apriltag/tagStandard41h12.h>
-#include <apriltag/tagStandard52h13.h>
-#include <core/factor/factor_distance_3d.h>
-
-// opencv
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/core/eigen.hpp>
 
 namespace wolf {
 
@@ -266,14 +236,11 @@ void ProcessorTrackerLandmarkApriltag::postProcess()
 FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
                                                               LandmarkBasePtr _landmark_ptr)
 {
-    return FactorBase::emplace<FactorApriltag>(_feature_ptr,
-                                               getSensor(),
-                                               getLast()->getFrame(),
-                                               std::static_pointer_cast<LandmarkApriltag>(_landmark_ptr),
-                                               std::static_pointer_cast<FeatureApriltag> (_feature_ptr ),
+    return FactorBase::emplace<FactorRelativePose3dWithExtrinsics>(_feature_ptr,
+                                               _feature_ptr,
+                                               _landmark_ptr,
                                                shared_from_this(),
-                                               params_->apply_loss_function,
-                                               FAC_ACTIVE);
+                                               params_->apply_loss_function);
 }
 
 LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr _feature_ptr)
@@ -369,16 +336,21 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
     if (detections_last_.empty())
         return false;
 
-    double dt = getIncoming()->getTimeStamp() - getOrigin()->getTimeStamp();
+    double dt_incoming_origin = getIncoming()->getTimeStamp().get() - getOrigin()->getTimeStamp().get();
+    bool more_than_min_time_vote = dt_incoming_origin > min_time_span_; 
+    bool too_long_since_last_KF = dt_incoming_origin > max_time_span_ + 1e-5;
+
+    bool enough_features_in_last = detections_last_.size() >= min_features_for_keyframe_;
+    bool enough_features_in_incoming = detections_incoming_.size() >= min_features_for_keyframe_;
+    
+    // not enough detection in incoming capture and a minimum time since last KF has past
+    if (enough_features_in_last and !enough_features_in_incoming and more_than_min_time_vote)
+        return true;
 
     // the elapsed time since last KF is too long 
-    if (dt > max_time_span_ + 1e-5){
+    if (too_long_since_last_KF and enough_features_in_last){
         return true;
     }
-
-    // too few detections in incoming capture and a minimum time since last KF has past
-    if ((detections_incoming_.size() <= min_features_for_keyframe_) and (dt >= min_time_span_))
-        return true;
 
     // Vote for every image processed at the beginning if possible
     if (nb_vote_ < nb_vote_for_every_first_){
@@ -485,9 +457,9 @@ void ProcessorTrackerLandmarkApriltag::pinholeHomogeneous(Eigen::Matrix3d const 
     J_h_R = -K * R * p_hat;
 }
 
-FeatureBaseConstPtrList ProcessorTrackerLandmarkApriltag::getIncomingDetections() const
+FeatureBasePtrList ProcessorTrackerLandmarkApriltag::getIncomingDetections() const
 {
-    FeatureBaseConstPtrList list_const;
+    FeatureBasePtrList list_const;
     for (auto && obj : detections_incoming_)
         list_const.push_back(obj);
     return list_const;
@@ -498,9 +470,9 @@ FeatureBasePtrList ProcessorTrackerLandmarkApriltag::getIncomingDetections()
     return detections_incoming_;
 }
 
-FeatureBaseConstPtrList ProcessorTrackerLandmarkApriltag::getLastDetections() const
+FeatureBasePtrList ProcessorTrackerLandmarkApriltag::getLastDetections() const
 {
-    FeatureBaseConstPtrList list_const;
+    FeatureBasePtrList list_const;
     for (auto && obj : detections_last_)
         list_const.push_back(obj);
     return list_const;
@@ -539,25 +511,7 @@ void ProcessorTrackerLandmarkApriltag::advanceDerived()
 
 void ProcessorTrackerLandmarkApriltag::resetDerived()
 {   
-    // Add 3d distance constraint between 2 frames
-    if (getProblem()->getMotionProviderMap().empty() && add_3d_cstr_){
-        if ((getOrigin() != nullptr) && 
-            (getOrigin()->getFrame() != nullptr) && 
-            (getOrigin() != getLast()) &&
-            (getOrigin()->getFrame() != getLast()->getFrame()) 
-            )
-        {
-            FrameBasePtr ori_frame = getOrigin()->getFrame();
-            Eigen::Vector1d dist_meas; dist_meas << 0.0;
-            double dist_std = 0.5;
-            Eigen::Matrix1d cov0(dist_std*dist_std);
- 
-            auto capt3d = CaptureBase::emplace<CaptureBase>(getLast()->getFrame(),"Dist",getLast()->getTimeStamp());
-            auto feat_dist = FeatureBase::emplace<FeatureBase>(capt3d, "Dist", dist_meas, cov0);
-            auto cstr = FactorBase::emplace<FactorDistance3d>(feat_dist, feat_dist, ori_frame, shared_from_this(), params_->apply_loss_function, FAC_ACTIVE);
-        }
-    }
-    
+    // BAD -> should be rewritten some other way
     if (getProblem()->getMotionProviderMap().empty() && reestimate_last_frame_){
         reestimateLastFrame();
     }
