@@ -3,6 +3,12 @@ stages:
   - build_and_test
 
 ############ YAML ANCHORS ############
+.print_variables_template: &print_variables_definition
+  # Print variables
+  - echo $CI_COMMIT_BRANCH
+  - echo $WOLF_VISION_BRANCH
+  - echo $WOLF_APRILTAG_BRANCH
+
 .preliminaries_template: &preliminaries_definition
   ## Install ssh-agent if not already installed, it is required by Docker.
   ## (change apt-get to yum if you use an RPM-based image)
@@ -155,6 +161,7 @@ license_headers:
       paths:
       - ci_deps/wolf/
   before_script:
+    - *print_variables_definition
     - *preliminaries_definition
     - *install_wolf_definition
   script:
@@ -178,6 +185,7 @@ build_and_test:bionic:
       paths:
       - ci_deps/apriltaglib/
   before_script:
+    - *print_variables_definition
     - *preliminaries_definition
     - *install_wolf_definition
     - *install_visionutils_definition
@@ -205,6 +213,7 @@ build_and_test:focal:
       paths:
       - ci_deps/apriltaglib/
   before_script:
+    - *print_variables_definition
     - *preliminaries_definition
     - *install_wolf_definition
     - *install_visionutils_definition
