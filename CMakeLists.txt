@@ -12,7 +12,7 @@ MESSAGE("Starting ${PROJECT_NAME} CMakeLists ...")
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-set(INCLUDE_INSTALL_DIR include/iri-algorithms/wolf)
+set(INCLUDE_INSTALL_DIR include/wolf)
 set(LIB_INSTALL_DIR lib/)
 
 IF (NOT CMAKE_BUILD_TYPE)
@@ -104,17 +104,17 @@ INCLUDE_DIRECTORIES(BEFORE "include")
 
 # ============ HEADERS ============ 
 SET(HDRS_FACTOR
-include/apriltag/factor/factor_apriltag.h
+include/${PROJECT_NAME}/factor/factor_apriltag.h
   )
 SET(HDRS_FEATURE
-include/apriltag/feature/feature_apriltag.h
+include/${PROJECT_NAME}/feature/feature_apriltag.h
   )
 SET(HDRS_LANDMARK
-include/apriltag/landmark/landmark_apriltag.h
+include/${PROJECT_NAME}/landmark/landmark_apriltag.h
   )
 SET(HDRS_PROCESSOR
-include/apriltag/processor/processor_tracker_landmark_apriltag.h
-include/apriltag/processor/ippe.h
+include/${PROJECT_NAME}/processor/processor_tracker_landmark_apriltag.h
+include/${PROJECT_NAME}/processor/ippe.h
   )
 
 # ============ SOURCES ============ 
@@ -212,7 +212,7 @@ INSTALL(FILES ${HDRS_PROCESSOR}
 INSTALL(FILES "${WOLF_CONFIG_DIR}/config.h"
   DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/internal)
 
-INSTALL(DIRECTORY ${SPDLOG_INCLUDE_DIRS} DESTINATION "include/iri-algorithms/")
+# INSTALL(DIRECTORY ${SPDLOG_INCLUDE_DIRS} DESTINATION "include/iri-algorithms/")
 
 export(PACKAGE ${PLUGIN_NAME})
 
