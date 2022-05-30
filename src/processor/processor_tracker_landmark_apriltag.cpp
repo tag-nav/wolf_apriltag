@@ -131,34 +131,32 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         int    tag_id     = det->id;
         double tag_width  = getTagWidth(tag_id);   // tag width in meters
 
-        Eigen::Isometry3d c_M_t;
-        bool use_rotation = true;
         //////////////////
         // IPPE (Infinitesimal Plane-based Pose Estimation)
         //////////////////
-        Eigen::Isometry3d M_ippe1, M_ippe2, M_april, M_PnP;
+        Eigen::Isometry3d M_ippe1, M_ippe2;
         double rep_error1;
         double rep_error2;
         ippePoseEstimation(det, cv_K_, tag_width, M_ippe1, rep_error1, M_ippe2, rep_error2);
         // If not so sure about whether we have the right solution or not, do not create a feature
-        use_rotation = ((rep_error2 / rep_error1 > ippe_min_ratio_) && rep_error1 < ippe_max_rep_error_);
+        bool use_rotation = ((rep_error2 / rep_error1 > ippe_min_ratio_) && rep_error1 < ippe_max_rep_error_);
         //////////////////
-        c_M_t = M_ippe1;
+        M_ippe1 = M_ippe1;
 
         // set the measured pose vector
-        Eigen::Vector3d translation ( c_M_t.translation() ); // translation vector in apriltag meters
-        Eigen::Matrix3d cRt = c_M_t.linear(); 
-        Eigen::Vector7d pose; pose << translation, R2q(cRt).coeffs();
+        Eigen::Vector3d p_c_t ( M_ippe1.translation() ); // translation vector in apriltag meters
+        Eigen::Matrix3d R_c_t = M_ippe1.linear(); 
+        Eigen::Vector7d pose; pose << p_c_t, R2q(R_c_t).coeffs();
 
         // compute the covariance
         // Eigen::Matrix6d cov = getVarVec().asDiagonal() ;  // fixed dummy covariance
-        Eigen::Matrix6d info = computeInformation(translation, c_M_t.linear(), K_, tag_width, std_pix_);  // Lie jacobians covariance
+        Eigen::Matrix6d info = computeInformation(p_c_t, R_c_t, K_, tag_width, std_pix_);  // Lie jacobians covariance
 
         if (!use_rotation){
             // Put a very high covariance on angles measurements (low info matrix)
             info.bottomLeftCorner(3,3) = Eigen::Matrix3d::Zero();
-            info.topRightCorner(3,3)    = Eigen::Matrix3d::Zero();
-            info.bottomRightCorner(3,3) = 0.0001 * Eigen::Matrix3d::Identity();
+            info.topRightCorner(3,3) = Eigen::Matrix3d::Zero();
+            info.bottomRightCorner(3,3) = M_1_PI*M_1_PI * Eigen::Matrix3d::Identity();  // 180 degrees standar deviation
         }
 
         // add to detected features list
@@ -184,21 +182,15 @@ void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *
                                                           double &_rep_error2){
 
     // get corners from det
+    // Order of the 2d corners (anti clockwise, looking at the tag).
+    // Looking at the tag, the reference frame is
+    // X = Right, Y = Down, Z = Inside the plane
     std::vector<cv::Point2d> corners_pix(4);
     for (int i = 0; i < 4; i++)
     {
         corners_pix[i].x = _det->p[i][0];
         corners_pix[i].y = _det->p[i][1];
     }
-    std::vector<cv::Point3d> obj_pts;
-    // Same order as the 2d corners (anti clockwise, looking at the tag).
-    // Looking at the tag, the reference frame is
-    // X = Right, Y = Down, Z = Inside the plane
-    double s = _tag_width/2;
-    obj_pts.emplace_back(-s,  s, 0); // bottom left
-    obj_pts.emplace_back( s,  s, 0); // bottom right
-    obj_pts.emplace_back( s, -s, 0); // top right
-    obj_pts.emplace_back(-s, -s, 0); // top left
 
     cv::Mat rvec1, tvec1, rvec2, tvec2;
     float err1, err2;
@@ -532,8 +524,10 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
         return;
     }
 
-    // A TESTER
-    // (getOrigin() != nullptr)
+    //////////////////////////////////
+    // BAD IMPLEMENTATION -> TO REMOVE
+    //////////////////////////////////
+    //////////////////////////////////
 
     // Retrieve camera extrinsics
     Eigen::Quaterniond last_q_cam(getSensor()->getO()->getState().data());
@@ -633,6 +627,11 @@ void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
             }
         }
     }
+
+    //////////////////////////////////
+    //////////////////////////////////
+    //////////////////////////////////
+
 }
 
 std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
