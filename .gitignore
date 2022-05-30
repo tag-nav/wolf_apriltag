@@ -4,7 +4,10 @@
 README.txt
 bin/
 build/
+build_debug/
 build_release/
+build-debug/
+build-release/
 lib/
 .idea/
 ./Wolf.user
@@ -31,9 +34,6 @@ src/examples/map_apriltag_save.yaml
 demos/map_apriltag_save.yaml
 
 \.vscode/
-build_release/
 
-apriltag.found
-apriltagw.found
 Testing/Temporary/LastTest.log
 Testing/Temporary/CTestCostData.txt

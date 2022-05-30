@@ -1,10 +1,6 @@
 # Pre-requisites about cmake itself
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0005 NEW) 
-  cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
 # MAC OSX RPATH
 SET(CMAKE_MACOSX_RPATH true)
 
@@ -16,7 +12,8 @@ MESSAGE("Starting ${PROJECT_NAME} CMakeLists ...")
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-SET(CMAKE_INSTALL_PREFIX /usr/local)
+set(INCLUDE_INSTALL_DIR include/wolf)
+set(LIB_INSTALL_DIR lib/)
 
 IF (NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE "DEBUG")
@@ -67,10 +64,6 @@ if(BUILD_TESTS)
     enable_testing()
 endif()
 
-#CMAKE modules
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules")
-MESSAGE(STATUS ${CMAKE_MODULE_PATH})
-
 # Some wolf compilation options
 IF((CMAKE_BUILD_TYPE MATCHES DEBUG) OR (CMAKE_BUILD_TYPE MATCHES debug) OR (CMAKE_BUILD_TYPE MATCHES Debug))
   set(_WOLF_DEBUG true)
@@ -80,12 +73,14 @@ option(_WOLF_TRACE "Enable wolf tracing macro" ON)
 
 
 # ============ DEPENDENCIES ============ 
+FIND_PACKAGE(wolfcore REQUIRED CONFIG)
 FIND_PACKAGE(wolfvision REQUIRED)
 FIND_PACKAGE(apriltag REQUIRED)
 
  #============ CONFIG.H ============  
-string(TOUPPER ${PROJECT_NAME} UPPER_NAME)
 set(_WOLF_ROOT_DIR ${CMAKE_SOURCE_DIR})
+# variable used to compile the config.h.in file
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 
 # Define the directory where will be the configured config.h
 SET(WOLF_CONFIG_DIR ${PROJECT_BINARY_DIR}/conf/${PROJECT_NAME}/internal)
@@ -105,26 +100,23 @@ message("CONFIG DIRECTORY ${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_BINARY_DIR}/conf")
 
 # ============ INCLUDES ============ 
-INCLUDE_DIRECTORIES(${wolfcore_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${wolfvision_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(BEFORE "include")
-INCLUDE_DIRECTORIES(${APRILTAG_INCLUDE_DIRS})
 
 # ============ HEADERS ============ 
 SET(HDRS_FACTOR
-include/apriltag/factor/factor_apriltag.h
-include/apriltag/factor/factor_apriltag_proj.h
+include/${PROJECT_NAME}/factor/factor_apriltag.h
+include/${PROJECT_NAME}/factor/factor_apriltag_proj.h
   )
 SET(HDRS_FEATURE
-include/apriltag/feature/feature_apriltag.h
-include/apriltag/feature/feature_apriltag_proj.h
+include/${PROJECT_NAME}/feature/feature_apriltag.h
+include/${PROJECT_NAME}/feature/feature_apriltag_proj.h
   )
 SET(HDRS_LANDMARK
-include/apriltag/landmark/landmark_apriltag.h
+include/${PROJECT_NAME}/landmark/landmark_apriltag.h
   )
 SET(HDRS_PROCESSOR
-include/apriltag/processor/processor_tracker_landmark_apriltag.h
-include/apriltag/processor/ippe.h
+include/${PROJECT_NAME}/processor/processor_tracker_landmark_apriltag.h
+include/${PROJECT_NAME}/processor/ippe.h
   )
 
 # ============ SOURCES ============ 
@@ -166,10 +158,8 @@ endif()
 
 #Link the created libraries
 #===============EXAMPLE=========================
-# IF (Ceres_FOUND)
-#     TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${CERES_LIBRARIES})
-# ENDIF(Ceres_FOUND)
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} ${wolfvision_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} wolfcore)
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} wolfvision)
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} apriltag)
 
 #Build tests
@@ -179,38 +169,55 @@ IF(BUILD_TESTS)
   add_subdirectory(test)
 ENDIF(BUILD_TESTS)
 
+
 #install library
 #=============================================================
 INSTALL(TARGETS ${PLUGIN_NAME} EXPORT ${PLUGIN_NAME}Targets
-      RUNTIME DESTINATION bin
-      LIBRARY DESTINATION lib
-      ARCHIVE DESTINATION lib)
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+  ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+)
+install(EXPORT ${PLUGIN_NAME}Targets DESTINATION lib/${PLUGIN_NAME}/cmake)
 
-install(EXPORT ${PLUGIN_NAME}Targets DESTINATION lib/cmake/${PLUGIN_NAME})
+
+# Configure the package installation
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  ${CMAKE_SOURCE_DIR}/cmake_modules/${PLUGIN_NAME}Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PLUGIN_NAME}Config.cmake
+  INSTALL_DESTINATION ${LIB_INSTALL_DIR}/${PLUGIN_NAME}/cmake
+  PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
+)
+
+install(
+  FILES 
+  ${CMAKE_CURRENT_BINARY_DIR}/${PLUGIN_NAME}Config.cmake
+  DESTINATION 
+  ${LIB_INSTALL_DIR}/${PLUGIN_NAME}/cmake
+)
+
+# Specifies include directories to use when compiling the plugin target
+# This way, include_directories does not need to be called in plugins depending on this one
+target_include_directories(${PLUGIN_NAME} INTERFACE
+  $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
+)
+
 #install headers
 INSTALL(FILES ${HDRS_FACTOR}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/factor)
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/factor)
 INSTALL(FILES ${HDRS_FEATURE}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/feature)
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/feature)
 INSTALL(FILES ${HDRS_LANDMARK}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/landmark)
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/landmark)
 INSTALL(FILES ${HDRS_PROCESSOR}
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/processor)
-
-FILE(WRITE ${PROJECT_NAME}.found "")
-INSTALL(FILES ${PROJECT_NAME}.found
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME})
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/processor)
 
 INSTALL(FILES "${WOLF_CONFIG_DIR}/config.h"
-  DESTINATION include/iri-algorithms/wolf/plugin_${PROJECT_NAME}/${PROJECT_NAME}/internal)
-
-INSTALL(FILES "${CMAKE_SOURCE_DIR}/cmake_modules/${PLUGIN_NAME}Config.cmake" DESTINATION "lib/cmake/${PLUGIN_NAME}")
-
-INSTALL(DIRECTORY ${SPDLOG_INCLUDE_DIRS} DESTINATION "include/iri-algorithms/")
+  DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/internal)
 
 export(PACKAGE ${PLUGIN_NAME})
 
-FIND_PACKAGE(Doxygen)
+FIND_PACKAGE(Doxygen MODULE)
 
 FIND_PATH(IRI_DOC_DIR doxygen.conf ${CMAKE_SOURCE_DIR}/doc/iri_doc/)
 IF (IRI_DOC_DIR)

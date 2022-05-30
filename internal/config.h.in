@@ -24,13 +24,13 @@
 //            which will be added to the include path for compilation,
 //            and installed with the public wolf headers.
 
-#ifndef WOLF_INTERNAL_${UPPER_NAME}_CONFIG_H_
-#define WOLF_INTERNAL_${UPPER_NAME}_CONFIG_H_
+#ifndef WOLF_INTERNAL_${PROJECT_NAME_UPPER}_CONFIG_H_
+#define WOLF_INTERNAL_${PROJECT_NAME_UPPER}_CONFIG_H_
 
 #cmakedefine _WOLF_DEBUG
 
 #cmakedefine _WOLF_TRACE
 
-#define _WOLF_${UPPER_NAME}_ROOT_DIR "${_WOLF_ROOT_DIR}"
+#define _WOLF_${PROJECT_NAME_UPPER}_ROOT_DIR "${_WOLF_ROOT_DIR}"
 
 #endif /* WOLF_INTERNAL_CONFIG_H_ */
