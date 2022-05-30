@@ -42,13 +42,13 @@ WOLF_PTR_TYPEDEFS(FeatureApriltagProj);
 class FeatureApriltagProj : public FeatureBase
 {
     public:
-
         FeatureApriltagProj(const Eigen::Vector8d & _measurement,
-                        const Eigen::Matrix8d & _meas_covariance,
-                        const int _tag_id,
-                        const double _tag_width,
-                        const apriltag_detection_t & _det,
-                        UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
+                            const Eigen::Matrix8d & _meas_covariance,
+                            const int _tag_id,
+                            const double _tag_width,
+                            const apriltag_detection_t & _det,
+                            UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
+
         ~FeatureApriltagProj() override;
         
         /** \brief Returns tag id
@@ -62,7 +62,6 @@ class FeatureApriltagProj : public FeatureBase
         const apriltag_detection_t& getDetection() const;
 
         const std::vector<cv::Point2d>& getTagCorners() const;
-
 
     private:
         int tag_id_;

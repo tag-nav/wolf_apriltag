@@ -87,6 +87,13 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3,
                                                              const Eigen::MatrixBase<D1>& p_c_l,
                                                              const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
                                                              const Eigen::Vector3d& l_corn);
+        private:
+            Eigen::Vector3d l_corn1_;
+            Eigen::Vector3d l_corn2_;
+            Eigen::Vector3d l_corn3_;
+            Eigen::Vector3d l_corn4_;
+            SensorCameraConstPtr camera_;
+            Matrix3d K_;
 };
 
 } // namespace wolf
@@ -120,8 +127,20 @@ FactorApriltagProj::FactorApriltagProj(
                            _landmark_other_ptr->getP(), _landmark_other_ptr->getO()
             )
 {
+    double tag_width = _feature_ptr->getTagWidth();
 
+    // Same order as the 2d corners (anti clockwise, looking at the tag).
+    // Looking at the tag, the reference frame is
+    // X = Right, Y = Down, Z = Inside the plane
+    double s = tag_width/2;
+    l_corn1_ << -s,  s, 0; // bottom left
+    l_corn2_ <<  s,  s, 0; // bottom right
+    l_corn3_ <<  s, -s, 0; // top right
+    l_corn4_ << -s, -s, 0; // top left
 
+    //////////////////////////////////////
+    // Camera matrix
+    K_ = std::static_pointer_cast<SensorCamera>(_sensor_ptr)->getIntrinsicMatrix();
 }
 
 /** \brief Class Destructor
@@ -174,37 +193,11 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
 
     //////////////////////////////////////
     // Expected corner projections
-
-    //////////////////////////////////////
-    // Camera matrix (put somewhere else)
-    // get camera intrinsic parameters
-    Eigen::Vector4d k = getSensor()->getIntrinsic()->getState(); //[cx cy fx fy]
-    Eigen::Matrix3d K;
-    K << k(2), 0,    k(0),
-         0,    k(3), k(1),
-         0,    0,    1;
-    //////////////////////////////////////
-
-
-    auto feata = std::dynamic_pointer_cast<FeatureApriltagProj>(getFeature());
-    double tag_width = feata->getTagWidth();
-
-    // Same order as the 2d corners (anti clockwise, looking at the tag).
-    // Looking at the tag, the reference frame is
-    // X = Right, Y = Down, Z = Inside the plane
-    // >>>>>>> JV: COULD THIS BE PRECOMPUTED AT CONSTRUCTION TIME?
-    double s = tag_width/2;
-    Eigen::Vector3d l_corn1; l_corn1 << -s,  s, 0; // bottom left
-    Eigen::Vector3d l_corn2; l_corn2 <<  s,  s, 0; // bottom right
-    Eigen::Vector3d l_corn3; l_corn3 <<  s, -s, 0; // top right
-    Eigen::Vector3d l_corn4; l_corn4 << -s, -s, 0; // top left
-    
-
     Eigen::Matrix<T, 8, 1> corners_exp;
-    corners_exp.segment(0,2) = pinholeProj(K, p_c_l, q_c_l, l_corn1);
-    corners_exp.segment(2,2) = pinholeProj(K, p_c_l, q_c_l, l_corn2);
-    corners_exp.segment(4,2) = pinholeProj(K, p_c_l, q_c_l, l_corn3);
-    corners_exp.segment(6,2) = pinholeProj(K, p_c_l, q_c_l, l_corn4);
+    corners_exp.segment(0,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn1_);
+    corners_exp.segment(2,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn2_);
+    corners_exp.segment(4,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn3_);
+    corners_exp.segment(6,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn4_);
 
     residuals = getMeasurementSquareRootInformationUpper().cast<T>() * (corners_exp - getMeasurement().cast<T>());
 

@@ -75,7 +75,7 @@ option(_WOLF_TRACE "Enable wolf tracing macro" ON)
 # ============ DEPENDENCIES ============ 
 FIND_PACKAGE(wolfcore REQUIRED CONFIG)
 FIND_PACKAGE(wolfvision REQUIRED)
-FIND_PACKAGE(apriltag REQUIRED)
+FIND_PACKAGE(apriltag REQUIRED)  # UMichigan apriltag library 
 
  #============ CONFIG.H ============  
 set(_WOLF_ROOT_DIR ${CMAKE_SOURCE_DIR})
@@ -104,7 +104,6 @@ INCLUDE_DIRECTORIES(BEFORE "include")
 
 # ============ HEADERS ============ 
 SET(HDRS_FACTOR
-include/${PROJECT_NAME}/factor/factor_apriltag.h
 include/${PROJECT_NAME}/factor/factor_apriltag_proj.h
   )
 SET(HDRS_FEATURE
