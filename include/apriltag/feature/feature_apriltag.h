@@ -38,6 +38,7 @@ namespace wolf {
     
 WOLF_PTR_TYPEDEFS(FeatureApriltag);
 
+
 //class FeatureApriltag
 class FeatureApriltag : public FeatureBase
 {
@@ -46,7 +47,7 @@ class FeatureApriltag : public FeatureBase
         FeatureApriltag(const Eigen::Vector7d & _measurement,
                         const Eigen::Matrix6d & _meas_covariance,
                         const int _tag_id,
-                        const apriltag_detection_t & _det,
+                        const Vector8d & _corners_vec,
                         double _rep_error1,
                         double _rep_error2,
                         bool _use_rotation,
@@ -60,8 +61,6 @@ class FeatureApriltag : public FeatureBase
          **/
         double getTagId() const; 
 
-        const apriltag_detection_t& getDetection() const;
-
         const std::vector<cv::Point2d>& getTagCorners() const;
 
         double getRepError1() const;
@@ -72,7 +71,6 @@ class FeatureApriltag : public FeatureBase
     private:
         int tag_id_;
         std::vector<cv::Point2d> tag_corners_;
-        apriltag_detection_t detection_;
         double rep_error1_;
         double rep_error2_;
         bool use_rotation_;

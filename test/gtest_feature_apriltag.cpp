@@ -38,8 +38,8 @@ class FeatureApriltag_test : public testing::Test
     public:
         Eigen::Vector7d pose;
         Eigen::Matrix6d cov;
+        Eigen::Vector8d corners_vec;
         int tag_id;
-        apriltag_detection_t det;
         double rep_error1;
         double rep_error2;
         bool use_rotation;
@@ -49,16 +49,11 @@ class FeatureApriltag_test : public testing::Test
             pose << 1,2,3,4,5,6,7;
             cov.setIdentity() * 2.0;
 
-            det.id      = 1;
-            tag_id      = det.id;
-            det.p[0][0] =  1.0;
-            det.p[0][1] = -1.0;
-            det.p[1][0] =  1.0;
-            det.p[1][1] =  1.0;
-            det.p[2][0] = -1.0;
-            det.p[2][1] =  1.0;
-            det.p[3][0] = -1.0;
-            det.p[3][1] = -1.0;
+            tag_id      = 1;
+            corners_vec  << 1.0, -1.0,
+                            1.0,  1.0,
+                           -1.0,  1.0,
+                           -1.0, -1.0;
 
             rep_error1 = 0.01;
             rep_error2 = 0.1;
@@ -68,21 +63,21 @@ class FeatureApriltag_test : public testing::Test
 
 TEST_F(FeatureApriltag_test, type)
 {
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, det, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
 
     ASSERT_EQ(f->getType(), "FeatureApriltag");
 }
 
 TEST_F(FeatureApriltag_test, getTagId)
 {
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, det, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
 
     ASSERT_EQ(f->getTagId(), 1);
 }
 
 TEST_F(FeatureApriltag_test, getCorners)
 {
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, det, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
 
     ASSERT_EQ(f->getTagCorners().size(), 4);
 
@@ -96,34 +91,9 @@ TEST_F(FeatureApriltag_test, getCorners)
     ASSERT_EQ(f->getTagCorners()[3].y, -1.0);
 }
 
-TEST_F(FeatureApriltag_test, getDetection)
-{
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, det, rep_error1, rep_error2, use_rotation);
-
-    ASSERT_EQ(f->getDetection().id, 1);
-}
-
-TEST_F(FeatureApriltag_test, tagid_detid_equality)
-{
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, det, rep_error1, rep_error2, use_rotation);
-
-    ASSERT_EQ(f->getDetection().id, f->getTagId());
-}
-
-TEST_F(FeatureApriltag_test, tagCorners_detection_equality)
-{
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, det, rep_error1, rep_error2, use_rotation);
-
-    for (int i = 0; i<f->getTagCorners().size(); i++)
-    {
-        ASSERT_EQ(f->getTagCorners()[i].x, f->getDetection().p[i][0]);
-        ASSERT_EQ(f->getTagCorners()[i].y, f->getDetection().p[i][1]);
-    }
-}
-
 TEST_F(FeatureApriltag_test, getRepErrors)
 {
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, det, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
 
     double err1 = f->getRepError1();
     double err2 = f->getRepError2();

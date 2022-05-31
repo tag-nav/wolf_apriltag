@@ -135,8 +135,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         // IPPE (Infinitesimal Plane-based Pose Estimation)
         //////////////////
         Eigen::Isometry3d M_ippe1, M_ippe2;
-        double rep_error1;
-        double rep_error2;
+        double rep_error1, rep_error2;
         ippePoseEstimation(det, cv_K_, tag_width, M_ippe1, rep_error1, M_ippe2, rep_error2);
         // If not so sure about whether we have the right solution or not, do not create a feature
         bool use_rotation = ((rep_error2 / rep_error1 > ippe_min_ratio_) && rep_error1 < ippe_max_rep_error_);
@@ -159,11 +158,16 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
             info.bottomRightCorner(3,3) = M_1_PI*M_1_PI * Eigen::Matrix3d::Identity();  // 180 degrees standar deviation
         }
 
+        Vector8d corners_vec; corners_vec << det->p[0][0], det->p[0][1],
+                                             det->p[1][0], det->p[1][1],
+                                             det->p[2][0], det->p[2][1],
+                                             det->p[3][0], det->p[3][1];
+
         // add to detected features list
         detections_incoming_.push_back(std::make_shared<FeatureApriltag>(pose,
                                                                          info,
                                                                          tag_id,
-                                                                         *det,
+                                                                         corners_vec,
                                                                          rep_error1,
                                                                          rep_error2,
                                                                          use_rotation,
@@ -191,6 +195,7 @@ void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *
         corners_pix[i].x = _det->p[i][0];
         corners_pix[i].y = _det->p[i][1];
     }
+
 
     cv::Mat rvec1, tvec1, rvec2, tvec2;
     float err1, err2;

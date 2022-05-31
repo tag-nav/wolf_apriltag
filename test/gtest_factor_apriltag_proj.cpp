@@ -41,6 +41,7 @@ using namespace Eigen;
 using namespace wolf;
 using std::static_pointer_cast;
 
+
 Isometry3d pose2iso(const Vector3d& posi, const Quaterniond& quat)
 {
     return Translation<double,3>(posi) * quat;
@@ -251,18 +252,6 @@ class FactorApriltagProj_class : public testing::Test{
             proc_apriltag->setLastPtr(C1);
 
             meas_cov = Eigen::Matrix8d::Identity();  // pixel noise
-            int tag_id = 1;
-
-            // unused
-            det.id = tag_id;
-            det.p[0][0] =  1.0;
-            det.p[0][1] = -1.0;
-            det.p[1][0] =  1.0;
-            det.p[1][1] =  1.0;
-            det.p[2][0] = -1.0;
-            det.p[2][1] =  1.0;
-            det.p[3][0] = -1.0;
-            det.p[3][1] = -1.0;
 
             tag_width = 0.2;
             lmk1 = LandmarkBase::emplace<LandmarkApriltag>(problem->getMap(), pose_w_l, 42, tag_width);
@@ -291,8 +280,7 @@ class FactorApriltagProj_class : public testing::Test{
 
 TEST_F(FactorApriltagProj_class, Constructor)
 {   
-    Vector8d meas = Vector8d::Zero();
-    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas, meas_cov, det.id, tag_width, det));
+    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width));
     FactorApriltagProjPtr factor = std::make_shared<FactorApriltagProj>(
             camera,
             F1,
@@ -310,7 +298,7 @@ TEST_F(FactorApriltagProj_class, Constructor)
 
 TEST_F(FactorApriltagProj_class, problem_1KF)
 {
-    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, det.id, tag_width, det));
+    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width));
 
     //emplace feature and landmark
     auto factor = FactorBase::emplace<FactorApriltagProj>(f1, camera, F1, lmk1, f1, nullptr, false, FAC_ACTIVE);
@@ -351,8 +339,8 @@ TEST_F(FactorApriltagProj_class, problem_2KF)
     FrameBasePtr F2 = problem->emplaceFrame(2, posiquat2pose(p_w_r2, q_w_r2));
     CaptureImagePtr C2 = std::static_pointer_cast<CaptureImage>(CaptureBase::emplace<CaptureImage>(F2, 1, camera, cv::Mat(2,2,CV_8UC1)));
 
-    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, det.id, tag_width, det));
-    auto f2 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C2, meas2, meas_cov, det.id, tag_width, det));
+    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width));
+    auto f2 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C2, meas2, meas_cov, 2, tag_width));
 
     //emplace feature and landmark
     auto factor1 = FactorBase::emplace<FactorApriltagProj>(f1, camera, F1, lmk1, f1, nullptr, false, FAC_ACTIVE);

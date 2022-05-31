@@ -33,48 +33,59 @@
 
 using namespace wolf;
 
-class FeatureApriltag_test : public testing::Test
+class FeatureApriltagProj_test : public testing::Test
 {
     public:
-        Eigen::Vector8d meas;
-        Eigen::Matrix8d cov;
+        Eigen::Vector8d meas_;
+        Eigen::Matrix8d cov_;
         int tag_id_;
         double tag_width_;
         apriltag_detection_t det_;
 
         void SetUp() override
         {
-            meas << 1,2,3,4,5,6,7,8;
-            cov.setIdentity() * 2.0;
 
             tag_id_ = 1;
             tag_width_ = 0.2;
 
-            det_.id      = 1;
-            det_.p[0][0] =  1.0;
-            det_.p[0][1] = -1.0;
-            det_.p[1][0] =  1.0;
-            det_.p[1][1] =  1.0;
-            det_.p[2][0] = -1.0;
-            det_.p[2][1] =  1.0;
-            det_.p[3][0] = -1.0;
-            det_.p[3][1] = -1.0;
+            meas_ << 1.0, -1.0,
+                     1.0,  1.0,
+                    -1.0,  1.0,
+                    -1.0, -1.0;
+            cov_.setIdentity();
         }
 };
 
-TEST_F(FeatureApriltag_test, type)
+TEST_F(FeatureApriltagProj_test, type)
 {
-    auto f = std::make_shared<FeatureApriltagProj>(meas, cov, tag_id_, tag_width_, det_);
+    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_);
 
     ASSERT_EQ(f->getType(), "FeatureApriltagProj");
 }
 
-TEST_F(FeatureApriltag_test, getters)
+TEST_F(FeatureApriltagProj_test, getters)
 {
-    auto f = std::make_shared<FeatureApriltagProj>(meas, cov, tag_id_, tag_width_, det_);
+    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_);
 
     ASSERT_EQ(f->getTagId(), tag_id_);
     ASSERT_EQ(f->getTagWidth(), tag_width_);
+}
+
+
+TEST_F(FeatureApriltagProj_test, getCorners)
+{
+    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_);
+
+    ASSERT_EQ(f->getTagCorners().size(), 4);
+
+    ASSERT_EQ(f->getTagCorners()[0].x,  1.0);
+    ASSERT_EQ(f->getTagCorners()[0].y, -1.0);
+    ASSERT_EQ(f->getTagCorners()[1].x,  1.0);
+    ASSERT_EQ(f->getTagCorners()[1].y,  1.0);
+    ASSERT_EQ(f->getTagCorners()[2].x, -1.0);
+    ASSERT_EQ(f->getTagCorners()[2].y,  1.0);
+    ASSERT_EQ(f->getTagCorners()[3].x, -1.0);
+    ASSERT_EQ(f->getTagCorners()[3].y, -1.0);
 }
 
 int main(int argc, char **argv)
