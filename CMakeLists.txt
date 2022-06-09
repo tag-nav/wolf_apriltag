@@ -94,13 +94,10 @@ IF(EXISTS "${WOLF_CONFIG_DIR}" AND NOT IS_DIRECTORY "${WOLF_CONFIG_DIR}")
   message(FATAL_ERROR "Bug: Specified CONFIG_DIR: "
     "${WOLF_CONFIG_DIR} exists, but is not a directory.")
 ENDIF()
+
 # Configure config.h
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/internal/config.h.in "${WOLF_CONFIG_DIR}/config.h")
-message("CONFIG DIRECTORY ${PROJECT_BINARY_DIR}")
-include_directories("${PROJECT_BINARY_DIR}/conf")
 
-# ============ INCLUDES ============ 
-INCLUDE_DIRECTORIES(BEFORE "include")
 
 # ============ HEADERS ============ 
 SET(HDRS_FACTOR
@@ -193,11 +190,12 @@ install(
   ${LIB_INSTALL_DIR}/${PLUGIN_NAME}/cmake
 )
 
-# Specifies include directories to use when compiling the plugin target
-# This way, include_directories does not need to be called in plugins depending on this one
-target_include_directories(${PLUGIN_NAME} INTERFACE
+target_include_directories(${PLUGIN_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/conf>
   $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
 )
+
 
 #install headers
 INSTALL(FILES ${HDRS_FACTOR}
