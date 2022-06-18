@@ -37,3 +37,4 @@ demos/map_apriltag_save.yaml
 
 Testing/Temporary/LastTest.log
 Testing/Temporary/CTestCostData.txt
+.clang-format
