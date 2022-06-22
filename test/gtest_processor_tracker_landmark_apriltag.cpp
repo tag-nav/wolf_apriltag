@@ -32,7 +32,6 @@
 #include "apriltag/internal/config.h"
 using namespace Eigen;
 using namespace wolf;
-using std::static_pointer_cast;
 
 
 ////////////////////////////////////////////////////////////////
@@ -322,10 +321,15 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)
 {
-    auto f1 = std::make_shared<FeatureApriltag>(pose_default_, cov_pose_, tag_id_, corners_vec_, rep_error1, rep_error2, use_rotation);
+    
+    auto f1 = FeatureBase::emplace<FeatureApriltag>(C1, pose_default_, cov_pose_, tag_id_, corners_vec_, rep_error1, rep_error2, use_rotation);
 
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
+
+    auto st = prc_apr->getSensor()->getO()->getState();
+    std::cout << prc_apr->getSensor()->getStructure() << std::endl;
+    std::cout << st.transpose() << std::endl;
 
     FactorBasePtr ctr = prc_apr->emplaceFactor(f1, lmk);
 
