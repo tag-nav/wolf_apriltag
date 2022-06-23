@@ -19,17 +19,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 //--------LICENSE_END--------
-#ifndef FEATURE_APRILTAG_H_
-#define FEATURE_APRILTAG_H_
+#ifndef FEATURE_APRILTAG_POSE_H_
+#define FEATURE_APRILTAG_POSE_H_
 
-//Wolf includes
-#include "core/feature/feature_base.h"
+// Wolf apriltag
+#include "apriltag/feature/feature_apriltag.h"
 
-//std includes
+// Wolf core
+#include <core/feature/feature_base.h>
 
-//external library incudes
-#include "apriltag/apriltag.h"
-#include "apriltag/common/zarray.h"
+// UMich apriltag library
+#include <apriltag/apriltag.h>
+#include <apriltag/common/zarray.h>
 
 // opencv
 #include <opencv2/features2d.hpp>
@@ -40,12 +41,13 @@ WOLF_PTR_TYPEDEFS(FeatureApriltagPose);
 
 
 //class FeatureApriltagPose
-class FeatureApriltagPose : public FeatureBase
+class FeatureApriltagPose : public FeatureApriltag
 {
     public:
 
-        FeatureApriltagPose(const Eigen::Vector7d & _measurement,
-                        const Eigen::Matrix6d & _meas_covariance,
+        FeatureApriltagPose(
+                        const Eigen::Vector7d & _measurement,
+                        const Eigen::Matrix6d & _meas_info,
                         const int _tag_id,
                         const Vector8d & _corners_vec,
                         double _rep_error1,
@@ -54,28 +56,49 @@ class FeatureApriltagPose : public FeatureBase
                         UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
         ~FeatureApriltagPose() override;
         
-        /** \brief Returns tag id
-         * 
-         * Returns tag id
-         * 
-         **/
-        double getTagId() const; 
-
-        const std::vector<cv::Point2d>& getTagCorners() const;
-
         double getRepError1() const;
         double getRepError2() const;
         bool getUserotation() const;
 
-
     private:
-        int tag_id_;
-        std::vector<cv::Point2d> tag_corners_;
         double rep_error1_;
         double rep_error2_;
         bool use_rotation_;
-        
 };
+
+inline FeatureApriltagPose::FeatureApriltagPose(
+                                 const Eigen::Vector7d & _measurement,
+                                 const Eigen::Matrix6d & _meas_info,
+                                 const int _tag_id,
+                                 const Vector8d & _corners_vec,
+                                 double _rep_error1,
+                                 double _rep_error2,
+                                 bool _use_rotation,
+                                 UncertaintyType _uncertainty_type) :
+    FeatureApriltag("FeatureApriltagPose", _measurement, _meas_info, _tag_id, _corners_vec, _uncertainty_type),
+    rep_error1_(_rep_error1),
+    rep_error2_(_rep_error2),
+    use_rotation_(_use_rotation)
+{
+}
+
+inline FeatureApriltagPose::~FeatureApriltagPose()
+{
+    //
+}
+
+inline double FeatureApriltagPose::getRepError1() const
+{
+    return rep_error1_;
+}
+inline double FeatureApriltagPose::getRepError2() const
+{
+    return rep_error2_;
+}
+inline bool FeatureApriltagPose::getUserotation() const
+{
+    return use_rotation_;
+}
 
 } // namespace wolf
 

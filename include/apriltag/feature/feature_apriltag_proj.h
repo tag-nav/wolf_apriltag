@@ -22,14 +22,15 @@
 #ifndef FEATURE_APRILTAG_PROJ_H_
 #define FEATURE_APRILTAG_PROJ_H_
 
-//Wolf includes
-#include "core/feature/feature_base.h"
+// Wolf apriltag
+#include "apriltag/feature/feature_apriltag.h"
 
-//std includes
+// Wolf core
+#include <core/feature/feature_base.h>
 
-//external library incudes
-#include "apriltag/apriltag.h"
-#include "apriltag/common/zarray.h"
+// UMich apriltag library
+#include <apriltag/apriltag.h>
+#include <apriltag/common/zarray.h>
 
 // opencv
 #include <opencv2/features2d.hpp>
@@ -39,36 +40,57 @@ namespace wolf {
 WOLF_PTR_TYPEDEFS(FeatureApriltagProj);
 
 //class FeatureApriltagProj
-class FeatureApriltagProj : public FeatureBase
+class FeatureApriltagProj : public FeatureApriltag
 {
     public:
-        FeatureApriltagProj(const Eigen::Vector8d & _measurement,
-                            const Eigen::Matrix8d & _meas_covariance,
-                            const int _tag_id,
-                            const double _tag_width,
-                            const Eigen::Vector7d& _pose_pnp,
-                            UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
+        FeatureApriltagProj(
+            const Eigen::Vector8d & _measurement,
+            const Eigen::Matrix8d & _meas_covariance,
+            const int _tag_id,
+            const double _tag_width,
+            const Eigen::Vector7d& _pose_pnp,
+            UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
 
         ~FeatureApriltagProj() override;
         
-        /** \brief Returns tag id
-         * 
-         * Returns tag id
-         * 
-         **/
-        int getTagId() const; 
-        double getTagWidth() const;
         const Eigen::Vector7d& getPosePnp() const;
-
-        const std::vector<cv::Point2d>& getTagCorners() const;
+        double getTagWidth() const;
 
     private:
-        int tag_id_;
-        double tag_width_;
-        std::vector<cv::Point2d> tag_corners_;
         Eigen::Vector7d pose_pnp_;
+        double tag_width_;
+
         
 };
+
+
+inline FeatureApriltagProj::FeatureApriltagProj(
+    const Eigen::Vector8d & _measurement,
+    const Eigen::Matrix8d & _meas_covariance,
+    const int _tag_id,
+    const double _tag_width,
+    const Eigen::Vector7d& _pose_pnp,
+    UncertaintyType _uncertainty_type) :
+        FeatureApriltag("FeatureApriltagProj", _measurement, _meas_covariance, _tag_id, _measurement, _uncertainty_type),
+        pose_pnp_(_pose_pnp),
+        tag_width_(_tag_width)
+{
+    
+}
+
+inline FeatureApriltagProj::~FeatureApriltagProj()
+{
+    //
+}
+
+inline const Eigen::Vector7d& FeatureApriltagProj::getPosePnp() const
+{
+    return pose_pnp_;
+}
+inline double FeatureApriltagProj::getTagWidth() const
+{
+    return tag_width_;
+}
 
 } // namespace wolf
 

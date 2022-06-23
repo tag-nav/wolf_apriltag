@@ -41,7 +41,6 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         min_features_for_keyframe_(_params_tracker_landmark_apriltag->min_features_for_keyframe),
         nb_vote_for_every_first_(_params_tracker_landmark_apriltag->nb_vote_for_every_first_),
         nb_vote_(0)
-
 {
     // configure apriltag detector
     std::string famname(_params_tracker_landmark_apriltag->tag_family_);
@@ -179,19 +178,19 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                 info.bottomRightCorner(3,3) = M_1_PI*M_1_PI * Eigen::Matrix3d::Identity();  // 180 degrees standar deviation
             }
 
-
-
             // add to detected features list
             detections_incoming_.push_back(std::make_shared<FeatureApriltagPose>(pose,
-                                                                             info,
-                                                                             tag_id,
-                                                                             corners_vec,
-                                                                             rep_error1,
-                                                                             rep_error2,
-                                                                             use_rotation,
-                                                                             FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
+                                                                                 info,
+                                                                                 tag_id,
+                                                                                 corners_vec,
+                                                                                 rep_error1,
+                                                                                 rep_error2,
+                                                                                 use_rotation,
+                                                                                 FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
         }
     }
+
+    WOLF_INFO("\ndetections_incoming_: ", detections_incoming_.size())
 
     apriltag_detections_destroy(detections);
 }
@@ -409,7 +408,7 @@ unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBaseP
 {   
     for (auto feature_in_image : detections_incoming_)
     {
-        int tag_id(std::static_pointer_cast<FeatureApriltagPose>(feature_in_image)->getTagId());
+        int tag_id(std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getTagId());
 
         for (auto landmark_in_ptr : _landmarks_in)
         {

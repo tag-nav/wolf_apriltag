@@ -23,6 +23,8 @@
 #define _PROCESSOR_TRACKER_LANDMARK_APRILTAG_H_
 
 // Wolf apriltag includes
+#include "apriltag/feature/feature_apriltag.h"
+#include "apriltag/feature/feature_apriltag_proj.h"
 #include "apriltag/feature/feature_apriltag_pose.h"
 #include "apriltag/landmark/landmark_apriltag.h"
 #include "apriltag/factor/factor_apriltag_proj.h"
