@@ -27,11 +27,13 @@ FeatureApriltagProj::FeatureApriltagProj(const Eigen::Vector8d & _measurement,
                                          const Eigen::Matrix8d & _meas_uncertainty,
                                          const int _tag_id,
                                          const double _tag_width,
+                                         const Eigen::Vector7d& _pose_pnp,
                                          UncertaintyType _uncertainty_type) :
     FeatureBase("FeatureApriltagProj", _measurement, _meas_uncertainty, _uncertainty_type),
     tag_id_     (_tag_id),
     tag_width_  (_tag_width),
-    tag_corners_(4)
+    tag_corners_(4),
+    pose_pnp_(_pose_pnp)
 {
     setTrackId(_tag_id);  // assuming there is a single landmark with this id in the scene
 
@@ -60,6 +62,11 @@ double FeatureApriltagProj::getTagWidth() const
 const std::vector<cv::Point2d>& FeatureApriltagProj::getTagCorners() const
 {
     return tag_corners_;
+}
+
+const Eigen::Vector7d& FeatureApriltagProj::getPosePnp() const
+{
+    return pose_pnp_;
 }
 
 } // namespace wolf

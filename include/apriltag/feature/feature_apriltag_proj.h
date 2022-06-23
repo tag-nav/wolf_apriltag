@@ -46,6 +46,7 @@ class FeatureApriltagProj : public FeatureBase
                             const Eigen::Matrix8d & _meas_covariance,
                             const int _tag_id,
                             const double _tag_width,
+                            const Eigen::Vector7d& _pose_pnp,
                             UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
 
         ~FeatureApriltagProj() override;
@@ -56,7 +57,8 @@ class FeatureApriltagProj : public FeatureBase
          * 
          **/
         int getTagId() const; 
-        double getTagWidth() const; 
+        double getTagWidth() const;
+        const Eigen::Vector7d& getPosePnp() const;
 
         const std::vector<cv::Point2d>& getTagCorners() const;
 
@@ -64,6 +66,7 @@ class FeatureApriltagProj : public FeatureBase
         int tag_id_;
         double tag_width_;
         std::vector<cv::Point2d> tag_corners_;
+        Eigen::Vector7d pose_pnp_;
         
 };
 

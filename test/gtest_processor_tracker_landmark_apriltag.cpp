@@ -441,7 +441,9 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactorProj)
 {
-    auto f1 = FeatureBase::emplace<FeatureApriltagProj>(C1, Vector8d::Zero(), Matrix8d::Identity(), tag_id_, 0.1);
+    // dummy pose, not used in the factor, only for some part of the processor
+    Vector7d pose_dummy = Vector7d::Zero(); 
+    auto f1 = FeatureBase::emplace<FeatureApriltagProj>(C1, Vector8d::Zero(), Matrix8d::Identity(), tag_id_, 0.1, pose_dummy);
 
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);

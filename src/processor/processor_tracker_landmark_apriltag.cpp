@@ -132,6 +132,9 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
 
         //////////////////
         // IPPE (Infinitesimal Plane-based Pose Estimation)
+        // TODO: Quite bad for reprojection factor: we only need to do this question once
+        // when the landmark is newly discovered. Would require to change the whole logic 
+        // or to check if this landmark is already in the map HERE (which is usually not the logic of preProcess) 
         //////////////////
         Eigen::Isometry3d M_ippe1, M_ippe2;
         double rep_error1, rep_error2;
@@ -160,7 +163,8 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
             detections_incoming_.push_back(std::make_shared<FeatureApriltagProj>(corners_vec,
                                                                                  std_pix_*std_pix_*Eigen::Matrix8d::Identity(),
                                                                                  tag_id,
-                                                                                 tag_width));
+                                                                                 tag_width,
+                                                                                 pose));
         }
         else
         {
@@ -287,8 +291,17 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr
     Eigen::Isometry3d r_M_c = Eigen::Translation<double,3>(pos.head(3)) * quat_tmp;
 
     // camera to lmk (tag)
-    pos                     = _feature_ptr->getMeasurement().head(3);
-    quat_tmp.coeffs()       = _feature_ptr->getMeasurement().tail(4);
+    if (use_proj_factor_)
+    {
+        auto feat_proj = std::dynamic_pointer_cast<FeatureApriltagProj>(_feature_ptr);
+        pos                     = feat_proj->getPosePnp().head(3);
+        quat_tmp.coeffs()       = feat_proj->getPosePnp().tail(4);
+    }
+    else
+    {
+        pos                     = _feature_ptr->getMeasurement().head(3);
+        quat_tmp.coeffs()       = _feature_ptr->getMeasurement().tail(4);
+    }
     Eigen::Isometry3d c_M_t = Eigen::Translation<double,3>(pos) * quat_tmp;
 
     // world to lmk (tag)

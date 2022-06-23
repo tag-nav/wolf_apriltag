@@ -41,6 +41,7 @@ class FeatureApriltagProj_test : public testing::Test
         int tag_id_;
         double tag_width_;
         apriltag_detection_t det_;
+        Eigen::Vector7d pose_pnp_;
 
         void SetUp() override
         {
@@ -53,28 +54,30 @@ class FeatureApriltagProj_test : public testing::Test
                     -1.0,  1.0,
                     -1.0, -1.0;
             cov_.setIdentity();
+            pose_pnp_ << 0,0,0, 0,0,0,1;
         }
 };
 
 TEST_F(FeatureApriltagProj_test, type)
 {
-    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_);
+    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_, pose_pnp_);
 
     ASSERT_EQ(f->getType(), "FeatureApriltagProj");
 }
 
 TEST_F(FeatureApriltagProj_test, getters)
 {
-    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_);
+    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_, pose_pnp_);
 
     ASSERT_EQ(f->getTagId(), tag_id_);
     ASSERT_EQ(f->getTagWidth(), tag_width_);
+    ASSERT_MATRIX_APPROX(f->getPosePnp(), pose_pnp_, 1e-6);
 }
 
 
 TEST_F(FeatureApriltagProj_test, getCorners)
 {
-    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_);
+    auto f = std::make_shared<FeatureApriltagProj>(meas_, cov_, tag_id_, tag_width_, pose_pnp_);
 
     ASSERT_EQ(f->getTagCorners().size(), 4);
 
