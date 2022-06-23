@@ -145,31 +145,48 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         Eigen::Matrix3d R_c_t = M_ippe1.linear(); 
         Eigen::Vector7d pose; pose << p_c_t, R2q(R_c_t).coeffs();
 
-        // compute the covariance
-        // Eigen::Matrix6d cov = getVarVec().asDiagonal() ;  // fixed dummy covariance
-        Eigen::Matrix6d info = computeInformation(p_c_t, R_c_t, K_, tag_width, std_pix_);  // Lie jacobians covariance
+        // Order of the 2d corners (anti clockwise, looking at the tag).
+        // Looking at the tag, the reference frame is
+        // X = Right, Y = Down, Z = Inside the plane        
+        Vector8d corners_vec; corners_vec << det->p[0][0], det->p[0][1],  // bottom left
+                                             det->p[1][0], det->p[1][1],  // bottom right
+                                             det->p[2][0], det->p[2][1],  // top right
+                                             det->p[3][0], det->p[3][1];  // top left
 
-        if (!use_rotation){
-            // Put a very high covariance on angles measurements (low info matrix)
-            info.bottomLeftCorner(3,3) = Eigen::Matrix3d::Zero();
-            info.topRightCorner(3,3) = Eigen::Matrix3d::Zero();
-            info.bottomRightCorner(3,3) = M_1_PI*M_1_PI * Eigen::Matrix3d::Identity();  // 180 degrees standar deviation
+        bool use_reproj_factor = true;
+        if (use_reproj_factor)
+        {
+            // add to detected features list
+            detections_incoming_.push_back(std::make_shared<FeatureApriltagProj>(corners_vec,
+                                                                                 std_pix_*std_pix_*Eigen::Matrix8d::Identity(),
+                                                                                 tag_id,
+                                                                                 tag_width));
         }
+        else
+        {
+            // compute the covariance
+            // Eigen::Matrix6d cov = getVarVec().asDiagonal() ;  // fixed dummy covariance
+            Eigen::Matrix6d info = computeInformation(p_c_t, R_c_t, K_, tag_width, std_pix_);  // Lie jacobians covariance
 
-        Vector8d corners_vec; corners_vec << det->p[0][0], det->p[0][1],
-                                             det->p[1][0], det->p[1][1],
-                                             det->p[2][0], det->p[2][1],
-                                             det->p[3][0], det->p[3][1];
+            if (!use_rotation){
+                // Put a very high covariance on angles measurements (low info matrix)
+                info.bottomLeftCorner(3,3) = Eigen::Matrix3d::Zero();
+                info.topRightCorner(3,3) = Eigen::Matrix3d::Zero();
+                info.bottomRightCorner(3,3) = M_1_PI*M_1_PI * Eigen::Matrix3d::Identity();  // 180 degrees standar deviation
+            }
 
-        // add to detected features list
-        detections_incoming_.push_back(std::make_shared<FeatureApriltag>(pose,
-                                                                         info,
-                                                                         tag_id,
-                                                                         corners_vec,
-                                                                         rep_error1,
-                                                                         rep_error2,
-                                                                         use_rotation,
-                                                                         FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
+
+
+            // add to detected features list
+            detections_incoming_.push_back(std::make_shared<FeatureApriltag>(pose,
+                                                                             info,
+                                                                             tag_id,
+                                                                             corners_vec,
+                                                                             rep_error1,
+                                                                             rep_error2,
+                                                                             use_rotation,
+                                                                             FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
+        }
     }
 
     apriltag_detections_destroy(detections);
@@ -187,6 +204,7 @@ void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *
     // Order of the 2d corners (anti clockwise, looking at the tag).
     // Looking at the tag, the reference frame is
     // X = Right, Y = Down, Z = Inside the plane
+    // bottom left, bottom right, top right ,top left
     std::vector<cv::Point2d> corners_pix(4);
     for (int i = 0; i < 4; i++)
     {
