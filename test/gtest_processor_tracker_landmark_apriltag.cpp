@@ -331,10 +331,10 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)
     std::cout << prc_apr->getSensor()->getStructure() << std::endl;
     std::cout << st.transpose() << std::endl;
 
-    FactorBasePtr ctr = prc_apr->emplaceFactor(f1, lmk);
+    FactorBasePtr fac = prc_apr->emplaceFactor(f1, lmk);
 
-    ASSERT_TRUE(ctr->getFeature() == f1);
-    ASSERT_TRUE(ctr->getType() == "FactorRelativePose3dWithExtrinsics");
+    ASSERT_TRUE(fac->getFeature() == f1);
+    ASSERT_TRUE(fac->getType() == "FactorRelativePose3dWithExtrinsics");
 }
 
 TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
@@ -421,6 +421,37 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, computeInformation)
     ASSERT_MATRIX_APPROX(transformation_info, transformation_info_matlab, 1e-3);
 
 
+}
+
+
+
+
+
+
+
+
+
+////////////////////////////////
+////////////////////////////////
+// Projection based Factor
+////////////////////////////////
+////////////////////////////////
+
+
+
+TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactorProj)
+{
+    auto f1 = FeatureBase::emplace<FeatureApriltagProj>(C1, Vector8d::Zero(), Matrix8d::Identity(), tag_id_, 0.1);
+
+    LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
+    LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
+
+    auto st = prc_apr->getSensor()->getO()->getState();
+
+    FactorBasePtr fac = prc_apr->emplaceFactor(f1, lmk);
+
+    ASSERT_TRUE(fac->getFeature() == f1);
+    ASSERT_TRUE(fac->getType() == "FactorApriltagProj");
 }
 
 int main(int argc, char **argv)

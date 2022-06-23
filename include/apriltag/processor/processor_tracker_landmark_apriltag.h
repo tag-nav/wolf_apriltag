@@ -25,6 +25,7 @@
 // Wolf apriltag includes
 #include "apriltag/feature/feature_apriltag.h"
 #include "apriltag/landmark/landmark_apriltag.h"
+#include "apriltag/factor/factor_apriltag_proj.h"
 
 // IPPE (copy from https://github.com/tobycollins/IPPE)
 #include "ippe.h"

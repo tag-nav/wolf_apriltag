@@ -231,11 +231,27 @@ void ProcessorTrackerLandmarkApriltag::postProcess()
 FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
                                                               LandmarkBasePtr _landmark_ptr)
 {
-    return FactorBase::emplace<FactorRelativePose3dWithExtrinsics>(_feature_ptr,
-                                               _feature_ptr,
-                                               _landmark_ptr,
-                                               shared_from_this(),
-                                               params_->apply_loss_function);
+    auto feat_pose = std::dynamic_pointer_cast<FeatureApriltag>(_feature_ptr);
+    if (feat_pose)
+    {
+        return FactorBase::emplace<FactorRelativePose3dWithExtrinsics>(_feature_ptr,
+                                                _feature_ptr,
+                                                _landmark_ptr,
+                                                shared_from_this(),
+                                                params_->apply_loss_function);
+    }
+    else
+    {
+        auto feat_proj = std::dynamic_pointer_cast<FeatureApriltagProj>(_feature_ptr);
+        return FactorBase::emplace<FactorApriltagProj>(feat_proj,
+                                        feat_proj,
+                                        getSensor(),
+                                        feat_proj->getFrame(),
+                                        _landmark_ptr,
+                                        shared_from_this(),
+                                        params_->apply_loss_function);
+    }
+
 }
 
 LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr _feature_ptr)
