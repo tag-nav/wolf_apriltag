@@ -104,7 +104,7 @@ SET(HDRS_FACTOR
 include/${PROJECT_NAME}/factor/factor_apriltag_proj.h
   )
 SET(HDRS_FEATURE
-include/${PROJECT_NAME}/feature/feature_apriltag.h
+include/${PROJECT_NAME}/feature/feature_apriltag_pose.h
 include/${PROJECT_NAME}/feature/feature_apriltag_proj.h
   )
 SET(HDRS_LANDMARK
@@ -117,7 +117,7 @@ include/${PROJECT_NAME}/processor/ippe.h
 
 # ============ SOURCES ============ 
 SET(SRCS_FEATURE
-src/feature/feature_apriltag.cpp
+src/feature/feature_apriltag_pose.cpp
 src/feature/feature_apriltag_proj.cpp
   )
 SET(SRCS_LANDMARK

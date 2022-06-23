@@ -36,15 +36,15 @@
 
 namespace wolf {
     
-WOLF_PTR_TYPEDEFS(FeatureApriltag);
+WOLF_PTR_TYPEDEFS(FeatureApriltagPose);
 
 
-//class FeatureApriltag
-class FeatureApriltag : public FeatureBase
+//class FeatureApriltagPose
+class FeatureApriltagPose : public FeatureBase
 {
     public:
 
-        FeatureApriltag(const Eigen::Vector7d & _measurement,
+        FeatureApriltagPose(const Eigen::Vector7d & _measurement,
                         const Eigen::Matrix6d & _meas_covariance,
                         const int _tag_id,
                         const Vector8d & _corners_vec,
@@ -52,7 +52,7 @@ class FeatureApriltag : public FeatureBase
                         double _rep_error2,
                         bool _use_rotation,
                         UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
-        ~FeatureApriltag() override;
+        ~FeatureApriltagPose() override;
         
         /** \brief Returns tag id
          * 

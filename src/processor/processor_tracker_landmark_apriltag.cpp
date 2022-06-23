@@ -182,7 +182,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
 
 
             // add to detected features list
-            detections_incoming_.push_back(std::make_shared<FeatureApriltag>(pose,
+            detections_incoming_.push_back(std::make_shared<FeatureApriltagPose>(pose,
                                                                              info,
                                                                              tag_id,
                                                                              corners_vec,
@@ -253,7 +253,7 @@ void ProcessorTrackerLandmarkApriltag::postProcess()
 FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
                                                               LandmarkBasePtr _landmark_ptr)
 {
-    auto feat_pose = std::dynamic_pointer_cast<FeatureApriltag>(_feature_ptr);
+    auto feat_pose = std::dynamic_pointer_cast<FeatureApriltagPose>(_feature_ptr);
     if (feat_pose)
     {
         return FactorBase::emplace<FactorRelativePose3dWithExtrinsics>(_feature_ptr,
@@ -314,7 +314,7 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr
     Vector7d w_pose_t;
     w_pose_t << pos, quat_tmp.coeffs();
 
-    FeatureApriltagPtr feat_april = std::static_pointer_cast<FeatureApriltag>(_feature_ptr);
+    FeatureApriltagPosePtr feat_april = std::static_pointer_cast<FeatureApriltagPose>(_feature_ptr);
     int tag_id = feat_april->getTagId();
 
     return LandmarkBase::emplace<LandmarkApriltag>(getProblem()->getMap(), w_pose_t, tag_id, getTagWidth(tag_id));
@@ -334,7 +334,7 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
 
         bool feature_already_found(false);
 
-        auto feature_april = std::static_pointer_cast<FeatureApriltag>(feature_in_image);
+        auto feature_april = std::static_pointer_cast<FeatureApriltagPose>(feature_in_image);
 
         //Loop over the landmark to find is one is associated to  feature_in_image
         for(auto it = landmark_list.begin(); it != landmark_list.end(); ++it){
@@ -348,7 +348,7 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
         {
             for (FeatureBasePtrList::iterator it=_features_out.begin(); it != _features_out.end(); ++it)
             {
-                if (std::static_pointer_cast<FeatureApriltag>(*it)->getTagId() == feature_april->getTagId())
+                if (std::static_pointer_cast<FeatureApriltagPose>(*it)->getTagId() == feature_april->getTagId())
                 {
                     //we have a detection with the same id as the currently processed one. We remove the previous feature from the list for now
                     _features_out.erase(it);
@@ -409,7 +409,7 @@ unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBaseP
 {   
     for (auto feature_in_image : detections_incoming_)
     {
-        int tag_id(std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getTagId());
+        int tag_id(std::static_pointer_cast<FeatureApriltagPose>(feature_in_image)->getTagId());
 
         for (auto landmark_in_ptr : _landmarks_in)
         {

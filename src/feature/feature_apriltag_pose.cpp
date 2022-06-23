@@ -19,11 +19,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 //--------LICENSE_END--------
-#include "apriltag/feature/feature_apriltag.h"
+#include "apriltag/feature/feature_apriltag_pose.h"
 
 namespace wolf {
 
-FeatureApriltag::FeatureApriltag(const Eigen::Vector7d & _measurement,
+FeatureApriltagPose::FeatureApriltagPose(const Eigen::Vector7d & _measurement,
                                  const Eigen::Matrix6d & _meas_uncertainty,
                                  const int _tag_id,
                                  const Vector8d & _corners_vec,
@@ -31,7 +31,7 @@ FeatureApriltag::FeatureApriltag(const Eigen::Vector7d & _measurement,
                                  double _rep_error2,
                                  bool _use_rotation,
                                  UncertaintyType _uncertainty_type) :
-    FeatureBase("FeatureApriltag", _measurement, _meas_uncertainty, _uncertainty_type),
+    FeatureBase("FeatureApriltagPose", _measurement, _meas_uncertainty, _uncertainty_type),
     tag_id_     (_tag_id),
     tag_corners_(4),
     rep_error1_(_rep_error1),
@@ -47,32 +47,32 @@ FeatureApriltag::FeatureApriltag(const Eigen::Vector7d & _measurement,
     }
 }
 
-FeatureApriltag::~FeatureApriltag()
+FeatureApriltagPose::~FeatureApriltagPose()
 {
     //
 }
 
-double FeatureApriltag::getTagId() const
+double FeatureApriltagPose::getTagId() const
 {
     return tag_id_;
 }
 
-const std::vector<cv::Point2d>& FeatureApriltag::getTagCorners() const
+const std::vector<cv::Point2d>& FeatureApriltagPose::getTagCorners() const
 {
     return tag_corners_;
 }
 
-double FeatureApriltag::getRepError1() const
+double FeatureApriltagPose::getRepError1() const
 {
     return rep_error1_;
 }
 
-double FeatureApriltag::getRepError2() const
+double FeatureApriltagPose::getRepError2() const
 {
     return rep_error2_;
 }
 
-bool FeatureApriltag::getUserotation() const
+bool FeatureApriltagPose::getUserotation() const
 {
     return use_rotation_;
 }

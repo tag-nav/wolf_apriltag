@@ -20,7 +20,7 @@
 //
 //--------LICENSE_END--------
 /**
- * \file gtest_feature_apriltag.cpp
+ * \file gtest_feature_apriltag_pose.cpp
  *
  *  Created on: Dec 22, 2018
  *      \author: jsola
@@ -29,7 +29,7 @@
 
 #include <core/utils/utils_gtest.h>
 
-#include "apriltag/feature/feature_apriltag.h"
+#include "apriltag/feature/feature_apriltag_pose.h"
 
 using namespace wolf;
 
@@ -63,21 +63,21 @@ class FeatureApriltag_test : public testing::Test
 
 TEST_F(FeatureApriltag_test, type)
 {
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPosePtr f = std::make_shared<FeatureApriltagPose>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
 
-    ASSERT_EQ(f->getType(), "FeatureApriltag");
+    ASSERT_EQ(f->getType(), "FeatureApriltagPose");
 }
 
 TEST_F(FeatureApriltag_test, getTagId)
 {
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPosePtr f = std::make_shared<FeatureApriltagPose>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
 
     ASSERT_EQ(f->getTagId(), 1);
 }
 
 TEST_F(FeatureApriltag_test, getCorners)
 {
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPosePtr f = std::make_shared<FeatureApriltagPose>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
 
     ASSERT_EQ(f->getTagCorners().size(), 4);
 
@@ -93,7 +93,7 @@ TEST_F(FeatureApriltag_test, getCorners)
 
 TEST_F(FeatureApriltag_test, getRepErrors)
 {
-    FeatureApriltagPtr f = std::make_shared<FeatureApriltag>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPosePtr f = std::make_shared<FeatureApriltagPose>(pose, cov, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
 
     double err1 = f->getRepError1();
     double err2 = f->getRepError2();
