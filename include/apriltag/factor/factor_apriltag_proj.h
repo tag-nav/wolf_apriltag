@@ -22,14 +22,19 @@
 #ifndef _FACTOR_APRILTAG_PROJ_H_
 #define _FACTOR_APRILTAG_PROJ_H_
 
-//Wolf includes
-#include "core/common/wolf.h"
-#include "core/math/rotations.h"
-#include "core/factor/factor_autodiff.h"
-#include "core/sensor/sensor_base.h"
-#include <vision/math/pinhole_tools.h>
+// Wolf apriltag
 #include "apriltag/landmark/landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag_proj.h"
+
+// Wolf vision
+#include <vision/math/pinhole_tools.h>
+#include <vision/sensor/sensor_camera.h>
+
+//Wolf core
+#include <core/common/wolf.h>
+#include <core/math/rotations.h>
+#include <core/factor/factor_autodiff.h>
+#include <core/sensor/sensor_base.h>
 
 namespace wolf
 {
