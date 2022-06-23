@@ -79,6 +79,8 @@ static ParamsProcessorBasePtr createParamsProcessorLandmarkApriltag(const std::s
         YAML::Node noise                    = config["noise"];
         params->std_pix_                    = noise["std_pix"]                      .as<double>();
 
+        params->use_proj_factor_            = config["use_proj_factor"]             .as<bool>();
+
         YAML::Node vote                     = config["vote"];
         params->voting_active               = vote["voting active"]                  .as<bool>();
         params->min_time_span_              = vote["min_time_vote"]                  .as<double>();

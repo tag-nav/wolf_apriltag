@@ -31,6 +31,7 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         tag_widths_(_params_tracker_landmark_apriltag->tag_widths_),
         tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
         std_pix_(_params_tracker_landmark_apriltag->std_pix_),
+        use_proj_factor_(_params_tracker_landmark_apriltag->use_proj_factor_),
         ippe_min_ratio_(_params_tracker_landmark_apriltag->ippe_min_ratio_),
         ippe_max_rep_error_(_params_tracker_landmark_apriltag->ippe_max_rep_error_),
         cv_K_(3,3),
@@ -153,8 +154,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                                              det->p[2][0], det->p[2][1],  // top right
                                              det->p[3][0], det->p[3][1];  // top left
 
-        bool use_reproj_factor = true;
-        if (use_reproj_factor)
+        if (use_proj_factor_)
         {
             // add to detected features list
             detections_incoming_.push_back(std::make_shared<FeatureApriltagProj>(corners_vec,

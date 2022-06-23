@@ -26,7 +26,9 @@ noise:
     std_z :           0.1 # m 
     std_rpy_degrees : 5   # degrees
     std_pix:          20    # pixel error
-    
+
+use_proj_factor: false    
+
 vote:
     voting active:              true
     min_time_vote:              0 # s
