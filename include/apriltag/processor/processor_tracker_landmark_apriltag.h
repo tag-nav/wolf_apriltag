@@ -89,11 +89,9 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
     double min_time_span_;
     double max_time_span_;
     int nb_vote_for_every_first_;
-    bool add_3d_cstr_;
     double ippe_min_ratio_;
     double ippe_max_rep_error_;
 
-    bool reestimate_last_frame_;
     ParamsProcessorTrackerLandmarkApriltag() = default;
     ParamsProcessorTrackerLandmarkApriltag(std::string _unique_name, const ParamsServer& _server):
         ParamsProcessorTrackerLandmark(_unique_name, _server)
@@ -110,10 +108,8 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         min_time_span_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/min_time_span");
         max_time_span_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/max_time_span");
         nb_vote_for_every_first_    = _server.getParam<int>(prefix + _unique_name                    + "/keyframe_vote/nb_vote_for_every_first");
-        add_3d_cstr_                = _server.getParam<bool>(prefix + _unique_name                   + "/add_3d_cstr");
         ippe_min_ratio_             = _server.getParam<double>(prefix + _unique_name                 + "/ippe_min_ratio");
         ippe_max_rep_error_         = _server.getParam<double>(prefix + _unique_name                 + "/ippe_max_rep_error");
-        reestimate_last_frame_      = _server.getParam<bool>(prefix + _unique_name                   + "/reestimate_last_frame");
     }
     std::string print() const override
     {
@@ -130,10 +126,8 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         + "min_time_span_: "            + std::to_string(min_time_span_)                + "\n"
         + "max_time_span_: "            + std::to_string(max_time_span_)                + "\n"
         + "nb_vote_for_every_first_: "  + std::to_string(nb_vote_for_every_first_)      + "\n"
-        + "add_3d_cstr_: "              + std::to_string(add_3d_cstr_)                  + "\n"
         + "ippe_min_ratio_: "           + std::to_string(ippe_min_ratio_)               + "\n"
-        + "ippe_max_rep_error_: "       + std::to_string(ippe_max_rep_error_)           + "\n"
-        + "reestimate_last_frame_: "    + std::to_string(reestimate_last_frame_)        + "\n";
+        + "ippe_max_rep_error_: "       + std::to_string(ippe_max_rep_error_)           + "\n";
     }
 };
 
@@ -208,8 +202,6 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
 
         void configure(SensorBasePtr _sensor) override;
 
-        void reestimateLastFrame();
-
     public:
         double getTagWidth(int _id) const;
         std::string getTagFamily() const;
@@ -255,7 +247,6 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         double ippe_max_rep_error_;
         Matrix3d K_;
         cv::Mat_<double> cv_K_;
-        bool reestimate_last_frame_;
         int n_reset_;
 
     protected:
@@ -269,7 +260,6 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         double          max_time_span_;
         unsigned int    min_features_for_keyframe_;
         int             nb_vote_for_every_first_;
-        bool            add_3d_cstr_;
         int             nb_vote_;
 
     public:

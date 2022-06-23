@@ -34,13 +34,11 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         ippe_min_ratio_(_params_tracker_landmark_apriltag->ippe_min_ratio_),
         ippe_max_rep_error_(_params_tracker_landmark_apriltag->ippe_max_rep_error_),
         cv_K_(3,3),
-        reestimate_last_frame_(_params_tracker_landmark_apriltag->reestimate_last_frame_),
         n_reset_(0),
         min_time_span_(_params_tracker_landmark_apriltag->min_time_span_),
         max_time_span_(_params_tracker_landmark_apriltag->max_time_span_),
         min_features_for_keyframe_(_params_tracker_landmark_apriltag->min_features_for_keyframe),
         nb_vote_for_every_first_(_params_tracker_landmark_apriltag->nb_vote_for_every_first_),
-        add_3d_cstr_(_params_tracker_landmark_apriltag->add_3d_cstr_),
         nb_vote_(0)
 
 {
@@ -508,135 +506,8 @@ void ProcessorTrackerLandmarkApriltag::advanceDerived()
 
 void ProcessorTrackerLandmarkApriltag::resetDerived()
 {   
-    // BAD -> should be rewritten some other way
-    if (getProblem()->getMotionProviderMap().empty() && reestimate_last_frame_){
-        reestimateLastFrame();
-    }
-
     ProcessorTrackerLandmark::resetDerived();
     detections_last_ = std::move(detections_incoming_);
-}
-
-void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
-    // Rewrite the last frame state and landmark state initialised during last frame creation to account
-    // for a better estimate of the current state using the last landmark detection.
-    // Otherwise, default behaviour is to take the last KF as an initialization of the new KF which can lead
-    // to the solver finding local minima
-
-    // When called for the first time, no feature list initialized in ori/last(?)
-    if (n_reset_ < 1){
-        n_reset_ += 1;
-        return;
-    }
-
-    //////////////////////////////////
-    // BAD IMPLEMENTATION -> TO REMOVE
-    //////////////////////////////////
-    //////////////////////////////////
-
-    // Retrieve camera extrinsics
-    Eigen::Quaterniond last_q_cam(getSensor()->getO()->getState().data());
-    Eigen::Isometry3d last_M_cam = Eigen::Translation3d(getSensor()->getP()->getState()) * last_q_cam;
-
-    // get features list of KF linked to origin capture and last capture
-    FeatureBasePtrList ori_feature_list = getOrigin()->getFeatureList();
-    FeatureBasePtrList last_feature_list = getLast()->getFeatureList();
-
-    if (last_feature_list.size() == 0 || ori_feature_list.size() == 0){
-        return;
-    }
-    
-    // Among landmarks detected in origin and last, find the one that has the smallest error ratio (best confidence)
-    double lowest_ration = 1;  // rep_error1/rep_error2 cannot be higher than 1
-    FeatureApriltagPtr best_feature;
-    bool useable_feature = false;
-    for (auto it_last = last_feature_list.begin(); it_last != last_feature_list.end(); it_last++){
-        FeatureApriltagPtr last_feat_ptr = std::static_pointer_cast<FeatureApriltag>(*it_last);
-        for (auto it_ori = ori_feature_list.begin(); it_ori != ori_feature_list.end(); it_ori++){
-            FeatureApriltagPtr ori_feat_ptr =  std::static_pointer_cast<FeatureApriltag>(*it_ori);
-            if (ori_feat_ptr->getTagId() == last_feat_ptr->getTagId()){
-                double ratio = ori_feat_ptr->getRepError1() / ori_feat_ptr->getRepError2();
-                //if (ratio < lowest_ration){
-                if (last_feat_ptr->getUserotation() && (ratio < lowest_ration)){
-                    useable_feature = true;
-                    lowest_ration = ratio;
-                    best_feature = last_feat_ptr;
-                }
-            }
-        }
-    }
-    // If there is no common feature between the two images, the continuity is broken and 
-    // nothing can be estimated. In the case of aprilslam alone, this result in a broken factor map
-    if (!useable_feature){
-        return;
-    }
-    
-    // std::cout << "Best feature id after: " << best_feature->getTagId() << std::endl;
-    // Retrieve cam to landmark transform
-    Eigen::Vector7d cam_pose_lmk = best_feature->getMeasurement();
-    Eigen::Quaterniond cam_q_lmk(cam_pose_lmk.segment<4>(3).data());
-    Eigen::Isometry3d cam_M_lmk = Eigen::Translation3d(cam_pose_lmk.head(3)) * cam_q_lmk;
-    
-    // Get corresponding landmarks in origin/last landmark list
-    Eigen::Isometry3d w_M_lmk;
-    LandmarkBasePtrList lmk_list = getProblem()->getMap()->getLandmarkList();
-    // Iterate in reverse order because landmark detected in last are at the end of the list (while still landmarks to discovers)
-    for (std::list<LandmarkBasePtr>::reverse_iterator it_lmk = lmk_list.rbegin(); it_lmk != lmk_list.rend(); ++it_lmk){
-        LandmarkApriltagPtr lmk_ptr = std::dynamic_pointer_cast<LandmarkApriltag>(*it_lmk);
-        // the map might contain other types of landmarks so check if the cast is valid
-        if (lmk_ptr == nullptr){
-            continue;
-        }
-    
-        if (lmk_ptr->getTagId() == best_feature->getTagId()){
-            Eigen::Vector3d w_t_lmk = lmk_ptr->getP()->getState();
-            Eigen::Quaterniond w_q_lmk(lmk_ptr->getO()->getState().data());
-            w_M_lmk = Eigen::Translation<double,3>(w_t_lmk) * w_q_lmk;
-        }
-    }
-
-    // Compute last frame estimate
-    Eigen::Isometry3d w_M_last = w_M_lmk * (last_M_cam * cam_M_lmk).inverse();
-
-    // Use the w_M_last to overide last key frame state estimation and keyframe estimation
-    Eigen::Vector3d pos_last  = w_M_last.translation();
-    Eigen::Quaterniond quat_last(w_M_last.linear());
-    getLast()->getFrame()->getP()->setState(pos_last);
-    getLast()->getFrame()->getO()->setState(quat_last.coeffs());
-
-    // if (!best_feature->getUserotation()){
-    //     return;
-    // }
-    ///////////////////
-    // Reestimate position of landmark new in Last
-    ///////////////////
-    for (auto it_feat = new_features_last_.begin(); it_feat != new_features_last_.end(); it_feat++){
-        FeatureApriltagPtr new_feature_last = std::static_pointer_cast<FeatureApriltag>(*it_feat);
-       
-        Eigen::Vector7d cam_pose_lmk = new_feature_last->getMeasurement();
-        Eigen::Quaterniond cam_q_lmk(cam_pose_lmk.segment<4>(3).data());
-        Eigen::Isometry3d cam_M_lmk_new = Eigen::Translation3d(cam_pose_lmk.head(3)) * cam_q_lmk;
-        Eigen::Isometry3d w_M_lmk =  w_M_last * last_M_cam * cam_M_lmk_new;
-
-        for (auto it_lmk = new_landmarks_.begin(); it_lmk != new_landmarks_.end(); ++it_lmk){
-            LandmarkApriltagPtr lmk_ptr = std::dynamic_pointer_cast<LandmarkApriltag>(*it_lmk);
-            if (lmk_ptr == nullptr){
-                continue;
-            }
-            if (lmk_ptr->getTagId() == new_feature_last->getTagId()){
-                Eigen::Vector3d pos_lmk_last  = w_M_lmk.translation();
-                Eigen::Quaterniond quat_lmk_last(w_M_lmk.linear());
-                lmk_ptr->getP()->setState(pos_lmk_last);
-                lmk_ptr->getO()->setState(quat_lmk_last.coeffs());
-                break;
-            }
-        }
-    }
-
-    //////////////////////////////////
-    //////////////////////////////////
-    //////////////////////////////////
-
 }
 
 std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
