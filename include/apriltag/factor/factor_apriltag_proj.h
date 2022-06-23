@@ -50,7 +50,7 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3,
         FactorApriltagProj(
                 const SensorBasePtr& _sensor_ptr,
                 const FrameBasePtr& _frame_ptr,
-                const LandmarkApriltagPtr& _landmark_other_ptr,
+                const LandmarkBasePtr& _landmark_other_ptr,
                 const FeatureApriltagProjPtr& _feature_ptr,
                 const ProcessorBasePtr& _processor_ptr,
                 bool _apply_loss_function,
@@ -112,7 +112,7 @@ namespace wolf
 FactorApriltagProj::FactorApriltagProj(
         const SensorBasePtr& _sensor_ptr,
         const FrameBasePtr& _frame_ptr,
-        const LandmarkApriltagPtr& _landmark_other_ptr,
+        const LandmarkBasePtr& _landmark_other_ptr,
         const FeatureApriltagProjPtr& _feature_ptr,
         const ProcessorBasePtr& _processor_ptr,
         bool _apply_loss_function,
