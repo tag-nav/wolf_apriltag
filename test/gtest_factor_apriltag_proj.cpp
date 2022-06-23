@@ -21,21 +21,26 @@
 //--------LICENSE_END--------
 #include <core/utils/utils_gtest.h>
 
-#include "core/common/wolf.h"
-#include "core/math/rotations.h"
-#include "core/utils/logging.h"
 
-#include "core/ceres_wrapper/solver_ceres.h"
-#include "core/processor/factory_processor.h"
-
-#include "vision/capture/capture_image.h"
-
+// Wolf apriltag
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag_proj.h"
 #include "apriltag/factor/factor_apriltag_proj.h"
 #include "apriltag/internal/config.h"
 
+// Wolf vision
+#include <vision/capture/capture_image.h>
+
+// Wolf core
+#include <core/common/wolf.h>
+#include <core/math/rotations.h>
+#include <core/utils/logging.h>
+#include <core/ceres_wrapper/solver_ceres.h>
+#include <core/processor/factory_processor.h>
+
+// UMich apriltag
 #include <apriltag/apriltag.h>
+
 
 using namespace Eigen;
 using namespace wolf;
