@@ -109,7 +109,7 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3,
 namespace wolf
 {
 
-FactorApriltagProj::FactorApriltagProj(
+inline FactorApriltagProj::FactorApriltagProj(
         const SensorBasePtr& _sensor_ptr,
         const FrameBasePtr& _frame_ptr,
         const LandmarkBasePtr& _landmark_other_ptr,
@@ -150,7 +150,7 @@ FactorApriltagProj::FactorApriltagProj(
 
 /** \brief Class Destructor
  */
-FactorApriltagProj::~FactorApriltagProj()
+inline FactorApriltagProj::~FactorApriltagProj()
 {
     //
 }
@@ -210,7 +210,7 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
 }
 
 
-Eigen::Vector8d FactorApriltagProj::residual() const
+inline Eigen::Vector8d FactorApriltagProj::residual() const
 {
     Eigen::Vector8d res;
     double * p_camera, * o_camera, * p_frame, * o_frame, * p_tag, * o_tag;
@@ -227,11 +227,11 @@ Eigen::Vector8d FactorApriltagProj::residual() const
 }
 
 
-double FactorApriltagProj::cost() const
+inline double FactorApriltagProj::cost() const
 {
     return residual().squaredNorm();
 }
 
 } // namespace wolf
 
-#endif /* _CONSTRAINT_AUTODIFF_APRILTAG_H_ */
+#endif /* _FACTOR_APRILTAG_PROJ_H_ */
