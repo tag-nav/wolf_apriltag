@@ -237,13 +237,12 @@ TEST_F(FactorApriltagProj_class, Constructor)
 {   
     f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width));
     FactorApriltagProjPtr factor = std::make_shared<FactorApriltagProj>(
+            f1,
             camera,
             F1,
             lmk1,
-            f1,
             nullptr,
-            false,
-            FAC_ACTIVE
+            false
     );
 
     ASSERT_TRUE(factor->getType() == "FactorApriltagProj");
@@ -256,7 +255,7 @@ TEST_F(FactorApriltagProj_class, problem_1KF)
     f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width));
 
     //emplace feature and landmark
-    auto factor = FactorBase::emplace<FactorApriltagProj>(f1, camera, F1, lmk1, f1, nullptr, false, FAC_ACTIVE);
+    auto factor = FactorBase::emplace<FactorApriltagProj>(f1, f1, camera, F1, lmk1, nullptr, false);
 
     ASSERT_TRUE(problem->check(0));
 
@@ -294,8 +293,8 @@ TEST_F(FactorApriltagProj_class, problem_2KF)
     auto f2 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C2, meas2, meas_cov, 2, tag_width));
 
     //emplace feature and landmark
-    auto factor1 = FactorBase::emplace<FactorApriltagProj>(f1, camera, F1, lmk1, f1, nullptr, false, FAC_ACTIVE);
-    auto factor2 = FactorBase::emplace<FactorApriltagProj>(f2, camera, F2, lmk1, f2, nullptr, false, FAC_ACTIVE);
+    auto factor1 = FactorBase::emplace<FactorApriltagProj>(f1, f1, camera, F1, lmk1, nullptr, false);
+    auto factor2 = FactorBase::emplace<FactorApriltagProj>(f2, f2, camera, F2, lmk1, nullptr, false);
 
     ASSERT_TRUE(problem->check(0));
 

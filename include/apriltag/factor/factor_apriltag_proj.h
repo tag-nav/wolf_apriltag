@@ -48,13 +48,13 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3,
         /** \brief Class constructor
          */
         FactorApriltagProj(
+                const FeatureApriltagProjPtr& _feature_ptr,
                 const SensorBasePtr& _sensor_ptr,
                 const FrameBasePtr& _frame_ptr,
                 const LandmarkBasePtr& _landmark_other_ptr,
-                const FeatureApriltagProjPtr& _feature_ptr,
                 const ProcessorBasePtr& _processor_ptr,
                 bool _apply_loss_function,
-                FactorStatus _status);
+                FactorStatus _status = FAC_ACTIVE);
 
         /** \brief Class Destructor
          */
@@ -110,10 +110,10 @@ namespace wolf
 {
 
 inline FactorApriltagProj::FactorApriltagProj(
+        const FeatureApriltagProjPtr& _feature_ptr,
         const SensorBasePtr& _sensor_ptr,
         const FrameBasePtr& _frame_ptr,
         const LandmarkBasePtr& _landmark_other_ptr,
-        const FeatureApriltagProjPtr& _feature_ptr,
         const ProcessorBasePtr& _processor_ptr,
         bool _apply_loss_function,
         FactorStatus _status) :
