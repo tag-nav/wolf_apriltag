@@ -68,44 +68,6 @@ Vector7d posiquat2pose(const Vector3d& posi, const Quaterniond& quat)
     return pose;
 }
 
-
-////////////////////////////////////////////////////////////////
-/*
- * Wrapper class to be able to have setOrigin() and setLast() in ProcessorTrackerLandmarkApriltag
- */
-WOLF_PTR_TYPEDEFS(ProcessorTrackerLandmarkApriltag_Wrapper);
-class ProcessorTrackerLandmarkApriltag_Wrapper : public ProcessorTrackerLandmarkApriltag
-{
-    public:
-        ProcessorTrackerLandmarkApriltag_Wrapper(ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
-            ProcessorTrackerLandmarkApriltag(_params_tracker_landmark_apriltag)
-        {
-            setType("ProcessorTrackerLandmarkApriltag_Wrapper");
-        };
-        ~ProcessorTrackerLandmarkApriltag_Wrapper() override{}
-        void setOriginPtr(const CaptureBasePtr _origin_ptr) { origin_ptr_ = _origin_ptr; }
-        void setLastPtr  (const CaptureBasePtr _last_ptr)   { last_ptr_ = _last_ptr; }
-        void setIncomingPtr  (const CaptureBasePtr _incoming_ptr)   { incoming_ptr_ = _incoming_ptr; }
-
-        // for factory
-        static ProcessorBasePtr create(const std::string& _unique_name, const ParamsProcessorBasePtr _params)
-        {
-            auto prc_apriltag_params_ = std::static_pointer_cast<ParamsProcessorTrackerLandmarkApriltag>(_params);
-
-            auto prc_ptr = std::make_shared<ProcessorTrackerLandmarkApriltag_Wrapper>(prc_apriltag_params_);
-
-            prc_ptr->setName(_unique_name);
-
-            return prc_ptr;
-        }
-
-};
-namespace wolf{
-// Register in the Factories
-WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag_Wrapper);
-}
-////////////////////////////////////////////////////////////////
-
 // Use the following in case you want to initialize tests with predefines variables or methods.
 class FactorApriltagProj_class : public testing::Test{
     public:
@@ -127,7 +89,6 @@ class FactorApriltagProj_class : public testing::Test{
         ProblemPtr     problem;
         SolverCeresPtr solver;
         SensorCameraPtr camera;
-        ProcessorTrackerLandmarkApriltag_WrapperPtr proc_apriltag;
 
         FrameBasePtr    F1;
         CaptureImagePtr C1;
@@ -232,15 +193,6 @@ class FactorApriltagProj_class : public testing::Test{
                  0,    k(3), k(1),
                  0,    0,    1;
 
-            ParamsProcessorTrackerLandmarkApriltagPtr params = std::make_shared<ParamsProcessorTrackerLandmarkApriltag>();
-            // Need to set some parameters ? do it now !
-            params->tag_family_ = "tag36h11";
-            params->time_tolerance = 1;
-            //params->name        = params->tag_family_;
-
-            ProcessorBasePtr proc = problem->installProcessor("ProcessorTrackerLandmarkApriltag_Wrapper", "apriltags_wrapper", camera, params);
-            proc_apriltag = std::static_pointer_cast<ProcessorTrackerLandmarkApriltag_Wrapper>(proc);
-
             // F1 is be origin KF
             VectorComposite x0(pose_w_r1, "PO", {3,4});
             VectorComposite s0("PO", {Vector3d(0.01,0.01,0.01), Vector3d(0.01,0.01,0.01)});
@@ -248,8 +200,6 @@ class FactorApriltagProj_class : public testing::Test{
 
             // emplace dummy capture & set as last and origin
             C1 = std::static_pointer_cast<CaptureImage>(CaptureBase::emplace<CaptureImage>(F1, 0.0, camera, cv::Mat(2,2,CV_8UC1)));
-            proc_apriltag->setOriginPtr(C1);
-            proc_apriltag->setLastPtr(C1);
 
             meas_cov = Eigen::Matrix8d::Identity();  // pixel noise
 
@@ -311,26 +261,22 @@ TEST_F(FactorApriltagProj_class, problem_1KF)
     ASSERT_MATRIX_APPROX(F1->getState().vector("PO"), posiquat2pose(p_w_r1, q_w_r1), 1e-6);
     ASSERT_MATRIX_APPROX(lmk1->getState().vector("PO"), posiquat2pose(p_w_l, q_w_l), 1e-6);
 
-    // // Reproject solution
-    // Isometry3d T_w_l_post = pose2iso(lmk1->getState().vector("PO"));
-    // Isometry3d T_w_r1 = pose2iso(p_w_r1, q_w_r1);
-    // Isometry3d T_r_c = pose2iso(p_r_c, q_r_c);
+    // Reproject solution and compare to measurement
+    Isometry3d T_w_l_post = pose2iso(lmk1->getState().vector("PO"));
+    Isometry3d T_w_r1 = pose2iso(p_w_r1, q_w_r1);
+    Isometry3d T_r_c = pose2iso(p_r_c, q_r_c);
 
-    // Isometry3d T_c1_l = (T_w_r1*T_r_c).inverse() * T_w_l_post;
-    // Vector3d p_c1_l = T_c1_l.translation();
-    // Quaterniond q_c1_l = Quaterniond(T_c1_l.rotation());
+    Isometry3d T_c1_l = (T_w_r1*T_r_c).inverse() * T_w_l_post;
+    Vector3d p_c1_l = T_c1_l.translation();
+    Quaterniond q_c1_l = Quaterniond(T_c1_l.rotation());
 
-    // Vector8d proj_post;
-    // proj_post << FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
-    //              FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
-    //              FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
-    //              FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
-    // std::cout << "\n\n\nproj_post" << std::endl;
-    // std::cout << proj_post.transpose() << std::endl;
-
+    Vector8d proj_post;
+    proj_post << FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
+                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
+                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
+                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
+    ASSERT_MATRIX_APPROX(proj_post, meas1, 1e-6);
 }
-
-
 
 
 TEST_F(FactorApriltagProj_class, problem_2KF)
@@ -365,7 +311,6 @@ TEST_F(FactorApriltagProj_class, problem_2KF)
     // problem->print(4,1,1,1);
 
 }
-
 
 
 
