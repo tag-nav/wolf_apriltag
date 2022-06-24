@@ -323,31 +323,41 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
                                                                  const CaptureBasePtr& _capture,
                                                                  FeatureBasePtrList& _features_out)
 {
-    // list of landmarks in the map
-    const LandmarkBasePtrList& landmark_list = getProblem()->getMap()->getLandmarkList();
-    for (auto feature_in_image : detections_last_)
+    // _max_new_features: max number of new features to be detected
+    // _capture: capture in which are stored the features
+    // _features_out: filled with new features in last. Empty at the beginning of the call
+
+    // detectNewFeatures is called by processNew() in ProcessorTrackerLandmark
+    // processNew is only called when a KF is created by the processor or another 
+    // (except for the SECOND_TIME_WITHOUT_KEYFRAME case)
+    // -> use detections in last frame/capture to detect features that cannot be associated to any landmark, create one accordingly
+
+    // Loop over the detections in last and check
+    for (auto feat: detections_last_)
     {
         // max_new_features reached
         if (_max_new_features != -1 && _features_out.size() == _max_new_features)
             break;
 
-        bool feature_already_found(false);
-
-        auto feature_april = std::static_pointer_cast<FeatureApriltagPose>(feature_in_image);
-
-        //Loop over the landmark to find is one is associated to  feature_in_image
-        for(auto it = landmark_list.begin(); it != landmark_list.end(); ++it){
-            if(std::static_pointer_cast<LandmarkApriltag>(*it)->getTagId() == feature_april->getTagId()){
-                feature_already_found = true;
+        auto feat_april = std::static_pointer_cast<FeatureApriltag>(feat);
+        bool match_found = false;
+        // Loop over the landmarks to find if one is associated to the 
+        for(auto lmk: getProblem()->getMap()->getLandmarkList()){
+            auto lmk_april = std::dynamic_pointer_cast<LandmarkApriltag>(lmk);
+            if (lmk_april and lmk_april->getTagId() == feat_april->getTagId())
+            {
+                match_found = true;
                 break;
             }
         }
 
-        if (!feature_already_found)
+        // if the feature was not matched to any existing landmark, add it to the new features list
+        if (!match_found)
         {
+            // remove duplicate features (detections that correspond to the same landmark, even though this should never happen)
             for (FeatureBasePtrList::iterator it=_features_out.begin(); it != _features_out.end(); ++it)
             {
-                if (std::static_pointer_cast<FeatureApriltagPose>(*it)->getTagId() == feature_april->getTagId())
+                if (std::static_pointer_cast<FeatureApriltag>(*it)->getTagId() == feat_april->getTagId())
                 {
                     //we have a detection with the same id as the currently processed one. We remove the previous feature from the list for now
                     _features_out.erase(it);
@@ -355,15 +365,12 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
                     break; 
                 }
             }
-            // discard features that do not have orientation information
-            if (!feature_april->getUserotation())
-                continue;
 
             // If the feature is not in the map & not in the list of newly detected features yet then we add it.
-            _features_out.push_back(feature_in_image);
+            _features_out.push_back(feat);
 
             // link feature (they are created unlinked in preprocess())
-            feature_in_image->link(_capture);
+            feat->link(_capture);
 
         } //otherwise we check the next feature
     }
@@ -406,19 +413,21 @@ unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBaseP
                                                              FeatureBasePtrList& _features_out,
                                                              LandmarkMatchMap& _feature_landmark_correspondences)
 {   
-    for (auto feature_in_image : detections_incoming_)
+    for (auto feat : detections_incoming_)
     {
-        int tag_id(std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getTagId());
+        int tag_id(std::static_pointer_cast<FeatureApriltag>(feat)->getTagId());
 
-        for (auto landmark_in_ptr : _landmarks_in)
+        for (auto lmk : _landmarks_in)
         {
-            if(std::static_pointer_cast<LandmarkApriltag>(landmark_in_ptr)->getTagId() == tag_id)
+            auto lmk_april = std::dynamic_pointer_cast<LandmarkApriltag>(lmk);
+            // would be so much easier with an std::map
+            if(lmk_april and lmk_april->getTagId() == tag_id)
             {
-                _features_out.push_back(feature_in_image);
+                _features_out.push_back(feat);
                 double score(1.0);
-                LandmarkMatchPtr matched_landmark = std::make_shared<LandmarkMatch>(landmark_in_ptr, score);
-                _feature_landmark_correspondences.emplace ( feature_in_image, matched_landmark );
-                feature_in_image->link(_capture); // since all features are created in preProcess() are unlinked
+                LandmarkMatchPtr matched_landmark = std::make_shared<LandmarkMatch>(lmk, score);
+                _feature_landmark_correspondences.emplace ( feat, matched_landmark );
+                feat->link(_capture); // since all features are created in preProcess() are unlinked
                 break;
             }
         }
