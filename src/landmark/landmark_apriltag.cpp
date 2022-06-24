@@ -23,11 +23,12 @@
 #include "core/common/factory.h"
 #include "core/math/rotations.h"
 #include "core/yaml/yaml_conversion.h"
+#include <core/state_block/state_block_derived.h>
 
 namespace wolf {
 
 LandmarkApriltag::LandmarkApriltag(Eigen::Vector7d& pose, const int& _tagid, const double& _tag_width) :
-	LandmarkBase("LandmarkApriltag", std::make_shared<StateBlock>(pose.head(3)), std::make_shared<StateQuaternion>(pose.tail(4))),
+	LandmarkBase("LandmarkApriltag", std::make_shared<StatePoint3d>(pose.head(3)), std::make_shared<StateQuaternion>(pose.tail(4))),
 	tag_id_(_tagid),
 	tag_width_(_tag_width)
 {
