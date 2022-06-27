@@ -34,7 +34,7 @@
 #include "core/sensor/sensor_camera.h"
 #include "core/processor/processor_tracker_landmark_apriltag.h"
 #include "core/capture/capture_image.h"
-#include "core/feature/feature_apriltag.h"
+#include "core/feature/feature_apriltag_pose.h"
 
 // opencv
 #include <opencv2/imgproc/imgproc.hpp>
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                         auto img = std::static_pointer_cast<CaptureImage>(cap);
                         for (FeatureBasePtr f : img->getFeatureList())
                         {
-                            FeatureApriltagPtr fa = std::static_pointer_cast<FeatureApriltag>(f);
+                            FeatureApriltagPosePtr fa = std::static_pointer_cast<FeatureApriltagPose>(f);
                             draw_apriltag(img->getImage(), fa->getTagCorners(), 1);
                         }
                         cv::imshow( img->getName(), img->getImage() );  // display original image.

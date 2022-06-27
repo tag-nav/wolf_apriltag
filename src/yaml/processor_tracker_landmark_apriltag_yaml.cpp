@@ -79,6 +79,8 @@ static ParamsProcessorBasePtr createParamsProcessorLandmarkApriltag(const std::s
         YAML::Node noise                    = config["noise"];
         params->std_pix_                    = noise["std_pix"]                      .as<double>();
 
+        params->use_proj_factor_            = config["use_proj_factor"]             .as<bool>();
+
         YAML::Node vote                     = config["vote"];
         params->voting_active               = vote["voting active"]                  .as<bool>();
         params->min_time_span_              = vote["min_time_vote"]                  .as<double>();
@@ -86,9 +88,6 @@ static ParamsProcessorBasePtr createParamsProcessorLandmarkApriltag(const std::s
         params->min_features_for_keyframe   = vote["min_features_for_keyframe"]      .as<unsigned int>();
         params->nb_vote_for_every_first_    = vote["nb_vote_for_every_first"]        .as<int>();
         
-        params->reestimate_last_frame_      = config["reestimate_last_frame"]        .as<bool>();
-        params->add_3d_cstr_                = config["add_3d_cstr"]                  .as<bool>();
-
         params->max_new_features            = config["max_new_features"]             .as<int>();
         params->apply_loss_function         = config["apply_loss_function"]          .as<bool>();
 

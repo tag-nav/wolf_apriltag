@@ -33,7 +33,6 @@ LandmarkApriltag::LandmarkApriltag(Eigen::Vector7d& pose, const int& _tagid, con
 	tag_width_(_tag_width)
 {
   	setDescriptor(Eigen::VectorXd::Constant(1,_tagid)); //change tagid to int ? do not use descriptor vector ?
-    setId(_tagid); // overwrite lmk ID to match tag_id.
 }
 
 LandmarkApriltag::~LandmarkApriltag()
@@ -58,7 +57,6 @@ int LandmarkApriltag::getTagId() const
 LandmarkBasePtr LandmarkApriltag::create(const YAML::Node& _lmk_node)
 {
     // Parse YAML node with lmk info and data
-    unsigned int    id                      = _lmk_node["id"]                   .as<unsigned int>();
     unsigned int    tag_id                  = _lmk_node["tag id"]               .as<unsigned int>();
     double          tag_width               = _lmk_node["tag width"]            .as<double>();
     Eigen::Vector3d pos                     = _lmk_node["position"]             .as<Eigen::Vector3d>();
@@ -83,7 +81,6 @@ LandmarkBasePtr LandmarkApriltag::create(const YAML::Node& _lmk_node)
 
     // Create a new landmark
     LandmarkApriltagPtr lmk_ptr = std::make_shared<LandmarkApriltag>(pose, tag_id, tag_width);
-    lmk_ptr->setId(id);
     lmk_ptr->getP()->setFixed(pos_fixed);
     lmk_ptr->getO()->setFixed(ori_fixed);
 
