@@ -141,7 +141,6 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         // If not so sure about whether we have the right solution or not, do not create a feature
         bool use_rotation = ((rep_error2 / rep_error1 > ippe_min_ratio_) && rep_error1 < ippe_max_rep_error_);
         //////////////////
-        M_ippe1 = M_ippe1;
 
         // set the measured pose vector
         Eigen::Vector3d p_c_t ( M_ippe1.translation() ); // translation vector in apriltag meters
