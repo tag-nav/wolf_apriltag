@@ -25,12 +25,6 @@
 //Wolf includes
 #include "core/feature/feature_base.h"
 
-//std includes
-
-//external library incudes
-#include "apriltag/apriltag.h"
-#include "apriltag/common/zarray.h"
-
 // opencv
 #include <opencv2/features2d.hpp>
 
@@ -38,46 +32,74 @@ namespace wolf {
     
 WOLF_PTR_TYPEDEFS(FeatureApriltag);
 
+
 //class FeatureApriltag
 class FeatureApriltag : public FeatureBase
 {
     public:
 
-        FeatureApriltag(const Eigen::Vector7d & _measurement,
-                        const Eigen::Matrix6d & _meas_covariance,
-                        const int _tag_id,
-                        const apriltag_detection_t & _det,
-                        double _rep_error1,
-                        double _rep_error2,
-                        bool _use_rotation,
-                        UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
+        FeatureApriltag(
+            const std::string _type,
+            const Eigen::VectorXd & _measurement,
+            const Eigen::MatrixXd & _meas_covariance,
+            const int _tag_id,
+            const Vector8d & _corners_vec,
+            UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
         ~FeatureApriltag() override;
         
-        /** \brief Returns tag id
-         * 
-         * Returns tag id
+        /** \brief Return tag id
          * 
          **/
-        double getTagId() const; 
+        int getTagId() const; 
 
-        const apriltag_detection_t& getDetection() const;
-
+        /** \brief Return vector of tag corners
+         * 
+         **/
         const std::vector<cv::Point2d>& getTagCorners() const;
-
-        double getRepError1() const;
-        double getRepError2() const;
-        bool getUserotation() const;
 
 
     private:
         int tag_id_;
         std::vector<cv::Point2d> tag_corners_;
-        apriltag_detection_t detection_;
-        double rep_error1_;
-        double rep_error2_;
-        bool use_rotation_;
         
 };
+
+
+inline FeatureApriltag::FeatureApriltag(
+    const std::string _type,
+    const Eigen::VectorXd & _measurement,
+    const Eigen::MatrixXd & _meas_uncertainty,
+    const int _tag_id,
+    const Vector8d & _corners_vec,
+    UncertaintyType _uncertainty_type) :
+        FeatureBase(_type, _measurement, _meas_uncertainty, _uncertainty_type),
+        tag_id_(_tag_id),
+        tag_corners_(4)
+{
+    setTrackId(_tag_id);  // assuming there is a single landmark with this id in the scene
+
+    for (int i = 0; i < 4; i++)
+    {
+        tag_corners_[i].x = _corners_vec[2*i];
+        tag_corners_[i].y = _corners_vec[2*i+1];
+    }
+}
+
+inline FeatureApriltag::~FeatureApriltag()
+{
+    //
+}
+
+inline int FeatureApriltag::getTagId() const
+{
+    return tag_id_;
+}
+
+inline const std::vector<cv::Point2d>& FeatureApriltag::getTagCorners() const
+{
+    return tag_corners_;
+}
+
 
 } // namespace wolf
 

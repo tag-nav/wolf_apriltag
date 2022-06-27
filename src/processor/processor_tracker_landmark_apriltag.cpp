@@ -31,18 +31,16 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         tag_widths_(_params_tracker_landmark_apriltag->tag_widths_),
         tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
         std_pix_(_params_tracker_landmark_apriltag->std_pix_),
+        use_proj_factor_(_params_tracker_landmark_apriltag->use_proj_factor_),
         ippe_min_ratio_(_params_tracker_landmark_apriltag->ippe_min_ratio_),
         ippe_max_rep_error_(_params_tracker_landmark_apriltag->ippe_max_rep_error_),
         cv_K_(3,3),
-        reestimate_last_frame_(_params_tracker_landmark_apriltag->reestimate_last_frame_),
         n_reset_(0),
         min_time_span_(_params_tracker_landmark_apriltag->min_time_span_),
         max_time_span_(_params_tracker_landmark_apriltag->max_time_span_),
         min_features_for_keyframe_(_params_tracker_landmark_apriltag->min_features_for_keyframe),
         nb_vote_for_every_first_(_params_tracker_landmark_apriltag->nb_vote_for_every_first_),
-        add_3d_cstr_(_params_tracker_landmark_apriltag->add_3d_cstr_),
         nb_vote_(0)
-
 {
     // configure apriltag detector
     std::string famname(_params_tracker_landmark_apriltag->tag_family_);
@@ -131,46 +129,68 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         int    tag_id     = det->id;
         double tag_width  = getTagWidth(tag_id);   // tag width in meters
 
-        Eigen::Isometry3d c_M_t;
-        bool use_rotation = true;
         //////////////////
         // IPPE (Infinitesimal Plane-based Pose Estimation)
+        // TODO: Quite bad for reprojection factor: we only need to do this question once
+        // when the landmark is newly discovered. Would require to change the whole logic 
+        // or to check if this landmark is already in the map HERE (which is usually not the logic of preProcess) 
         //////////////////
-        Eigen::Isometry3d M_ippe1, M_ippe2, M_april, M_PnP;
-        double rep_error1;
-        double rep_error2;
+        Eigen::Isometry3d M_ippe1, M_ippe2;
+        double rep_error1, rep_error2;
         ippePoseEstimation(det, cv_K_, tag_width, M_ippe1, rep_error1, M_ippe2, rep_error2);
         // If not so sure about whether we have the right solution or not, do not create a feature
-        use_rotation = ((rep_error2 / rep_error1 > ippe_min_ratio_) && rep_error1 < ippe_max_rep_error_);
+        bool use_rotation = ((rep_error2 / rep_error1 > ippe_min_ratio_) && rep_error1 < ippe_max_rep_error_);
         //////////////////
-        c_M_t = M_ippe1;
+        M_ippe1 = M_ippe1;
 
         // set the measured pose vector
-        Eigen::Vector3d translation ( c_M_t.translation() ); // translation vector in apriltag meters
-        Eigen::Matrix3d cRt = c_M_t.linear(); 
-        Eigen::Vector7d pose; pose << translation, R2q(cRt).coeffs();
+        Eigen::Vector3d p_c_t ( M_ippe1.translation() ); // translation vector in apriltag meters
+        Eigen::Matrix3d R_c_t = M_ippe1.linear(); 
+        Eigen::Vector7d pose; pose << p_c_t, R2q(R_c_t).coeffs();
 
-        // compute the covariance
-        // Eigen::Matrix6d cov = getVarVec().asDiagonal() ;  // fixed dummy covariance
-        Eigen::Matrix6d info = computeInformation(translation, c_M_t.linear(), K_, tag_width, std_pix_);  // Lie jacobians covariance
+        // Order of the 2d corners (anti clockwise, looking at the tag).
+        // Looking at the tag, the reference frame is
+        // X = Right, Y = Down, Z = Inside the plane        
+        Vector8d corners_vec; corners_vec << det->p[0][0], det->p[0][1],  // bottom left
+                                             det->p[1][0], det->p[1][1],  // bottom right
+                                             det->p[2][0], det->p[2][1],  // top right
+                                             det->p[3][0], det->p[3][1];  // top left
 
-        if (!use_rotation){
-            // Put a very high covariance on angles measurements (low info matrix)
-            info.bottomLeftCorner(3,3) = Eigen::Matrix3d::Zero();
-            info.topRightCorner(3,3)    = Eigen::Matrix3d::Zero();
-            info.bottomRightCorner(3,3) = 0.0001 * Eigen::Matrix3d::Identity();
+        if (use_proj_factor_)
+        {
+            // add to detected features list
+            detections_incoming_.push_back(std::make_shared<FeatureApriltagProj>(corners_vec,
+                                                                                 std_pix_*std_pix_*Eigen::Matrix8d::Identity(),
+                                                                                 tag_id,
+                                                                                 tag_width,
+                                                                                 pose));
         }
+        else
+        {
+            // compute the covariance
+            // Eigen::Matrix6d cov = getVarVec().asDiagonal() ;  // fixed dummy covariance
+            Eigen::Matrix6d info = computeInformation(p_c_t, R_c_t, K_, tag_width, std_pix_);  // Lie jacobians covariance
 
-        // add to detected features list
-        detections_incoming_.push_back(std::make_shared<FeatureApriltag>(pose,
-                                                                         info,
-                                                                         tag_id,
-                                                                         *det,
-                                                                         rep_error1,
-                                                                         rep_error2,
-                                                                         use_rotation,
-                                                                         FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
+            if (!use_rotation){
+                // Put a very high covariance on angles measurements (low info matrix)
+                info.bottomLeftCorner(3,3) = Eigen::Matrix3d::Zero();
+                info.topRightCorner(3,3) = Eigen::Matrix3d::Zero();
+                info.bottomRightCorner(3,3) = M_1_PI*M_1_PI * Eigen::Matrix3d::Identity();  // 180 degrees standar deviation
+            }
+
+            // add to detected features list
+            detections_incoming_.push_back(std::make_shared<FeatureApriltagPose>(pose,
+                                                                                 info,
+                                                                                 tag_id,
+                                                                                 corners_vec,
+                                                                                 rep_error1,
+                                                                                 rep_error2,
+                                                                                 use_rotation,
+                                                                                 FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
+        }
     }
+
+    WOLF_INFO("\ndetections_incoming_: ", detections_incoming_.size())
 
     apriltag_detections_destroy(detections);
 }
@@ -184,21 +204,17 @@ void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *
                                                           double &_rep_error2){
 
     // get corners from det
+    // Order of the 2d corners (anti clockwise, looking at the tag).
+    // Looking at the tag, the reference frame is
+    // X = Right, Y = Down, Z = Inside the plane
+    // bottom left, bottom right, top right ,top left
     std::vector<cv::Point2d> corners_pix(4);
     for (int i = 0; i < 4; i++)
     {
         corners_pix[i].x = _det->p[i][0];
         corners_pix[i].y = _det->p[i][1];
     }
-    std::vector<cv::Point3d> obj_pts;
-    // Same order as the 2d corners (anti clockwise, looking at the tag).
-    // Looking at the tag, the reference frame is
-    // X = Right, Y = Down, Z = Inside the plane
-    double s = _tag_width/2;
-    obj_pts.emplace_back(-s,  s, 0); // bottom left
-    obj_pts.emplace_back( s,  s, 0); // bottom right
-    obj_pts.emplace_back( s, -s, 0); // top right
-    obj_pts.emplace_back(-s, -s, 0); // top left
+
 
     cv::Mat rvec1, tvec1, rvec2, tvec2;
     float err1, err2;
@@ -236,11 +252,27 @@ void ProcessorTrackerLandmarkApriltag::postProcess()
 FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
                                                               LandmarkBasePtr _landmark_ptr)
 {
-    return FactorBase::emplace<FactorRelativePose3dWithExtrinsics>(_feature_ptr,
-                                               _feature_ptr,
-                                               _landmark_ptr,
-                                               shared_from_this(),
-                                               params_->apply_loss_function);
+    auto feat_pose = std::dynamic_pointer_cast<FeatureApriltagPose>(_feature_ptr);
+    if (feat_pose)
+    {
+        return FactorBase::emplace<FactorRelativePose3dWithExtrinsics>(_feature_ptr,
+                                                _feature_ptr,
+                                                _landmark_ptr,
+                                                shared_from_this(),
+                                                params_->apply_loss_function);
+    }
+    else
+    {
+        auto feat_proj = std::dynamic_pointer_cast<FeatureApriltagProj>(_feature_ptr);
+        return FactorBase::emplace<FactorApriltagProj>(feat_proj,
+                                        feat_proj,
+                                        getSensor(),
+                                        feat_proj->getFrame(),
+                                        _landmark_ptr,
+                                        shared_from_this(),
+                                        params_->apply_loss_function);
+    }
+
 }
 
 LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr _feature_ptr)
@@ -258,8 +290,17 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr
     Eigen::Isometry3d r_M_c = Eigen::Translation<double,3>(pos.head(3)) * quat_tmp;
 
     // camera to lmk (tag)
-    pos                     = _feature_ptr->getMeasurement().head(3);
-    quat_tmp.coeffs()       = _feature_ptr->getMeasurement().tail(4);
+    if (use_proj_factor_)
+    {
+        auto feat_proj = std::dynamic_pointer_cast<FeatureApriltagProj>(_feature_ptr);
+        pos                     = feat_proj->getPosePnp().head(3);
+        quat_tmp.coeffs()       = feat_proj->getPosePnp().tail(4);
+    }
+    else
+    {
+        pos                     = _feature_ptr->getMeasurement().head(3);
+        quat_tmp.coeffs()       = _feature_ptr->getMeasurement().tail(4);
+    }
     Eigen::Isometry3d c_M_t = Eigen::Translation<double,3>(pos) * quat_tmp;
 
     // world to lmk (tag)
@@ -272,7 +313,7 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr
     Vector7d w_pose_t;
     w_pose_t << pos, quat_tmp.coeffs();
 
-    FeatureApriltagPtr feat_april = std::static_pointer_cast<FeatureApriltag>(_feature_ptr);
+    FeatureApriltagPosePtr feat_april = std::static_pointer_cast<FeatureApriltagPose>(_feature_ptr);
     int tag_id = feat_april->getTagId();
 
     return LandmarkBase::emplace<LandmarkApriltag>(getProblem()->getMap(), w_pose_t, tag_id, getTagWidth(tag_id));
@@ -282,31 +323,41 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
                                                                  const CaptureBasePtr& _capture,
                                                                  FeatureBasePtrList& _features_out)
 {
-    // list of landmarks in the map
-    const LandmarkBasePtrList& landmark_list = getProblem()->getMap()->getLandmarkList();
-    for (auto feature_in_image : detections_last_)
+    // _max_new_features: max number of new features to be detected
+    // _capture: capture in which are stored the features
+    // _features_out: filled with new features in last. Empty at the beginning of the call
+
+    // detectNewFeatures is called by processNew() in ProcessorTrackerLandmark
+    // processNew is only called when a KF is created by the processor or another 
+    // (except for the SECOND_TIME_WITHOUT_KEYFRAME case)
+    // -> use detections in last frame/capture to detect features that cannot be associated to any landmark, create one accordingly
+
+    // Loop over the detections in last and check
+    for (auto feat: detections_last_)
     {
         // max_new_features reached
         if (_max_new_features != -1 && _features_out.size() == _max_new_features)
             break;
 
-        bool feature_already_found(false);
-
-        auto feature_april = std::static_pointer_cast<FeatureApriltag>(feature_in_image);
-
-        //Loop over the landmark to find is one is associated to  feature_in_image
-        for(auto it = landmark_list.begin(); it != landmark_list.end(); ++it){
-            if(std::static_pointer_cast<LandmarkApriltag>(*it)->getTagId() == feature_april->getTagId()){
-                feature_already_found = true;
+        auto feat_april = std::static_pointer_cast<FeatureApriltag>(feat);
+        bool match_found = false;
+        // Loop over the landmarks to find if one is associated to the 
+        for(auto lmk: getProblem()->getMap()->getLandmarkList()){
+            auto lmk_april = std::dynamic_pointer_cast<LandmarkApriltag>(lmk);
+            if (lmk_april and lmk_april->getTagId() == feat_april->getTagId())
+            {
+                match_found = true;
                 break;
             }
         }
 
-        if (!feature_already_found)
+        // if the feature was not matched to any existing landmark, add it to the new features list
+        if (!match_found)
         {
+            // remove duplicate features (detections that correspond to the same landmark, even though this should never happen)
             for (FeatureBasePtrList::iterator it=_features_out.begin(); it != _features_out.end(); ++it)
             {
-                if (std::static_pointer_cast<FeatureApriltag>(*it)->getTagId() == feature_april->getTagId())
+                if (std::static_pointer_cast<FeatureApriltag>(*it)->getTagId() == feat_april->getTagId())
                 {
                     //we have a detection with the same id as the currently processed one. We remove the previous feature from the list for now
                     _features_out.erase(it);
@@ -314,15 +365,12 @@ unsigned int ProcessorTrackerLandmarkApriltag::detectNewFeatures(const int& _max
                     break; 
                 }
             }
-            // discard features that do not have orientation information
-            if (!feature_april->getUserotation())
-                continue;
 
             // If the feature is not in the map & not in the list of newly detected features yet then we add it.
-            _features_out.push_back(feature_in_image);
+            _features_out.push_back(feat);
 
             // link feature (they are created unlinked in preprocess())
-            feature_in_image->link(_capture);
+            feat->link(_capture);
 
         } //otherwise we check the next feature
     }
@@ -365,19 +413,21 @@ unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBaseP
                                                              FeatureBasePtrList& _features_out,
                                                              LandmarkMatchMap& _feature_landmark_correspondences)
 {   
-    for (auto feature_in_image : detections_incoming_)
+    for (auto feat : detections_incoming_)
     {
-        int tag_id(std::static_pointer_cast<FeatureApriltag>(feature_in_image)->getTagId());
+        int tag_id(std::static_pointer_cast<FeatureApriltag>(feat)->getTagId());
 
-        for (auto landmark_in_ptr : _landmarks_in)
+        for (auto lmk : _landmarks_in)
         {
-            if(std::static_pointer_cast<LandmarkApriltag>(landmark_in_ptr)->getTagId() == tag_id)
+            auto lmk_april = std::dynamic_pointer_cast<LandmarkApriltag>(lmk);
+            // would be so much easier with an std::map
+            if(lmk_april and lmk_april->getTagId() == tag_id)
             {
-                _features_out.push_back(feature_in_image);
+                _features_out.push_back(feat);
                 double score(1.0);
-                LandmarkMatchPtr matched_landmark = std::make_shared<LandmarkMatch>(landmark_in_ptr, score);
-                _feature_landmark_correspondences.emplace ( feature_in_image, matched_landmark );
-                feature_in_image->link(_capture); // since all features are created in preProcess() are unlinked
+                LandmarkMatchPtr matched_landmark = std::make_shared<LandmarkMatch>(lmk, score);
+                _feature_landmark_correspondences.emplace ( feat, matched_landmark );
+                feat->link(_capture); // since all features are created in preProcess() are unlinked
                 break;
             }
         }
@@ -511,128 +561,8 @@ void ProcessorTrackerLandmarkApriltag::advanceDerived()
 
 void ProcessorTrackerLandmarkApriltag::resetDerived()
 {   
-    // BAD -> should be rewritten some other way
-    if (getProblem()->getMotionProviderMap().empty() && reestimate_last_frame_){
-        reestimateLastFrame();
-    }
-
     ProcessorTrackerLandmark::resetDerived();
     detections_last_ = std::move(detections_incoming_);
-}
-
-void ProcessorTrackerLandmarkApriltag::reestimateLastFrame(){
-    // Rewrite the last frame state and landmark state initialised during last frame creation to account
-    // for a better estimate of the current state using the last landmark detection.
-    // Otherwise, default behaviour is to take the last KF as an initialization of the new KF which can lead
-    // to the solver finding local minima
-
-    // When called for the first time, no feature list initialized in ori/last(?)
-    if (n_reset_ < 1){
-        n_reset_ += 1;
-        return;
-    }
-
-    // A TESTER
-    // (getOrigin() != nullptr)
-
-    // Retrieve camera extrinsics
-    Eigen::Quaterniond last_q_cam(getSensor()->getO()->getState().data());
-    Eigen::Isometry3d last_M_cam = Eigen::Translation3d(getSensor()->getP()->getState()) * last_q_cam;
-
-    // get features list of KF linked to origin capture and last capture
-    FeatureBasePtrList ori_feature_list = getOrigin()->getFeatureList();
-    FeatureBasePtrList last_feature_list = getLast()->getFeatureList();
-
-    if (last_feature_list.size() == 0 || ori_feature_list.size() == 0){
-        return;
-    }
-    
-    // Among landmarks detected in origin and last, find the one that has the smallest error ratio (best confidence)
-    double lowest_ration = 1;  // rep_error1/rep_error2 cannot be higher than 1
-    FeatureApriltagPtr best_feature;
-    bool useable_feature = false;
-    for (auto it_last = last_feature_list.begin(); it_last != last_feature_list.end(); it_last++){
-        FeatureApriltagPtr last_feat_ptr = std::static_pointer_cast<FeatureApriltag>(*it_last);
-        for (auto it_ori = ori_feature_list.begin(); it_ori != ori_feature_list.end(); it_ori++){
-            FeatureApriltagPtr ori_feat_ptr =  std::static_pointer_cast<FeatureApriltag>(*it_ori);
-            if (ori_feat_ptr->getTagId() == last_feat_ptr->getTagId()){
-                double ratio = ori_feat_ptr->getRepError1() / ori_feat_ptr->getRepError2();
-                //if (ratio < lowest_ration){
-                if (last_feat_ptr->getUserotation() && (ratio < lowest_ration)){
-                    useable_feature = true;
-                    lowest_ration = ratio;
-                    best_feature = last_feat_ptr;
-                }
-            }
-        }
-    }
-    // If there is no common feature between the two images, the continuity is broken and 
-    // nothing can be estimated. In the case of aprilslam alone, this result in a broken factor map
-    if (!useable_feature){
-        return;
-    }
-    
-    // std::cout << "Best feature id after: " << best_feature->getTagId() << std::endl;
-    // Retrieve cam to landmark transform
-    Eigen::Vector7d cam_pose_lmk = best_feature->getMeasurement();
-    Eigen::Quaterniond cam_q_lmk(cam_pose_lmk.segment<4>(3).data());
-    Eigen::Isometry3d cam_M_lmk = Eigen::Translation3d(cam_pose_lmk.head(3)) * cam_q_lmk;
-    
-    // Get corresponding landmarks in origin/last landmark list
-    Eigen::Isometry3d w_M_lmk;
-    LandmarkBasePtrList lmk_list = getProblem()->getMap()->getLandmarkList();
-    // Iterate in reverse order because landmark detected in last are at the end of the list (while still landmarks to discovers)
-    for (std::list<LandmarkBasePtr>::reverse_iterator it_lmk = lmk_list.rbegin(); it_lmk != lmk_list.rend(); ++it_lmk){
-        LandmarkApriltagPtr lmk_ptr = std::dynamic_pointer_cast<LandmarkApriltag>(*it_lmk);
-        // the map might contain other types of landmarks so check if the cast is valid
-        if (lmk_ptr == nullptr){
-            continue;
-        }
-    
-        if (lmk_ptr->getTagId() == best_feature->getTagId()){
-            Eigen::Vector3d w_t_lmk = lmk_ptr->getP()->getState();
-            Eigen::Quaterniond w_q_lmk(lmk_ptr->getO()->getState().data());
-            w_M_lmk = Eigen::Translation<double,3>(w_t_lmk) * w_q_lmk;
-        }
-    }
-
-    // Compute last frame estimate
-    Eigen::Isometry3d w_M_last = w_M_lmk * (last_M_cam * cam_M_lmk).inverse();
-
-    // Use the w_M_last to overide last key frame state estimation and keyframe estimation
-    Eigen::Vector3d pos_last  = w_M_last.translation();
-    Eigen::Quaterniond quat_last(w_M_last.linear());
-    getLast()->getFrame()->getP()->setState(pos_last);
-    getLast()->getFrame()->getO()->setState(quat_last.coeffs());
-
-    // if (!best_feature->getUserotation()){
-    //     return;
-    // }
-    ///////////////////
-    // Reestimate position of landmark new in Last
-    ///////////////////
-    for (auto it_feat = new_features_last_.begin(); it_feat != new_features_last_.end(); it_feat++){
-        FeatureApriltagPtr new_feature_last = std::static_pointer_cast<FeatureApriltag>(*it_feat);
-       
-        Eigen::Vector7d cam_pose_lmk = new_feature_last->getMeasurement();
-        Eigen::Quaterniond cam_q_lmk(cam_pose_lmk.segment<4>(3).data());
-        Eigen::Isometry3d cam_M_lmk_new = Eigen::Translation3d(cam_pose_lmk.head(3)) * cam_q_lmk;
-        Eigen::Isometry3d w_M_lmk =  w_M_last * last_M_cam * cam_M_lmk_new;
-
-        for (auto it_lmk = new_landmarks_.begin(); it_lmk != new_landmarks_.end(); ++it_lmk){
-            LandmarkApriltagPtr lmk_ptr = std::dynamic_pointer_cast<LandmarkApriltag>(*it_lmk);
-            if (lmk_ptr == nullptr){
-                continue;
-            }
-            if (lmk_ptr->getTagId() == new_feature_last->getTagId()){
-                Eigen::Vector3d pos_lmk_last  = w_M_lmk.translation();
-                Eigen::Quaterniond quat_lmk_last(w_M_lmk.linear());
-                lmk_ptr->getP()->setState(pos_lmk_last);
-                lmk_ptr->getO()->setState(quat_lmk_last.coeffs());
-                break;
-            }
-        }
-    }
 }
 
 std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const

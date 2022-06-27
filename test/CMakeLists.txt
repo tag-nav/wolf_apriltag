@@ -8,8 +8,10 @@ add_subdirectory(gtest)
 #                                                         #
 ###########################################################
 
-wolf_add_gtest(gtest_feature_apriltag gtest_feature_apriltag.cpp)
+wolf_add_gtest(gtest_features_apriltag gtest_features_apriltag.cpp)
 
 wolf_add_gtest(gtest_landmark_apriltag gtest_landmark_apriltag.cpp)
 
 wolf_add_gtest(gtest_processor_tracker_landmark_apriltag gtest_processor_tracker_landmark_apriltag.cpp)
+
+wolf_add_gtest(gtest_factor_apriltag_proj gtest_factor_apriltag_proj.cpp)
