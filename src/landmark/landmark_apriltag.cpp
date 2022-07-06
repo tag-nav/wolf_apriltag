@@ -24,6 +24,7 @@
 #include "core/math/rotations.h"
 #include "core/yaml/yaml_conversion.h"
 #include <core/state_block/state_block_derived.h>
+#include "core/state_block/state_quaternion.h"
 
 namespace wolf {
 

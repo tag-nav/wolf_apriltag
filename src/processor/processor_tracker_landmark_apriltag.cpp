@@ -108,8 +108,13 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
     auto incoming_ptr = std::dynamic_pointer_cast<CaptureImage>(incoming_ptr_);
     assert(incoming_ptr != nullptr && "Capture type mismatch. ProcessorTrackerLandmarkApriltag can only process captures of type CaptureImage");
 
-    // The image is assumed to be of color BGR2 type
-    cv::cvtColor(incoming_ptr->getImage(), grayscale_image_, cv::COLOR_BGR2GRAY);
+    // If the image has 3 channels, grayscale it
+    if (incoming_ptr->getImage().channels() == 3) {
+        cv::cvtColor(incoming_ptr->getImage(), grayscale_image_, cv::COLOR_BGR2GRAY);
+    }
+    else {
+        grayscale_image_ = incoming_ptr->getImage();
+    }
     
     //detect tags in incoming image
     // Make an image_u8_t header for the Mat data
@@ -188,8 +193,6 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                                                                                  FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
         }
     }
-
-    WOLF_INFO("\ndetections_incoming_: ", detections_incoming_.size())
 
     apriltag_detections_destroy(detections);
 }
