@@ -90,10 +90,10 @@ LandmarkBasePtr LandmarkApriltag::create(const YAML::Node& _lmk_node)
 
 }
 
-YAML::Node LandmarkApriltag::saveToYaml() const
+YAML::Node LandmarkApriltag::toYaml() const
 {
     // First base things
-    YAML::Node node = LandmarkBase::saveToYaml();
+    YAML::Node node = LandmarkBase::toYaml();
 
     // Then Apriltag specific things
     node["tag id"] = getTagId();

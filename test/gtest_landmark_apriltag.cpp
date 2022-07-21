@@ -82,14 +82,14 @@ TEST_F(LandmarkApriltag_class, create)
     ASSERT_EQ(problem->getMap()->getLandmarkList().front()->getType(), "LandmarkApriltag");
 }
 
-TEST_F(LandmarkApriltag_class, saveToYaml)
+TEST_F(LandmarkApriltag_class, toYaml)
 {
     // load original hand-written map
     problem->loadMap(wolf_root + "/demos/map_apriltag_1.yaml");
     ASSERT_EQ(problem->getMap()->getLandmarkList().size(), 4);
 
     // write map on new file
-    problem->saveMap(wolf_root + "/demos/map_apriltag_save.yaml"); // this will call saveToYaml()
+    problem->saveMap(wolf_root + "/demos/map_apriltag_save.yaml"); // this will call toYaml()
 
     // delete existing map
     while(!problem->getMap()->getLandmarkList().empty()) problem->getMap()->getLandmarkList().front()->remove();

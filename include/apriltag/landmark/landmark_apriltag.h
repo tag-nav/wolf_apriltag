@@ -70,7 +70,7 @@ class LandmarkApriltag : public LandmarkBase
          */
         static LandmarkBasePtr create(const YAML::Node& _lmk_node);
 
-        YAML::Node saveToYaml() const override;
+        YAML::Node toYaml() const override;
 
 
     private:
