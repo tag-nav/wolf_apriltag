@@ -415,21 +415,27 @@ unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBaseP
                                                              FeatureBasePtrList& _features_out,
                                                              LandmarkMatchMap& _feature_landmark_correspondences)
 {   
+    // In current implementation of ProcessorTrackerLandmark, _landmarks_in is the whole 
+    // Would be great to split in different maps
     for (auto feat : detections_incoming_)
     {
         int tag_id(std::static_pointer_cast<FeatureApriltag>(feat)->getTagId());
 
+        // Linear search in all landmarks (Apriltag and others) -> BAD
         for (auto lmk : _landmarks_in)
         {
             auto lmk_april = std::dynamic_pointer_cast<LandmarkApriltag>(lmk);
-            // would be so much easier with an std::map
+
+            // correspondance check in 2 steps:
+            // 1. the cast gives a non-nullptr -> right class type
+            // 2. the tag id is the same (assumed unique tag id for all tags)
             if(lmk_april and lmk_april->getTagId() == tag_id)
             {
                 _features_out.push_back(feat);
                 double score(1.0);
                 LandmarkMatchPtr matched_landmark = std::make_shared<LandmarkMatch>(lmk, score);
                 _feature_landmark_correspondences.emplace ( feat, matched_landmark );
-                feat->link(_capture); // since all features are created in preProcess() are unlinked
+                feat->link(_capture); // since all features created in preProcess() are not linked yet
                 break;
             }
         }
