@@ -39,7 +39,7 @@
 #include <core/processor/factory_processor.h>
 
 // UMich apriltag
-#include <apriltag/apriltag.h>
+#include <apriltag.h>
 
 
 using namespace Eigen;

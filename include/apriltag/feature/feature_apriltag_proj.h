@@ -23,14 +23,10 @@
 #define FEATURE_APRILTAG_PROJ_H_
 
 // Wolf apriltag
-#include "apriltag/feature/feature_apriltag.h"
+#include <apriltag/feature/feature_apriltag.h>
 
 // Wolf core
 #include <core/feature/feature_base.h>
-
-// UMich apriltag library
-#include <apriltag/apriltag.h>
-#include <apriltag/common/zarray.h>
 
 // opencv
 #include <opencv2/features2d.hpp>

@@ -19,12 +19,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 //--------LICENSE_END--------
+
+// Wolf apriltag
 #include "apriltag/landmark/landmark_apriltag.h"
-#include "core/common/factory.h"
-#include "core/math/rotations.h"
-#include "core/yaml/yaml_conversion.h"
+
+// Wolf core
+#include <core/common/factory.h>
+#include <core/math/rotations.h>
+#include <core/yaml/yaml_conversion.h>
 #include <core/state_block/state_block_derived.h>
-#include "core/state_block/state_quaternion.h"
+#include <core/state_block/state_quaternion.h>
 
 namespace wolf {
 

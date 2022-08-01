@@ -155,7 +155,7 @@ endif()
 #===============EXAMPLE=========================
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} wolfcore)
 TARGET_LINK_LIBRARIES(${PLUGIN_NAME} wolfvision)
-TARGET_LINK_LIBRARIES(${PLUGIN_NAME} apriltag)
+TARGET_LINK_LIBRARIES(${PLUGIN_NAME} apriltag::apriltag)
 
 #Build tests
 #===============EXAMPLE=========================

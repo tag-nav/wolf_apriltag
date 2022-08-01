@@ -44,19 +44,19 @@
 #include <core/processor/processor_tracker_landmark.h>
 
 // apriltag detection Michigan library
-#include <apriltag/apriltag.h>
-#include <apriltag/common/homography.h>
-#include <apriltag/common/zarray.h>
-#include <apriltag/tag16h5.h>
-#include <apriltag/tag25h9.h>
-#include <apriltag/tag36h11.h>
-#include <apriltag/tagCircle21h7.h>
-#include <apriltag/tagCircle49h12.h>
-#include <apriltag/tagCustom48h12.h>
-#include <apriltag/tagStandard41h12.h>
-#include <apriltag/tagStandard52h13.h>
-#include "apriltag/common/homography.h"
-#include "apriltag/common/zarray.h"
+#include <apriltag.h>
+#include <common/homography.h>
+#include <common/zarray.h>
+#include <tag16h5.h>
+#include <tag25h9.h>
+#include <tag36h11.h>
+#include <tagCircle21h7.h>
+#include <tagCircle49h12.h>
+#include <tagCustom48h12.h>
+#include <tagStandard41h12.h>
+#include <tagStandard52h13.h>
+#include <common/homography.h>
+#include <common/zarray.h>
 
 // opencv
 // OpenCV

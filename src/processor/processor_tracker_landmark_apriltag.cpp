@@ -22,6 +22,9 @@
 
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 
+
+#include <chrono>
+#include <ctime>
 namespace wolf {
 
 
@@ -102,6 +105,8 @@ ProcessorTrackerLandmarkApriltag::~ProcessorTrackerLandmarkApriltag()
 
 void ProcessorTrackerLandmarkApriltag::preProcess()
 {
+    auto t1 = std::chrono::system_clock::now();
+
     //clear wolf detections so that new ones will be stored inside
     detections_incoming_.clear();
 
@@ -115,6 +120,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
     else {
         grayscale_image_ = incoming_ptr->getImage();
     }
+
     
     //detect tags in incoming image
     // Make an image_u8_t header for the Mat data
@@ -125,7 +131,11 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                     };
 
     // run Apriltag detector
+    auto t2 = std::chrono::system_clock::now();
     zarray_t *detections = apriltag_detector_detect(detector_, &im);
+    auto __attribute__((unused)) dt_detection = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t2).count();
+    WOLF_INFO( "ProcessorTrackerLandmarkApriltag dt_detection (ms): " , dt_detection);
+
     // loop all detections
     for (int i = 0; i < zarray_size(detections); i++) {
         apriltag_detection_t *det;
@@ -195,6 +205,9 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
     }
 
     apriltag_detections_destroy(detections);
+
+    auto __attribute__((unused)) dt_preprocess = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t1).count();
+    WOLF_INFO( "ProcessorTrackerLandmarkApriltag dt_preprocess (ms): " , dt_preprocess );
 }
 
 void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *_det,
