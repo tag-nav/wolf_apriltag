@@ -97,7 +97,7 @@ class FactorApriltagProj_class : public testing::Test{
 
         FrameBasePtr    F1;
         CaptureImagePtr C1;
-        FeatureApriltagProjPtr  f1;
+        FeatureApriltagProjPtr f1;
         LandmarkApriltagPtr lmk1;
         FactorApriltagProjPtr fac_a1;
         
@@ -239,7 +239,7 @@ class FactorApriltagProj_class : public testing::Test{
 
 TEST_F(FactorApriltagProj_class, Constructor)
 {   
-    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width, pose_dummy));
+    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width, pose_dummy, true));
     FactorApriltagProjPtr factor = std::make_shared<FactorApriltagProj>(
             f1,
             camera,
@@ -256,7 +256,7 @@ TEST_F(FactorApriltagProj_class, Constructor)
 
 TEST_F(FactorApriltagProj_class, problem_1KF)
 {
-    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width, pose_dummy));
+    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width, pose_dummy, true));
 
     //emplace feature and landmark
     auto factor = FactorBase::emplace<FactorApriltagProj>(f1, f1, camera, F1, lmk1, nullptr, false);
@@ -293,8 +293,8 @@ TEST_F(FactorApriltagProj_class, problem_2KF)
     FrameBasePtr F2 = problem->emplaceFrame(2, posiquat2pose(p_w_r2, q_w_r2));
     CaptureImagePtr C2 = std::static_pointer_cast<CaptureImage>(CaptureBase::emplace<CaptureImage>(F2, 1, camera, cv::Mat(2,2,CV_8UC1)));
 
-    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width, pose_dummy));
-    auto f2 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C2, meas2, meas_cov, 2, tag_width, pose_dummy));
+    f1 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C1, meas1, meas_cov, 1, tag_width, pose_dummy, true));
+    auto f2 = std::static_pointer_cast<FeatureApriltagProj>(FeatureBase::emplace<FeatureApriltagProj>(C2, meas2, meas_cov, 2, tag_width, pose_dummy, true));
 
     //emplace feature and landmark
     auto factor1 = FactorBase::emplace<FactorApriltagProj>(f1, f1, camera, F1, lmk1, nullptr, false);

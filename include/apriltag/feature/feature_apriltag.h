@@ -43,7 +43,9 @@ class FeatureApriltag : public FeatureBase
             const Eigen::VectorXd & _measurement,
             const Eigen::MatrixXd & _meas_covariance,
             const int _tag_id,
+            double _tag_width,
             const Vector8d & _corners_vec,
+            bool _use_rotation,
             UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
         ~FeatureApriltag() override;
         
@@ -57,10 +59,27 @@ class FeatureApriltag : public FeatureBase
          **/
         const std::vector<cv::Point2d>& getTagCorners() const;
 
+        /** \brief Return pose compute by PnP algorithm
+         * 
+         **/
+        virtual Eigen::VectorXd getPosePnp() const = 0;
+
+        /** \brief Return a boolean assessing if the rotation part of the transformation is reliable.
+         * 
+         **/
+        bool getUseRotation() const;
+
+        /** \brief Return the width of the detected tag (from user specification)
+         * 
+         **/
+        double getTagWidth() const;
+
 
     private:
         int tag_id_;
+        double tag_width_;
         std::vector<cv::Point2d> tag_corners_;
+        bool use_rotation_;
         
 };
 
@@ -70,11 +89,15 @@ inline FeatureApriltag::FeatureApriltag(
     const Eigen::VectorXd & _measurement,
     const Eigen::MatrixXd & _meas_uncertainty,
     const int _tag_id,
+    double _tag_width,
     const Vector8d & _corners_vec,
+    bool _use_rotation,
     UncertaintyType _uncertainty_type) :
         FeatureBase(_type, _measurement, _meas_uncertainty, _uncertainty_type),
         tag_id_(_tag_id),
-        tag_corners_(4)
+        tag_width_(_tag_width),
+        tag_corners_(4),
+        use_rotation_(_use_rotation)
 {
     setTrackId(_tag_id);  // assuming there is a single landmark with this id in the scene
 
@@ -99,6 +122,17 @@ inline const std::vector<cv::Point2d>& FeatureApriltag::getTagCorners() const
 {
     return tag_corners_;
 }
+
+inline double FeatureApriltag::getTagWidth() const
+{
+    return tag_width_;
+}
+
+inline bool FeatureApriltag::getUseRotation() const
+{
+    return use_rotation_;
+}
+
 
 
 } // namespace wolf
