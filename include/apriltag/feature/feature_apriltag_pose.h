@@ -44,37 +44,26 @@ class FeatureApriltagPose : public FeatureApriltag
         FeatureApriltagPose(
                         const Eigen::Vector7d & _measurement,
                         const Eigen::Matrix6d & _meas_info,
-                        const int _tag_id,
+                        int _tag_id,
+                        double _tag_width,
                         const Vector8d & _corners_vec,
-                        double _rep_error1,
-                        double _rep_error2,
                         bool _use_rotation,
                         UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
         ~FeatureApriltagPose() override;
-        
-        double getRepError1() const;
-        double getRepError2() const;
-        bool getUserotation() const;
 
-    private:
-        double rep_error1_;
-        double rep_error2_;
-        bool use_rotation_;
+        Eigen::VectorXd getPosePnp() const override;
+
 };
 
 inline FeatureApriltagPose::FeatureApriltagPose(
                                  const Eigen::Vector7d & _measurement,
                                  const Eigen::Matrix6d & _meas_info,
                                  const int _tag_id,
+                                 double _tag_width,
                                  const Vector8d & _corners_vec,
-                                 double _rep_error1,
-                                 double _rep_error2,
                                  bool _use_rotation,
                                  UncertaintyType _uncertainty_type) :
-    FeatureApriltag("FeatureApriltagPose", _measurement, _meas_info, _tag_id, _corners_vec, _uncertainty_type),
-    rep_error1_(_rep_error1),
-    rep_error2_(_rep_error2),
-    use_rotation_(_use_rotation)
+    FeatureApriltag("FeatureApriltagPose", _measurement, _meas_info, _tag_id, _tag_width, _corners_vec, _use_rotation, _uncertainty_type)
 {
 }
 
@@ -83,17 +72,9 @@ inline FeatureApriltagPose::~FeatureApriltagPose()
     //
 }
 
-inline double FeatureApriltagPose::getRepError1() const
+inline Eigen::VectorXd FeatureApriltagPose::getPosePnp() const
 {
-    return rep_error1_;
-}
-inline double FeatureApriltagPose::getRepError2() const
-{
-    return rep_error2_;
-}
-inline bool FeatureApriltagPose::getUserotation() const
-{
-    return use_rotation_;
+    return measurement_;
 }
 
 } // namespace wolf

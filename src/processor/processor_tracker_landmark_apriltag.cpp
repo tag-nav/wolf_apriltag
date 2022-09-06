@@ -22,6 +22,7 @@
 
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 
+#include "core/math/SE3.h"
 
 #include <chrono>
 #include <ctime>
@@ -30,7 +31,8 @@ namespace wolf {
 
 // Constructor
 ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
-        ProcessorTrackerLandmark("ProcessorTrackerLandmarkApriltag", "PO", _params_tracker_landmark_apriltag ),
+        ProcessorTrackerLandmark("ProcessorTrackerLandmarkApriltag", "PO", _params_tracker_landmark_apriltag),
+        MotionProvider("PO", _params_tracker_landmark_apriltag),
         tag_widths_(_params_tracker_landmark_apriltag->tag_widths_),
         tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
         std_pix_(_params_tracker_landmark_apriltag->std_pix_),
@@ -177,7 +179,8 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                                                                                  std_pix_*std_pix_*Eigen::Matrix8d::Identity(),
                                                                                  tag_id,
                                                                                  tag_width,
-                                                                                 pose));
+                                                                                 pose,
+                                                                                 use_rotation));
         }
         else
         {
@@ -196,9 +199,8 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
             detections_incoming_.push_back(std::make_shared<FeatureApriltagPose>(pose,
                                                                                  info,
                                                                                  tag_id,
+                                                                                 tag_width,
                                                                                  corners_vec,
-                                                                                 rep_error1,
-                                                                                 rep_error2,
                                                                                  use_rotation,
                                                                                  FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
         }
@@ -591,6 +593,94 @@ std::string ProcessorTrackerLandmarkApriltag::getTagFamily() const
     return tag_family_->name;
 }
 
+
+////////////////////////////////////////
+// MotionProvider methods implementation
+////////////////////////////////////////
+
+
+TimeStamp ProcessorTrackerLandmarkApriltag::getTimeStamp() const 
+{
+    if ( last_ptr_ == nullptr )
+        return TimeStamp::Invalid();
+    else
+        return last_ptr_->getTimeStamp();
+}
+
+VectorComposite ProcessorTrackerLandmarkApriltag::getState(const StateStructure& _structure) const
+{
+    // compute the state of the frame corresponding to last capture
+    // matches_landmark_from_last_ contains matches between landmarks already present in the map when
+    // processing last capture and detections in last capture.
+    // From the map current estimate and apriltag last features, we can extract the last pose of the robot 
+
+    Vector7d pose_c_r = SE3::inverse(getSensor()->getStateVector("PO"));
+
+    // Compute average SE3 pose between using the hyperbolic average (mean of the se(3) twist 6D vectors)
+    // Neglected:
+    // - Uncertainty on the landmark estimate
+    // - Uncertainty on the camera->landmark pose measurements
+    int nb_use_rot = 0;
+    // 1. hyperbolic avg on se(3)
+    Vector6d nu_w_r_avg = Vector6d::Zero();
+    // 2. hyperbolic metric avg on so(3) (http://lucaballan.altervista.org/pdfs/IK.pdf slide)
+    Vector3d t_w_r_avg = Vector3d::Zero();
+    Vector3d omg_w_r_avg = Vector3d::Zero();
+    // 3. Frobenius/chordal metric avg followed by projection on SO(3) -> not really a diff
+    // Matrix3d R_w_r_avg = Matrix3d::Zero();
+    for (auto match: matches_landmark_from_last_){
+        auto feat_a = std::static_pointer_cast<FeatureApriltag>(match.first);
+        // use the pose only if the rotation is not ambiguous
+        if (feat_a->getUseRotation()){
+            auto lmk_a = std::static_pointer_cast<LandmarkApriltag> (match.second->landmark_ptr_);
+
+            Vector7d pose_l_c = SE3::inverse(feat_a->getPosePnp());
+            Vector7d pose_w_l = lmk_a->getStateVector();
+            Vector7d pose_w_r = SE3::compose(SE3::compose(pose_w_l, pose_l_c), pose_c_r);
+            // 1.
+            nu_w_r_avg += SE3::log(pose_w_r);
+            // 2.
+            t_w_r_avg += pose_w_r.head<3>();
+            omg_w_r_avg += q2v(Quaterniond(pose_w_r.tail<4>()));
+            // 3.
+            // R_w_r_avg += q2R(pose_w_r.tail<4>());
+            nb_use_rot += 1;
+        }
+    }
+    if (nb_use_rot == 0){
+        return VectorComposite();
+    }
+    // // 1.
+    // nu_w_r_avg /= nb_use_rot;
+    // Vector7d pose_avg = SE3::exp(nu_w_r_avg);
+
+    // 2. 
+    t_w_r_avg /= nb_use_rot;
+    omg_w_r_avg /= nb_use_rot;
+    Vector7d pose_avg; pose_avg << t_w_r_avg, v2q(omg_w_r_avg).coeffs();
+
+    // // 3.
+    // t_w_r_avg /= nb_use_rot;
+    // R_w_r_avg /= nb_use_rot;
+    
+
+    return VectorComposite(pose_avg, "PO", {3,4});
+
+}
+
+VectorComposite ProcessorTrackerLandmarkApriltag::getState(const TimeStamp& _ts, const StateStructure& _structure) const
+{
+    if (true) {
+        return getState(_structure);
+    }
+
+    // empty state should be handled by the receiver
+    return VectorComposite();
+}
+
+
+
+
 } // namespace wolf
 
 // Register in the FactorySensor
@@ -601,4 +691,3 @@ namespace wolf
 WOLF_REGISTER_PROCESSOR(ProcessorTrackerLandmarkApriltag)
 WOLF_REGISTER_PROCESSOR_AUTO(ProcessorTrackerLandmarkApriltag)
 }
-

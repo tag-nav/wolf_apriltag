@@ -45,18 +45,15 @@ class FeatureApriltagProj : public FeatureApriltag
             const int _tag_id,
             const double _tag_width,
             const Eigen::Vector7d& _pose_pnp,
+            bool _use_rotation,
             UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
 
         ~FeatureApriltagProj() override;
         
-        const Eigen::Vector7d& getPosePnp() const;
-        double getTagWidth() const;
+        Eigen::VectorXd getPosePnp() const override;
 
     private:
         Eigen::Vector7d pose_pnp_;
-        double tag_width_;
-
-        
 };
 
 
@@ -66,10 +63,10 @@ inline FeatureApriltagProj::FeatureApriltagProj(
     const int _tag_id,
     const double _tag_width,
     const Eigen::Vector7d& _pose_pnp,
+    bool _use_rotation,
     UncertaintyType _uncertainty_type) :
-        FeatureApriltag("FeatureApriltagProj", _measurement, _meas_covariance, _tag_id, _measurement, _uncertainty_type),
-        pose_pnp_(_pose_pnp),
-        tag_width_(_tag_width)
+        FeatureApriltag("FeatureApriltagProj", _measurement, _meas_covariance, _tag_id, _tag_width, _measurement, _use_rotation, _uncertainty_type),
+        pose_pnp_(_pose_pnp)
 {
     
 }
@@ -79,13 +76,9 @@ inline FeatureApriltagProj::~FeatureApriltagProj()
     //
 }
 
-inline const Eigen::Vector7d& FeatureApriltagProj::getPosePnp() const
+inline Eigen::VectorXd FeatureApriltagProj::getPosePnp() const
 {
     return pose_pnp_;
-}
-inline double FeatureApriltagProj::getTagWidth() const
-{
-    return tag_width_;
 }
 
 } // namespace wolf

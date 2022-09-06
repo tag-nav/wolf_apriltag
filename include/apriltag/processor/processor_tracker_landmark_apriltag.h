@@ -30,7 +30,7 @@
 #include "apriltag/factor/factor_apriltag_proj.h"
 
 // IPPE (copy from https://github.com/tobycollins/IPPE)
-#include "ippe.h"
+#include "ippe.h"  /// use opencv solvePNP with square option instead
 
 // Wolf vision
 #include <vision/math/pinhole_tools.h>
@@ -39,9 +39,10 @@
 
 // Wolf core
 #include <core/math/rotations.h>
-#include <core/state_block/state_quaternion.h>  /// REMOVE?
+// #include <core/state_block/state_quaternion.h>  /// REMOVE?
 #include <core/factor/factor_relative_pose_3d_with_extrinsics.h>
 #include <core/processor/processor_tracker_landmark.h>
+#include <core/processor/motion_provider.h>
 
 // apriltag detection Michigan library
 #include <apriltag.h>
@@ -72,7 +73,7 @@ namespace wolf
 
 WOLF_STRUCT_PTR_TYPEDEFS(ParamsProcessorTrackerLandmarkApriltag);
 
-struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLandmark
+struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLandmark, public ParamsMotionProvider
 {
     //tag parameters
     std::string tag_family_;
@@ -100,7 +101,8 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
 
     ParamsProcessorTrackerLandmarkApriltag() = default;
     ParamsProcessorTrackerLandmarkApriltag(std::string _unique_name, const ParamsServer& _server):
-        ParamsProcessorTrackerLandmark(_unique_name, _server)
+        ParamsProcessorTrackerLandmark(_unique_name, _server),
+        ParamsMotionProvider(_unique_name, _server)
     {
         tag_family_                 = _server.getParam<std::string>(prefix + _unique_name            + "/tag_family");
         tag_width_default_          = _server.getParam<double>(prefix + _unique_name                 + "/tag_width_default");
@@ -143,7 +145,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
 
 WOLF_PTR_TYPEDEFS(ProcessorTrackerLandmarkApriltag);
 
-class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
+class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark, public MotionProvider
 {
     public:
 
@@ -209,6 +211,14 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         FactorBasePtr emplaceFactor(FeatureBasePtr _feature_ptr, LandmarkBasePtr _landmark_ptr) override;
 
         void configure(SensorBasePtr _sensor) override;
+
+        ////////////////////////////////////////////////
+        // MotionProvider virtual methods implementation
+        TimeStamp       getTimeStamp() const override;
+        VectorComposite getState(const StateStructure& _structure = "") const override;
+        VectorComposite getState(const TimeStamp& _ts, const StateStructure& _structure = "") const override;
+        ////////////////////////////////////////////////
+
 
     public:
         double getTagWidth(int _id) const;

@@ -36,75 +36,68 @@ class FeatureApriltag_fixture : public testing::Test
         Eigen::Vector8d corners_vec;
         Eigen::Matrix8d cov_pix;
         int tag_id;
-        double tag_widh;
-        double rep_error1;
-        double rep_error2;
+        double tag_width;
         bool use_rotation;
 
         void SetUp() override
         {
             pose << 1,2,3,4,5,6,7;
+            pose = pose + 42*Eigen::Vector7d::Ones();
             info_pose.setIdentity();
 
             corners_vec  << 1.0, -1.0,
                             1.0,  1.0,
                            -1.0,  1.0,
                            -1.0, -1.0;
+            corners_vec = 42.0*corners_vec;
             cov_pix.setIdentity();
 
             tag_id = 1;
-            tag_widh = 0.1;
+            tag_width = 0.1;
 
-            rep_error1 = 0.01;
-            rep_error2 = 0.1;
             use_rotation = true;
         }
 };
 
-
 TEST_F(FeatureApriltag_fixture, type)
 {
-    FeatureApriltagPtr fa = std::make_shared<FeatureApriltag>("toto", pose, info_pose, tag_id, corners_vec);
-    ASSERT_EQ(fa->getType(), "toto");
-
-    FeatureApriltagPosePtr fa_pose = std::make_shared<FeatureApriltagPose>(pose, info_pose, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
+    FeatureApriltagPosePtr fa_pose = std::make_shared<FeatureApriltagPose>(pose, info_pose, tag_id, tag_width, corners_vec, use_rotation);
     ASSERT_EQ(fa_pose->getType(), "FeatureApriltagPose");
 
-    FeatureApriltagProjPtr fa_proj = std::make_shared<FeatureApriltagProj>(corners_vec, cov_pix, tag_id, tag_widh, pose);
+    FeatureApriltagProjPtr fa_proj = std::make_shared<FeatureApriltagProj>(corners_vec, cov_pix, tag_id, tag_width, pose, use_rotation);
     ASSERT_EQ(fa_proj->getType(), "FeatureApriltagProj");
 }
 
-
 TEST_F(FeatureApriltag_fixture, FeatureApriltag_getters)
 {
-    FeatureApriltagPtr fa = std::make_shared<FeatureApriltag>("toto", pose, info_pose, tag_id, corners_vec);
+    // FeatureApriltag has a pure virtual method, need to instanciate one of the derived classes
+    FeatureApriltagPosePtr fa_pose = std::make_shared<FeatureApriltagPose>(pose, info_pose, tag_id, tag_width, corners_vec, use_rotation);
 
-    ASSERT_EQ(fa->getTagId(), 1);
-    ASSERT_EQ(fa->getTagCorners().at(0).x, corners_vec(0));
-    ASSERT_EQ(fa->getTagCorners().at(0).y, corners_vec(1));
-    ASSERT_EQ(fa->getTagCorners().at(1).x, corners_vec(2));
-    ASSERT_EQ(fa->getTagCorners().at(1).y, corners_vec(3));
-    ASSERT_EQ(fa->getTagCorners().at(2).x, corners_vec(4));
-    ASSERT_EQ(fa->getTagCorners().at(2).y, corners_vec(5));
-    ASSERT_EQ(fa->getTagCorners().at(3).x, corners_vec(6));
-    ASSERT_EQ(fa->getTagCorners().at(3).y, corners_vec(7));
-}
-
-TEST_F(FeatureApriltag_fixture, FeatureApriltagPose_getters)
-{
-    FeatureApriltagPosePtr fa_pose = std::make_shared<FeatureApriltagPose>(pose, info_pose, tag_id, corners_vec, rep_error1, rep_error2, use_rotation);
-
-    ASSERT_EQ(fa_pose->getRepError1(), rep_error1);
-    ASSERT_EQ(fa_pose->getRepError2(), rep_error2);
-    ASSERT_EQ(fa_pose->getUserotation(), use_rotation);
+    ASSERT_EQ(fa_pose->getTagId(), 1);
+    ASSERT_EQ(fa_pose->getTagWidth(), tag_width);
+    ASSERT_EQ(fa_pose->getTagCorners().at(0).x, corners_vec(0));
+    ASSERT_EQ(fa_pose->getTagCorners().at(0).y, corners_vec(1));
+    ASSERT_EQ(fa_pose->getTagCorners().at(1).x, corners_vec(2));
+    ASSERT_EQ(fa_pose->getTagCorners().at(1).y, corners_vec(3));
+    ASSERT_EQ(fa_pose->getTagCorners().at(2).x, corners_vec(4));
+    ASSERT_EQ(fa_pose->getTagCorners().at(2).y, corners_vec(5));
+    ASSERT_EQ(fa_pose->getTagCorners().at(3).x, corners_vec(6));
+    ASSERT_EQ(fa_pose->getTagCorners().at(3).y, corners_vec(7));
+    ASSERT_EQ(fa_pose->getUseRotation(), use_rotation);
 }
 
 TEST_F(FeatureApriltag_fixture, FeatureApriltagProj_getters)
 {
-    FeatureApriltagProjPtr fa_proj = std::make_shared<FeatureApriltagProj>(corners_vec, cov_pix, tag_id, tag_widh, pose);
+    FeatureApriltagProjPtr fa_proj = std::make_shared<FeatureApriltagProj>(corners_vec, cov_pix, tag_id, tag_width, pose, use_rotation);
 
     ASSERT_MATRIX_APPROX(fa_proj->getPosePnp(), pose, 1e-6);
-    ASSERT_EQ(fa_proj->getTagWidth(), tag_widh);
+}
+
+TEST_F(FeatureApriltag_fixture, FeatureApriltagPose_getters)
+{
+    FeatureApriltagPosePtr fa_pose = std::make_shared<FeatureApriltagPose>(pose, info_pose, tag_id, tag_width, corners_vec, use_rotation);
+
+    ASSERT_MATRIX_APPROX(fa_pose->getPosePnp(), pose, 1e-6);
 }
 
 int main(int argc, char **argv)
