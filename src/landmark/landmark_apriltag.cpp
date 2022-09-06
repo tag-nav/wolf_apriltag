@@ -82,12 +82,16 @@ LandmarkBasePtr LandmarkApriltag::create(const YAML::Node& _lmk_node)
     }
     bool            ori_fixed               = _lmk_node["orientation fixed"]    .as<bool>();
 
+    bool            transformable           = _lmk_node["transformable"]        .as<bool>();
+
     Eigen::Vector7d pose; pose << pos, vquat;
 
     // Create a new landmark
     LandmarkApriltagPtr lmk_ptr = std::make_shared<LandmarkApriltag>(pose, tag_id, tag_width);
     lmk_ptr->getP()->setFixed(pos_fixed);
     lmk_ptr->getO()->setFixed(ori_fixed);
+    lmk_ptr->getP()->setTransformable(transformable);
+    lmk_ptr->getO()->setTransformable(transformable);
 
     return lmk_ptr;
 
