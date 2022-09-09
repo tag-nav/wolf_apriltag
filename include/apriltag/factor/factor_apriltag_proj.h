@@ -165,7 +165,7 @@ Eigen::Matrix<typename D1::Scalar, 2, 1> FactorApriltagProj::pinholeProj(const E
     MatrixSizeCheck<3,1>::check(p_c_l);
 
     typedef typename D1::Scalar T;
-    Eigen::Matrix<T, 3, 1> h =  K.cast<T>() * (p_c_l + q_c_l * l_corn.cast<T>());
+    Eigen::Matrix<T, 3, 1> h =  K * (p_c_l + q_c_l * l_corn.cast<T>());
     Eigen::Matrix<T, 2, 1> pix; pix << h(0)/h(2), h(1)/h(2);
 
     return pix;
@@ -204,7 +204,7 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
     corners_exp.segment(4,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn3_);
     corners_exp.segment(6,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn4_);
 
-    residuals = getMeasurementSquareRootInformationUpper().cast<T>() * (corners_exp - getMeasurement().cast<T>());
+    residuals = getMeasurementSquareRootInformationUpper() * (corners_exp - getMeasurement());
 
     return true;
 }
