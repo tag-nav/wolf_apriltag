@@ -136,7 +136,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
     auto t2 = std::chrono::system_clock::now();
     zarray_t *detections = apriltag_detector_detect(detector_, &im);
     auto __attribute__((unused)) dt_detection = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t2).count();
-    WOLF_INFO( "ProcessorTrackerLandmarkApriltag dt_detection (ms): " , dt_detection);
+    // WOLF_INFO( "ProcessorTrackerLandmarkApriltag dt_detection (ms): " , dt_detection);
 
     // loop all detections
     for (int i = 0; i < zarray_size(detections); i++) {
@@ -209,7 +209,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
     apriltag_detections_destroy(detections);
 
     auto __attribute__((unused)) dt_preprocess = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - t1).count();
-    WOLF_INFO( "ProcessorTrackerLandmarkApriltag dt_preprocess (ms): " , dt_preprocess );
+    // WOLF_INFO( "ProcessorTrackerLandmarkApriltag dt_preprocess (ms): " , dt_preprocess );
 }
 
 void ProcessorTrackerLandmarkApriltag::ippePoseEstimation(apriltag_detection_t *_det,
