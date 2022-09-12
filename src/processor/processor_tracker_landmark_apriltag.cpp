@@ -628,23 +628,30 @@ VectorComposite ProcessorTrackerLandmarkApriltag::getState(const StateStructure&
     Vector3d omg_w_r_avg = Vector3d::Zero();
     // 3. Frobenius/chordal metric avg followed by projection on SO(3) -> not really a diff
     // Matrix3d R_w_r_avg = Matrix3d::Zero();
+
+    double weight_sum = 0.0;
     for (auto match: matches_landmark_from_last_){
         auto feat_a = std::static_pointer_cast<FeatureApriltag>(match.first);
         // use the pose only if the rotation is not ambiguous
         if (feat_a->getUseRotation()){
             auto lmk_a = std::static_pointer_cast<LandmarkApriltag> (match.second->landmark_ptr_);
 
+            // assign weights to each measurement 
+            // double weight = 1.0;  // same for all
+            double w = 1.0/feat_a->getPosePnp()(2);  // inverse distance
+            weight_sum += w;
+
             Vector7d pose_l_c = SE3::inverse(feat_a->getPosePnp());
             Vector7d pose_w_l = lmk_a->getStateVector();
             Vector7d pose_w_r = SE3::compose(SE3::compose(pose_w_l, pose_l_c), pose_c_r);
             // 1.
-            nu_w_r_avg += SE3::log(pose_w_r);
+            nu_w_r_avg += w*SE3::log(pose_w_r);
             // 2.
-            t_w_r_avg += pose_w_r.head<3>();
-            omg_w_r_avg += q2v(Quaterniond(pose_w_r.tail<4>()));
-            // 3.
-            // R_w_r_avg += q2R(pose_w_r.tail<4>());
+            t_w_r_avg += w*pose_w_r.head<3>();
+            omg_w_r_avg += w*q2v(Quaterniond(pose_w_r.tail<4>()));
+
             nb_use_rot += 1;
+
         }
     }
     if (nb_use_rot == 0){
@@ -655,13 +662,13 @@ VectorComposite ProcessorTrackerLandmarkApriltag::getState(const StateStructure&
     // Vector7d pose_avg = SE3::exp(nu_w_r_avg);
 
     // 2. 
-    t_w_r_avg /= nb_use_rot;
-    omg_w_r_avg /= nb_use_rot;
+    t_w_r_avg /= weight_sum;
+    omg_w_r_avg /= weight_sum;
     Vector7d pose_avg; pose_avg << t_w_r_avg, v2q(omg_w_r_avg).coeffs();
 
     // // 3.
-    // t_w_r_avg /= nb_use_rot;
-    // R_w_r_avg /= nb_use_rot;
+    // t_w_r_avg /= weight_sum;
+    // R_w_r_avg /= weight_sum;
     
 
     return VectorComposite(pose_avg, "PO", {3,4});
