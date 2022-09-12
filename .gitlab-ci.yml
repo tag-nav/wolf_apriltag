@@ -87,23 +87,6 @@ stages:
   - make install
   - ldconfig
 
-.install_visionutils_template: &install_visionutils_definition
-  - cd ${CI_PROJECT_DIR}/ci_deps
-  - if [ -d vision_utils ]; then
-  -   echo "directory vision_utils exists"
-  -   cd vision_utils
-  -   git pull
-  - else
-  -   git clone https://gitlab.iri.upc.edu/labrobotica/algorithms/vision_utils.git
-  -   cd vision_utils
-  - fi
-  - mkdir -pv build
-  - cd build
-  - cmake -DCMAKE_BUILD_TYPE=release ..
-  - make -j$(nproc)
-  - make install
-  - ldconfig
-
 .install_wolfvision_template: &install_wolfvision_definition
   - cd ${CI_PROJECT_DIR}/ci_deps
   - if [ -d vision ]; then
@@ -188,7 +171,6 @@ build_and_test:bionic:
     - *print_variables_definition
     - *preliminaries_definition
     - *install_wolf_definition
-    - *install_visionutils_definition
     - *install_wolfvision_definition
     - *install_apriltag_definition
     - ldconfig # update links (shared libraries)
@@ -216,7 +198,6 @@ build_and_test:focal:
     - *print_variables_definition
     - *preliminaries_definition
     - *install_wolf_definition
-    - *install_visionutils_definition
     - *install_wolfvision_definition
     - *install_apriltag_definition
     - ldconfig # update links (shared libraries)
