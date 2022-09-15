@@ -219,16 +219,16 @@ class FactorApriltagProj_class : public testing::Test{
             l_corn4 << -s, -s, 0; // top left
 
             // Measurement for first keyframe
-            meas1 << FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
-                     FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
-                     FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
-                     FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
+            meas1 << pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
+                     pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
+                     pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
+                     pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
 
             // Measurement for second keyframe
-            meas2 << FactorApriltagProj::pinholeProj(K, p_c2_l, q_c2_l, l_corn1),
-                     FactorApriltagProj::pinholeProj(K, p_c2_l, q_c2_l, l_corn2),
-                     FactorApriltagProj::pinholeProj(K, p_c2_l, q_c2_l, l_corn3),
-                     FactorApriltagProj::pinholeProj(K, p_c2_l, q_c2_l, l_corn4);
+            meas2 << pinholeProj(K, p_c2_l, q_c2_l, l_corn1),
+                     pinholeProj(K, p_c2_l, q_c2_l, l_corn2),
+                     pinholeProj(K, p_c2_l, q_c2_l, l_corn3),
+                     pinholeProj(K, p_c2_l, q_c2_l, l_corn4);
 
             // dummy pose, not used in the factor, only for some part of the processor
             pose_dummy.setZero();
@@ -279,10 +279,10 @@ TEST_F(FactorApriltagProj_class, problem_1KF)
     Quaterniond q_c1_l = Quaterniond(T_c1_l.rotation());
 
     Vector8d proj_post;
-    proj_post << FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
-                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
-                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
-                 FactorApriltagProj::pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
+    proj_post << pinholeProj(K, p_c1_l, q_c1_l, l_corn1),
+                 pinholeProj(K, p_c1_l, q_c1_l, l_corn2),
+                 pinholeProj(K, p_c1_l, q_c1_l, l_corn3),
+                 pinholeProj(K, p_c1_l, q_c1_l, l_corn4);
     ASSERT_MATRIX_APPROX(proj_post, meas1, 1e-6);
 }
 

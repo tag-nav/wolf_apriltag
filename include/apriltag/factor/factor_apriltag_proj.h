@@ -36,6 +36,28 @@
 #include <core/factor/factor_autodiff.h>
 #include <core/sensor/sensor_base.h>
 
+
+namespace wolf 
+{
+    /**
+     * \brief Pinhole projection of a tag corner based on the tag pose in camera frame and the corner position in tag frame. 
+     * 
+     */
+    template<typename D1>
+    Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProj(const Eigen::Matrix3d& K,
+                                                         const Eigen::MatrixBase<D1>& p_c_l,
+                                                         const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
+                                                         const Eigen::Vector3d& l_corn)
+    {
+        MatrixSizeCheck<3,1>::check(p_c_l);
+
+        typedef typename D1::Scalar T;
+        Eigen::Matrix<T, 3, 1> h =  K * (p_c_l + q_c_l * l_corn.cast<T>());
+        Eigen::Matrix<T, 2, 1> pix; pix << h(0)/h(2), h(1)/h(2);
+
+        return pix;
+    }
+}
 namespace wolf
 {
 
@@ -87,11 +109,11 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3,
             WOLF_TRACE("KF", kf, " L", lmk, "; ", s, _M);
         }
         
-        template<typename D1>
-        static Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProj(const Eigen::Matrix3d& K,
-                                                             const Eigen::MatrixBase<D1>& p_c_l,
-                                                             const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
-                                                             const Eigen::Vector3d& l_corn);
+        // template<typename D1>
+        // static Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProj(const Eigen::Matrix3d& K,
+        //                                                      const Eigen::MatrixBase<D1>& p_c_l,
+        //                                                      const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
+        //                                                      const Eigen::Vector3d& l_corn);
         private:
             Eigen::Vector3d l_corn1_;
             Eigen::Vector3d l_corn2_;
@@ -153,22 +175,6 @@ inline FactorApriltagProj::FactorApriltagProj(
 inline FactorApriltagProj::~FactorApriltagProj()
 {
     //
-}
-
-
-template<typename D1>
-Eigen::Matrix<typename D1::Scalar, 2, 1> FactorApriltagProj::pinholeProj(const Eigen::Matrix3d& K,
-                                                                         const Eigen::MatrixBase<D1>& p_c_l,
-                                                                         const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
-                                                                         const Eigen::Vector3d& l_corn)
-{
-    MatrixSizeCheck<3,1>::check(p_c_l);
-
-    typedef typename D1::Scalar T;
-    Eigen::Matrix<T, 3, 1> h =  K * (p_c_l + q_c_l * l_corn.cast<T>());
-    Eigen::Matrix<T, 2, 1> pix; pix << h(0)/h(2), h(1)/h(2);
-
-    return pix;
 }
 
 
