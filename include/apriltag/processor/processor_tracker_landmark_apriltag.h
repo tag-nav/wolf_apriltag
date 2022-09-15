@@ -96,6 +96,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
     double min_time_span_;
     double max_time_span_;
     int nb_vote_for_every_first_;
+    double april_min_decision_margin_;
     double ippe_min_ratio_;
     double ippe_max_rep_error_;
 
@@ -117,6 +118,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         min_time_span_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/min_time_span");
         max_time_span_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/max_time_span");
         nb_vote_for_every_first_    = _server.getParam<int>(prefix + _unique_name                    + "/keyframe_vote/nb_vote_for_every_first");
+        april_min_decision_margin_  = _server.getParam<double>(prefix + _unique_name                 + "/april_min_decision_margin");
         ippe_min_ratio_             = _server.getParam<double>(prefix + _unique_name                 + "/ippe_min_ratio");
         ippe_max_rep_error_         = _server.getParam<double>(prefix + _unique_name                 + "/ippe_max_rep_error");
     }
@@ -136,6 +138,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         + "min_time_span_: "            + std::to_string(min_time_span_)                + "\n"
         + "max_time_span_: "            + std::to_string(max_time_span_)                + "\n"
         + "nb_vote_for_every_first_: "  + std::to_string(nb_vote_for_every_first_)      + "\n"
+        + "april_min_decision_margin_: "+ std::to_string(april_min_decision_margin_)    + "\n"
         + "ippe_min_ratio_: "           + std::to_string(ippe_min_ratio_)               + "\n"
         + "ippe_max_rep_error_: "       + std::to_string(ippe_max_rep_error_)           + "\n";
     }
@@ -262,6 +265,7 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark, public
         apriltag_family_t* tag_family_;
         double std_pix_;                    ///< pixel error to be propagated to a camera to tag transformation covariance
         bool use_proj_factor_;
+        double april_min_decision_margin_;
         double ippe_min_ratio_;
         double ippe_max_rep_error_;
         Matrix3d K_;

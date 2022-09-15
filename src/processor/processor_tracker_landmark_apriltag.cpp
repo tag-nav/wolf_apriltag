@@ -37,6 +37,7 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
         std_pix_(_params_tracker_landmark_apriltag->std_pix_),
         use_proj_factor_(_params_tracker_landmark_apriltag->use_proj_factor_),
+        april_min_decision_margin_(_params_tracker_landmark_apriltag->april_min_decision_margin_),
         ippe_min_ratio_(_params_tracker_landmark_apriltag->ippe_min_ratio_),
         ippe_max_rep_error_(_params_tracker_landmark_apriltag->ippe_max_rep_error_),
         cv_K_(3,3),
@@ -143,6 +144,10 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         apriltag_detection_t *det;
         zarray_get(detections, i, &det);
 
+        // skip weak detections
+        if (det->decision_margin < april_min_decision_margin_)
+            continue;
+
         int    tag_id     = det->id;
         double tag_width  = getTagWidth(tag_id);   // tag width in meters
 
@@ -155,9 +160,16 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         Eigen::Isometry3d M_ippe1, M_ippe2;
         double rep_error1, rep_error2;
         ippePoseEstimation(det, cv_K_, tag_width, M_ippe1, rep_error1, M_ippe2, rep_error2);
-        // If not so sure about whether we have the right solution or not, do not create a feature
-        bool use_rotation = ((rep_error2 / rep_error1 > ippe_min_ratio_) && rep_error1 < ippe_max_rep_error_);
+
+        WOLF_INFO("Tag #", tag_id, " \tmrg: ", det->decision_margin, " \terr 1: ", rep_error1, " \tratio: ", rep_error2 / rep_error1);
+        
+        // If reprojection error too high, do not create a feature
+        if (rep_error1 > ippe_max_rep_error_) continue;
+
+        // If not so sure about whether we have the right solution or not, ignore computed orientation
+        bool use_rotation = (rep_error2 / rep_error1 > ippe_min_ratio_);
         //////////////////
+
 
         // set the measured pose vector
         Eigen::Vector3d p_c_t ( M_ippe1.translation() ); // translation vector in apriltag meters
@@ -192,7 +204,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                 // Put a very high covariance on angles measurements (low info matrix)
                 info.bottomLeftCorner(3,3) = Eigen::Matrix3d::Zero();
                 info.topRightCorner(3,3) = Eigen::Matrix3d::Zero();
-                info.bottomRightCorner(3,3) = M_1_PI*M_1_PI * Eigen::Matrix3d::Identity();  // 180 degrees standar deviation
+                info.bottomRightCorner(3,3) = 0.01*M_1_PI*M_1_PI * Eigen::Matrix3d::Identity();  // 1800 degrees standard deviation
             }
 
             // add to detected features list
@@ -401,11 +413,12 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
     if (detections_last_.empty())
         return false;
 
-    double dt_incoming_origin = getIncoming()->getTimeStamp().get() - getOrigin()->getTimeStamp().get();
+    double dt_incoming_origin    = getIncoming()->getTimeStamp() - getOrigin()->getTimeStamp();
+    double dt_last_origin        = getLast()->getTimeStamp() - getOrigin()->getTimeStamp();
     bool more_than_min_time_vote = dt_incoming_origin > min_time_span_; 
-    bool too_long_since_last_KF = dt_incoming_origin > max_time_span_ + 1e-5;
+    bool too_long_since_last_KF  = dt_last_origin > max_time_span_;
 
-    bool enough_features_in_last = detections_last_.size() >= min_features_for_keyframe_;
+    bool enough_features_in_last     = detections_last_.size() >= min_features_for_keyframe_;
     bool enough_features_in_incoming = detections_incoming_.size() >= min_features_for_keyframe_;
     
     // not enough detection in incoming capture and a minimum time since last KF has past
