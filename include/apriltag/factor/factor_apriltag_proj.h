@@ -44,7 +44,7 @@ namespace wolf
      * 
      */
     template<typename D1>
-    Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProj(const Eigen::Matrix3d& K,
+    Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProjCorner(const Eigen::Matrix3d& K,
                                                          const Eigen::MatrixBase<D1>& p_c_l,
                                                          const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
                                                          const Eigen::Vector3d& l_corn)
@@ -109,11 +109,65 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3,
             WOLF_TRACE("KF", kf, " L", lmk, "; ", s, _M);
         }
         
-        // template<typename D1>
-        // static Eigen::Matrix<typename D1::Scalar, 2, 1> pinholeProj(const Eigen::Matrix3d& K,
-        //                                                      const Eigen::MatrixBase<D1>& p_c_l,
-        //                                                      const Eigen::Quaternion<typename D1::Scalar>& q_c_l,
-        //                                                      const Eigen::Vector3d& l_corn);
+        private:
+            Eigen::Vector3d l_corn1_;
+            Eigen::Vector3d l_corn2_;
+            Eigen::Vector3d l_corn3_;
+            Eigen::Vector3d l_corn4_;
+            SensorCameraConstPtr camera_;
+            Matrix3d K_;
+};
+
+
+
+WOLF_PTR_TYPEDEFS(FactorApriltagProjBarrier);
+
+class FactorApriltagProjBarrier : public FactorAutodiff<FactorApriltagProjBarrier, 9, 3, 4, 3, 4, 3, 4>
+{
+    public:
+
+        /** \brief Class constructor
+         */
+        FactorApriltagProjBarrier(
+                const FeatureApriltagProjPtr& _feature_ptr,
+                const SensorBasePtr& _sensor_ptr,
+                const FrameBasePtr& _frame_ptr,
+                const LandmarkBasePtr& _landmark_other_ptr,
+                const ProcessorBasePtr& _processor_ptr,
+                bool _apply_loss_function,
+                FactorStatus _status = FAC_ACTIVE);
+
+        /** \brief Class Destructor
+         */
+        ~FactorApriltagProjBarrier() override;
+ 
+        /** brief : compute the residual from the state blocks being iterated by the solver.
+         **/
+        template<typename T>
+        bool operator ()( const T* const _p_camera, 
+                          const T* const _o_camera, 
+                          const T* const _p_keyframe, 
+                          const T* const _o_keyframe, 
+                          const T* const _p_landmark, 
+                          const T* const _o_landmark, 
+                          T* _residuals) const;
+
+        Eigen::Vector9d residual() const;
+        double cost() const;
+
+        // print function only for double (not Jet)
+        template<typename T, int Rows, int Cols>
+        void print(int kf, int lmk, const std::string s, const Eigen::Matrix<T, Rows, Cols> _M) const
+        {
+            // jet prints nothing
+        }
+        template<int Rows, int Cols>
+        void print(int kf, int lmk, const std::string s, const Eigen::Matrix<double, Rows, Cols> _M) const
+        {
+            // double prints stuff
+            WOLF_TRACE("KF", kf, " L", lmk, "; ", s, _M);
+        }
+        
         private:
             Eigen::Vector3d l_corn1_;
             Eigen::Vector3d l_corn2_;
@@ -125,6 +179,12 @@ class FactorApriltagProj : public FactorAutodiff<FactorApriltagProj, 8, 3, 4, 3,
 
 } // namespace wolf
  
+
+
+
+
+
+
 // Include here all headers for this class
 //#include <YOUR_HEADERS.h>
 
@@ -205,10 +265,10 @@ bool FactorApriltagProj::operator ()(const T* const _p_camera,
     //////////////////////////////////////
     // Expected corner projections
     Eigen::Matrix<T, 8, 1> corners_exp;
-    corners_exp.segment(0,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn1_);
-    corners_exp.segment(2,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn2_);
-    corners_exp.segment(4,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn3_);
-    corners_exp.segment(6,2) = pinholeProj(K_, p_c_l, q_c_l, l_corn4_);
+    corners_exp.segment(0,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn1_);
+    corners_exp.segment(2,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn2_);
+    corners_exp.segment(4,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn3_);
+    corners_exp.segment(6,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn4_);
 
     residuals = getMeasurementSquareRootInformationUpper() * (corners_exp - getMeasurement());
 
@@ -237,6 +297,163 @@ inline double FactorApriltagProj::cost() const
 {
     return residual().squaredNorm();
 }
+
+
+
+
+///////////////////////////////////////////////
+////////// FactorApriltagProjBarrier //////////
+///////////////////////////////////////////////
+
+
+inline FactorApriltagProjBarrier::FactorApriltagProjBarrier(
+        const FeatureApriltagProjPtr& _feature_ptr,
+        const SensorBasePtr& _sensor_ptr,
+        const FrameBasePtr& _frame_ptr,
+        const LandmarkBasePtr& _landmark_other_ptr,
+        const ProcessorBasePtr& _processor_ptr,
+        bool _apply_loss_function,
+        FactorStatus _status) :
+            FactorAutodiff("FactorApriltagProjBarrier",
+                           TOP_LMK,
+                           _feature_ptr,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           _landmark_other_ptr,
+                           _processor_ptr,
+                           _apply_loss_function,
+                           _status,
+                           _sensor_ptr->getP(),         _sensor_ptr->getO(),
+                           _frame_ptr->getP(),          _frame_ptr->getO(),
+                           _landmark_other_ptr->getP(), _landmark_other_ptr->getO()
+            )
+{
+    double tag_width = _feature_ptr->getTagWidth();
+
+    // Same order as the 2d corners (anti clockwise, looking at the tag).
+    // Looking at the tag, the reference frame is
+    // X = Right, Y = Down, Z = Inside the plane
+    double s = tag_width/2;
+    l_corn1_ << -s,  s, 0; // bottom left
+    l_corn2_ <<  s,  s, 0; // bottom right
+    l_corn3_ <<  s, -s, 0; // top right
+    l_corn4_ << -s, -s, 0; // top left
+
+    //////////////////////////////////////
+    // Camera matrix
+    K_ = std::static_pointer_cast<SensorCamera>(_sensor_ptr)->getIntrinsicMatrix();
+}
+
+/** \brief Class Destructor
+ */
+inline FactorApriltagProjBarrier::~FactorApriltagProjBarrier()
+{
+    //
+}
+
+// utility function
+template<typename T>
+T barrier(T h, double delta){
+    if (h >= delta){
+        return -log(h);
+    }
+    else {
+        return 0.5*(pow(h/delta - 2, 2) - 1) - log(delta);
+    }
+}
+
+template<typename D>
+Eigen::Matrix<typename D::Scalar, 3, 1> z_axis_from_quat(const Eigen::Quaternion<typename D::Scalar>& q)
+{   
+    // compute unitary z axis as the third column of the rotation matrix derived from the quaternion
+    Eigen::Matrix<typename D::Scalar, 3, 1> z_vec;
+    z_vec << 2*q.x()*q.z() + 2*q.w()*q.y(),
+             2*q.y()*q.z() - 2*q.w()*q.x(),
+             1 - 2*q.x()*q.x() - 2*q.y()*q.y();
+    return z_vec;
+}
+
+template<typename T> 
+bool FactorApriltagProjBarrier::operator ()(const T* const _p_camera, 
+                                     const T* const _o_camera, 
+                                     const T* const _p_keyframe, 
+                                     const T* const _o_keyframe, 
+                                     const T* const _p_landmark, 
+                                     const T* const _o_landmark, 
+                                     T* _residuals) const
+{
+    // Maps
+    Eigen::Map<const Eigen::Matrix<T,3,1>> p_r_c(_p_camera);
+    Eigen::Map<const Eigen::Quaternion<T>> q_r_c(_o_camera);
+    Eigen::Map<const Eigen::Matrix<T,3,1>> p_w_r(_p_keyframe);
+    Eigen::Map<const Eigen::Quaternion<T>> q_w_r(_o_keyframe);
+    Eigen::Map<const Eigen::Matrix<T,3,1>> p_w_l(_p_landmark);
+    Eigen::Map<const Eigen::Quaternion<T>> q_w_l(_o_landmark);
+    Eigen::Map<Eigen::Matrix<T,9,1>> residuals(_residuals);
+
+    // Expected relative camera-lmk transformation
+    // Expected measurement
+    Eigen::Quaternion<T> q_w_c = q_w_r * q_r_c;
+    Eigen::Quaternion<T> q_c_w = q_w_c.conjugate();
+    Eigen::Quaternion<T> q_c_l = q_c_w * q_w_l;
+    Eigen::Matrix<T,3,1> p_c_l = q_c_w * (-(p_w_r + q_w_r * p_r_c) + p_w_l);
+
+    //////////////////////////////////////
+    // Expected corner projections
+    Eigen::Matrix<T, 8, 1> corners_exp;
+    corners_exp.segment(0,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn1_);
+    corners_exp.segment(2,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn2_);
+    corners_exp.segment(4,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn3_);
+    corners_exp.segment(6,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn4_);
+    residuals.segment(0,8) = corners_exp - getMeasurement();
+    
+    // barrier function 
+    Eigen::Matrix<T,3,1> z_c = z_axis_from_quat(q_w_c);
+    Eigen::Matrix<T,3,1> z_l = z_axis_from_quat(q_w_l);
+    double delta = 0.2;
+    residuals.segment(8,1) = barrier(z_c.dot(z_l), delta);
+
+    Matrix9d info_mat = Matrix9d::Identity();
+    info_mat.block<8,8>(0,0) = getMeasurementSquareRootInformationUpper();
+    double mu_barrier = 1.0;
+    info_mat(9,9) = mu_barrier;
+    residuals = getMeasurementSquareRootInformationUpper() * (corners_exp - getMeasurement());
+
+    return true;
+}
+
+
+inline Eigen::Vector9d FactorApriltagProjBarrier::residual() const
+{
+    Eigen::Vector9d res;
+    double * p_camera, * o_camera, * p_frame, * o_frame, * p_tag, * o_tag;
+    p_camera = getCapture()->getSensorP()->getState().data();
+    o_camera = getCapture()->getSensorO()->getState().data();
+    p_frame  = getCapture()->getFrame()->getP()->getState().data();
+    o_frame  = getCapture()->getFrame()->getO()->getState().data();
+    p_tag    = getLandmarkOther()->getP()->getState().data();
+    o_tag    = getLandmarkOther()->getO()->getState().data();
+
+    operator() (p_camera, o_camera, p_frame, o_frame, p_tag, o_tag, res.data());
+
+    return res;
+}
+
+
+inline double FactorApriltagProjBarrier::cost() const
+{
+    return residual().squaredNorm();
+}
+
+
+
+
+
+
+
+
+
 
 } // namespace wolf
 
