@@ -416,7 +416,7 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
     double dt_incoming_origin    = getIncoming()->getTimeStamp() - getOrigin()->getTimeStamp();
     double dt_last_origin        = getLast()->getTimeStamp() - getOrigin()->getTimeStamp();
     bool more_than_min_time_vote = dt_incoming_origin > min_time_span_; 
-    bool too_long_since_last_KF  = dt_last_origin > max_time_span_;
+    bool too_long_since_last_KF  = dt_last_origin > max_time_span_ - params_->time_tolerance;
 
     bool enough_features_in_last     = detections_last_.size() >= min_features_for_keyframe_;
     bool enough_features_in_incoming = detections_incoming_.size() >= min_features_for_keyframe_;
