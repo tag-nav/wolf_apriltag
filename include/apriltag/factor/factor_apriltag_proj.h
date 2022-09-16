@@ -363,14 +363,14 @@ T barrier(T h, double delta){
     }
 }
 
-template<typename D>
-Eigen::Matrix<typename D::Scalar, 3, 1> z_axis_from_quat(const Eigen::Quaternion<typename D::Scalar>& q)
+template<typename T>
+Eigen::Matrix<T, 3, 1> z_axis_from_quat(const Eigen::Quaternion<T>& q)
 {   
     // compute unitary z axis as the third column of the rotation matrix derived from the quaternion
-    Eigen::Matrix<typename D::Scalar, 3, 1> z_vec;
-    z_vec << 2*q.x()*q.z() + 2*q.w()*q.y(),
-             2*q.y()*q.z() - 2*q.w()*q.x(),
-             1 - 2*q.x()*q.x() - 2*q.y()*q.y();
+    Eigen::Matrix<T, 3, 1> z_vec;
+    z_vec <<     2.0*q.x()*q.z() + 2.0*q.w()*q.y(),
+                 2.0*q.y()*q.z() - 2.0*q.w()*q.x(),
+             1.0 - 2.0*q.x()*q.x() - 2.0*q.y()*q.y();
     return z_vec;
 }
 
