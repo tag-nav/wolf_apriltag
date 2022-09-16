@@ -359,17 +359,17 @@ T barrier(T h, double delta){
         return -log(h);
     }
     else {
-        return 0.5*(pow(h/delta - 2, 2) - 1) - log(delta);
+        return 0.5*(pow(h/delta - 2.0, 2.0) - 1.0) - log(delta);
     }
 }
 
-template<typename T>
-Eigen::Matrix<T, 3, 1> z_axis_from_quat(const Eigen::Quaternion<T>& q)
+template<typename D>
+Eigen::Matrix<typename D::Scalar, 3, 1> z_axis_from_quat(const Eigen::QuaternionBase<D>& q)
 {   
-    // compute unitary z axis as the third column of the rotation matrix derived from the quaternion
-    Eigen::Matrix<T, 3, 1> z_vec;
-    z_vec <<     2.0*q.x()*q.z() + 2.0*q.w()*q.y(),
-                 2.0*q.y()*q.z() - 2.0*q.w()*q.x(),
+    // compute unitary z axis: third column of the rotation matrix derived from the quaternion
+    Eigen::Matrix<typename D::Scalar, 3, 1> z_vec;
+    z_vec <<       2.0*q.x()*q.z() + 2.0*q.w()*q.y(),
+                   2.0*q.y()*q.z() - 2.0*q.w()*q.x(),
              1.0 - 2.0*q.x()*q.x() - 2.0*q.y()*q.y();
     return z_vec;
 }
@@ -412,7 +412,8 @@ bool FactorApriltagProjBarrier::operator ()(const T* const _p_camera,
     Eigen::Matrix<T,3,1> z_c = z_axis_from_quat(q_w_c);
     Eigen::Matrix<T,3,1> z_l = z_axis_from_quat(q_w_l);
     double delta = 0.2;
-    residuals.segment(8,1) = barrier(z_c.dot(z_l), delta);
+    // z_c . z_l = cos(theta) > 0  equivalent to enforcin the camera is in front of the tag
+    residuals(8) = barrier(z_c.dot(z_l), delta);
 
     Matrix9d info_mat = Matrix9d::Identity();
     info_mat.block<8,8>(0,0) = getMeasurementSquareRootInformationUpper();
