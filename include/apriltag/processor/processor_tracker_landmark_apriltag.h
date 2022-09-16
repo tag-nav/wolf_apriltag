@@ -92,6 +92,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
     double std_pix_;
     
     bool use_proj_factor_;
+    bool use_barrier_function_;
 
     double min_time_span_;
     double max_time_span_;
@@ -114,6 +115,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         refine_edges_               = _server.getParam<bool>(prefix + _unique_name                   + "/refine_edges");
         std_pix_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_pix");
         use_proj_factor_            = _server.getParam<bool>(prefix + _unique_name                   + "/use_proj_factor");
+        use_barrier_function_       = _server.getParam<bool>(prefix + _unique_name                   + "/use_barrier_function");
         min_time_span_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/min_time_span");
         max_time_span_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/max_time_span");
         nb_vote_for_every_first_    = _server.getParam<int>(prefix + _unique_name                    + "/keyframe_vote/nb_vote_for_every_first");
@@ -133,6 +135,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         + "refine_edges_: "             + std::to_string(refine_edges_)                 + "\n"
         + "std_pix_: "                  + std::to_string(std_pix_)                      + "\n"
         + "use_proj_factor_: "          + std::to_string(use_proj_factor_)              + "\n"
+        + "use_barrier_function_: "     + std::to_string(use_barrier_function_)         + "\n"
         + "min_time_span_: "            + std::to_string(min_time_span_)                + "\n"
         + "max_time_span_: "            + std::to_string(max_time_span_)                + "\n"
         + "nb_vote_for_every_first_: "  + std::to_string(nb_vote_for_every_first_)      + "\n"
@@ -255,15 +258,10 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark, public
         void resetDerived() override;
 
     private:
-        std::map<int, double> tag_widths_;  ///< each tag's width indexed by tag_id
-        double tag_width_default_;          ///< all tags widths defaut to this
+        ParamsProcessorTrackerLandmarkApriltagPtr params_;
         cv::Mat grayscale_image_;
         apriltag_detector_t* detector_;
         apriltag_family_t* tag_family_;
-        double std_pix_;                    ///< pixel error to be propagated to a camera to tag transformation covariance
-        bool use_proj_factor_;
-        double ippe_min_ratio_;
-        double ippe_max_rep_error_;
         Matrix3d K_;
         cv::Mat_<double> cv_K_;
         int n_reset_;

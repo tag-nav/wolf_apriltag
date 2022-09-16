@@ -33,12 +33,7 @@ namespace wolf {
 ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProcessorTrackerLandmarkApriltagPtr _params_tracker_landmark_apriltag) :
         ProcessorTrackerLandmark("ProcessorTrackerLandmarkApriltag", "PO", _params_tracker_landmark_apriltag),
         MotionProvider("PO", _params_tracker_landmark_apriltag),
-        tag_widths_(_params_tracker_landmark_apriltag->tag_widths_),
-        tag_width_default_(_params_tracker_landmark_apriltag->tag_width_default_),
-        std_pix_(_params_tracker_landmark_apriltag->std_pix_),
-        use_proj_factor_(_params_tracker_landmark_apriltag->use_proj_factor_),
-        ippe_min_ratio_(_params_tracker_landmark_apriltag->ippe_min_ratio_),
-        ippe_max_rep_error_(_params_tracker_landmark_apriltag->ippe_max_rep_error_),
+        params_(_params_tracker_landmark_apriltag),
         cv_K_(3,3),
         n_reset_(0),
         min_time_span_(_params_tracker_landmark_apriltag->min_time_span_),
@@ -156,7 +151,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         double rep_error1, rep_error2;
         ippePoseEstimation(det, cv_K_, tag_width, M_ippe1, rep_error1, M_ippe2, rep_error2);
         // If not so sure about whether we have the right solution or not, do not create a feature
-        bool use_rotation = ((rep_error2 / rep_error1 > ippe_min_ratio_) && rep_error1 < ippe_max_rep_error_);
+        bool use_rotation = ((rep_error2 / rep_error1 > params_->ippe_min_ratio_) && rep_error1 < params_->ippe_max_rep_error_);
         //////////////////
 
         // set the measured pose vector
@@ -172,11 +167,11 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                                              det->p[2][0], det->p[2][1],  // top right
                                              det->p[3][0], det->p[3][1];  // top left
 
-        if (use_proj_factor_)
+        if (params_->use_proj_factor_)
         {
             // add to detected features list
             detections_incoming_.push_back(std::make_shared<FeatureApriltagProj>(corners_vec,
-                                                                                 std_pix_*std_pix_*Eigen::Matrix8d::Identity(),
+                                                                                 params_->std_pix_*params_->std_pix_*Eigen::Matrix8d::Identity(),
                                                                                  tag_id,
                                                                                  tag_width,
                                                                                  pose,
@@ -186,7 +181,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         {
             // compute the covariance
             // Eigen::Matrix6d cov = getVarVec().asDiagonal() ;  // fixed dummy covariance
-            Eigen::Matrix6d info = computeInformation(p_c_t, R_c_t, K_, tag_width, std_pix_);  // Lie jacobians covariance
+            Eigen::Matrix6d info = computeInformation(p_c_t, R_c_t, K_, tag_width, params_->std_pix_);  // Lie jacobians covariance
 
             if (!use_rotation){
                 // Put a very high covariance on angles measurements (low info matrix)
@@ -280,6 +275,7 @@ FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _fe
     }
     else
     {
+        // if (params_->use_barrier_function_)
         auto feat_proj = std::dynamic_pointer_cast<FeatureApriltagProj>(_feature_ptr);
         return FactorBase::emplace<FactorApriltagProj>(feat_proj,
                                         feat_proj,
@@ -307,7 +303,7 @@ LandmarkBasePtr ProcessorTrackerLandmarkApriltag::emplaceLandmark(FeatureBasePtr
     Eigen::Isometry3d r_M_c = Eigen::Translation<double,3>(pos.head(3)) * quat_tmp;
 
     // camera to lmk (tag)
-    if (use_proj_factor_)
+    if (params_->use_proj_factor_)
     {
         auto feat_proj = std::dynamic_pointer_cast<FeatureApriltagProj>(_feature_ptr);
         pos                     = feat_proj->getPosePnp().head(3);
@@ -402,8 +398,8 @@ bool ProcessorTrackerLandmarkApriltag::voteForKeyFrame() const
         return false;
 
     double dt_incoming_origin = getIncoming()->getTimeStamp().get() - getOrigin()->getTimeStamp().get();
-    bool more_than_min_time_vote = dt_incoming_origin > min_time_span_; 
-    bool too_long_since_last_KF = dt_incoming_origin > max_time_span_ + 1e-5;
+    bool more_than_min_time_vote = dt_incoming_origin > params_->min_time_span_; 
+    bool too_long_since_last_KF = dt_incoming_origin > params_->max_time_span_ + 1e-5;
 
     bool enough_features_in_last = detections_last_.size() >= min_features_for_keyframe_;
     bool enough_features_in_incoming = detections_incoming_.size() >= min_features_for_keyframe_;
@@ -461,10 +457,10 @@ unsigned int ProcessorTrackerLandmarkApriltag::findLandmarks(const LandmarkBaseP
 
 double ProcessorTrackerLandmarkApriltag::getTagWidth(int _id) const
 {
-    if (tag_widths_.find(_id) != tag_widths_.end())
-        return tag_widths_.at(_id);
+    if (params_->tag_widths_.find(_id) != params_->tag_widths_.end())
+        return params_->tag_widths_.at(_id);
     else
-        return tag_width_default_;
+        return params_->tag_width_default_;
 }
 
 Eigen::Matrix6d ProcessorTrackerLandmarkApriltag::computeInformation(Eigen::Vector3d const &t,
