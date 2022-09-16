@@ -264,26 +264,38 @@ void ProcessorTrackerLandmarkApriltag::postProcess()
 FactorBasePtr ProcessorTrackerLandmarkApriltag::emplaceFactor(FeatureBasePtr _feature_ptr,
                                                               LandmarkBasePtr _landmark_ptr)
 {
-    auto feat_pose = std::dynamic_pointer_cast<FeatureApriltagPose>(_feature_ptr);
-    if (feat_pose)
+    if (params_->use_proj_factor_)
     {
+        auto feat_proj = std::dynamic_pointer_cast<FeatureApriltagProj>(_feature_ptr);
+        if (params_->use_barrier_function_)
+        {
+            return FactorBase::emplace<FactorApriltagProjBarrier>(feat_proj,
+                                            feat_proj,
+                                            getSensor(),
+                                            feat_proj->getFrame(),
+                                            _landmark_ptr,
+                                            shared_from_this(),
+                                            params_->apply_loss_function);
+        }
+        else
+        {
+            return FactorBase::emplace<FactorApriltagProj>(feat_proj,
+                                            feat_proj,
+                                            getSensor(),
+                                            feat_proj->getFrame(),
+                                            _landmark_ptr,
+                                            shared_from_this(),
+                                            params_->apply_loss_function);
+        }
+    }
+    else
+    {
+        auto feat_pose = std::dynamic_pointer_cast<FeatureApriltagPose>(_feature_ptr);
         return FactorBase::emplace<FactorRelativePose3dWithExtrinsics>(_feature_ptr,
                                                 _feature_ptr,
                                                 _landmark_ptr,
                                                 shared_from_this(),
                                                 params_->apply_loss_function);
-    }
-    else
-    {
-        // if (params_->use_barrier_function_)
-        auto feat_proj = std::dynamic_pointer_cast<FeatureApriltagProj>(_feature_ptr);
-        return FactorBase::emplace<FactorApriltagProj>(feat_proj,
-                                        feat_proj,
-                                        getSensor(),
-                                        feat_proj->getFrame(),
-                                        _landmark_ptr,
-                                        shared_from_this(),
-                                        params_->apply_loss_function);
     }
 
 }

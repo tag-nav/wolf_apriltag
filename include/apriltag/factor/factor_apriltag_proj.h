@@ -406,20 +406,16 @@ bool FactorApriltagProjBarrier::operator ()(const T* const _p_camera,
     corners_exp.segment(2,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn2_);
     corners_exp.segment(4,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn3_);
     corners_exp.segment(6,2) = pinholeProjCorner(K_, p_c_l, q_c_l, l_corn4_);
-    residuals.segment(0,8) = corners_exp - getMeasurement();
+    residuals.segment(0,8) = getMeasurementSquareRootInformationUpper() * (corners_exp - getMeasurement());
     
     // barrier function 
     Eigen::Matrix<T,3,1> z_c = z_axis_from_quat(q_w_c);
     Eigen::Matrix<T,3,1> z_l = z_axis_from_quat(q_w_l);
     double delta = 0.2;
     // z_c . z_l = cos(theta) > 0  equivalent to enforcin the camera is in front of the tag
-    residuals(8) = barrier(z_c.dot(z_l), delta);
-
-    Matrix9d info_mat = Matrix9d::Identity();
-    info_mat.block<8,8>(0,0) = getMeasurementSquareRootInformationUpper();
     double mu_barrier = 1.0;
-    info_mat(9,9) = mu_barrier;
-    residuals = getMeasurementSquareRootInformationUpper() * (corners_exp - getMeasurement());
+    // residual raised to power 2 -> barrier is not quadratic but **4
+    residuals(8) = mu_barrier * barrier(z_c.dot(z_l), delta);
 
     return true;
 }
