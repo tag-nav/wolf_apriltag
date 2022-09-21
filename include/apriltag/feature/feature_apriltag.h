@@ -41,11 +41,14 @@ class FeatureApriltag : public FeatureBase
         FeatureApriltag(
             const std::string _type,
             const Eigen::VectorXd & _measurement,
-            const Eigen::MatrixXd & _meas_covariance,
+            const Eigen::MatrixXd & _meas_uncertainty,
             const int _tag_id,
             double _tag_width,
             const Vector8d & _corners_vec,
             bool _use_rotation,
+            double _detection_margin,
+            double _reprojection_error_best, 
+            double _reprojection_error_second, 
             UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
         ~FeatureApriltag() override;
         
@@ -80,7 +83,7 @@ class FeatureApriltag : public FeatureBase
         double tag_width_;
         std::vector<cv::Point2d> tag_corners_;
         bool use_rotation_;
-        
+        double detection_margin_, reprojection_error_best_, reprojection_error_second_;        
 };
 
 
@@ -92,12 +95,18 @@ inline FeatureApriltag::FeatureApriltag(
     double _tag_width,
     const Vector8d & _corners_vec,
     bool _use_rotation,
+    double _detection_margin,
+    double _reprojection_error_best, 
+    double _reprojection_error_second, 
     UncertaintyType _uncertainty_type) :
         FeatureBase(_type, _measurement, _meas_uncertainty, _uncertainty_type),
         tag_id_(_tag_id),
         tag_width_(_tag_width),
         tag_corners_(4),
-        use_rotation_(_use_rotation)
+        use_rotation_(_use_rotation),
+        detection_margin_(_detection_margin),
+        reprojection_error_best_(_reprojection_error_best),
+        reprojection_error_second_(_reprojection_error_second)
 {
     setTrackId(_tag_id);  // assuming there is a single landmark with this id in the scene
 

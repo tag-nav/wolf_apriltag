@@ -161,7 +161,7 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
         double rep_error1, rep_error2;
         ippePoseEstimation(det, cv_K_, tag_width, M_ippe1, rep_error1, M_ippe2, rep_error2);
 
-        WOLF_INFO("Tag #", tag_id, " \tmrg: ", det->decision_margin, " \terr 1: ", rep_error1, " \tratio: ", rep_error2 / rep_error1);
+        // WOLF_INFO("Tag #", tag_id, " \tmrg: ", det->decision_margin, " \terr 1: ", rep_error1, " \tratio: ", rep_error2 / rep_error1);
         
         // If reprojection error too high, do not create a feature
         if (rep_error1 > ippe_max_rep_error_) continue;
@@ -192,7 +192,10 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                                                                                  tag_id,
                                                                                  tag_width,
                                                                                  pose,
-                                                                                 use_rotation));
+                                                                                 use_rotation,
+                                                                                 det->decision_margin,
+                                                                                 rep_error1,
+                                                                                 rep_error2));
         }
         else
         {
@@ -214,6 +217,9 @@ void ProcessorTrackerLandmarkApriltag::preProcess()
                                                                                  tag_width,
                                                                                  corners_vec,
                                                                                  use_rotation,
+                                                                                 det->decision_margin,
+                                                                                 rep_error1,
+                                                                                 rep_error2,
                                                                                  FeatureBase::UncertaintyType::UNCERTAINTY_IS_INFO));
         }
     }

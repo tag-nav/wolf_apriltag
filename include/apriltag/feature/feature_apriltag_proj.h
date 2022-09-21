@@ -46,6 +46,9 @@ class FeatureApriltagProj : public FeatureApriltag
             const double _tag_width,
             const Eigen::Vector7d& _pose_pnp,
             bool _use_rotation,
+            double _detection_margin,
+            double _reprojection_error_best, 
+            double _reprojection_error_second, 
             UncertaintyType _uncertainty_type = UNCERTAINTY_IS_COVARIANCE);
 
         ~FeatureApriltagProj() override;
@@ -64,8 +67,11 @@ inline FeatureApriltagProj::FeatureApriltagProj(
     const double _tag_width,
     const Eigen::Vector7d& _pose_pnp,
     bool _use_rotation,
+    double _detection_margin,
+    double _reprojection_error_best, 
+    double _reprojection_error_second, 
     UncertaintyType _uncertainty_type) :
-        FeatureApriltag("FeatureApriltagProj", _measurement, _meas_covariance, _tag_id, _tag_width, _measurement, _use_rotation, _uncertainty_type),
+        FeatureApriltag("FeatureApriltagProj", _measurement, _meas_covariance, _tag_id, _tag_width, _measurement, _use_rotation, _detection_margin, _reprojection_error_best, _reprojection_error_second, _uncertainty_type),
         pose_pnp_(_pose_pnp)
 {
     

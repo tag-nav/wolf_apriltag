@@ -99,6 +99,7 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
         double                  rep_error1;
         double                  rep_error2;
         bool                    use_rotation;
+        double decision_margin, rep_err1, rep_err2;
         Vector7d pose_default_;
         Matrix6d cov_pose_;
 
@@ -131,6 +132,9 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
             rep_error1 = 0.01;
             rep_error2 = 0.1;
             use_rotation = true;
+            decision_margin = 10;
+            rep_err1 = 1;
+            rep_err2 = 2;
             
             // use for tests in which pose value irrelevant
             pose_default_ << 0,0,0, 0,0,0,1;
@@ -248,9 +252,9 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeaturesDuplicated)
 
     // feature 0
     tag_id_ = 0;
-    auto f0 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation);
+    auto f0 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation, decision_margin, rep_err1, rep_err2);
     // feature 1 (with same id of feature 0)
-    auto f1 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation);
+    auto f1 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation, decision_margin, rep_err1, rep_err2);
 
     features_in.push_back(f0);
     features_in.push_back(f1);
@@ -270,13 +274,13 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeatures)
 
     // feature 0
     tag_id_ = 0;
-    auto f0 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation);
+    auto f0 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation, decision_margin, rep_err1, rep_err2);
     // feature 1
     tag_id_ = 1;
-    auto f1 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation);
+    auto f1 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation, decision_margin, rep_err1, rep_err2);
     // feature 2
     tag_id_ = 2;
-    auto f2 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation);
+    auto f2 = std::make_shared<FeatureApriltagPose>(pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation, decision_margin, rep_err1, rep_err2);
 
     //we add different features in the list
     features_in.push_back(f0);
@@ -309,7 +313,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, detectNewFeatures)
 TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
 {
     Vector7d pose_landmark((Vector7d()<<1,2,3,1,0,0,0).finished());
-    auto f1 = std::make_shared<FeatureApriltagPose>(pose_landmark, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation);
+    auto f1 = std::make_shared<FeatureApriltagPose>(pose_landmark, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation, decision_margin, rep_err1, rep_err2);
 
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
@@ -322,7 +326,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceLandmark)
 TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactor)
 {
     
-    auto f1 = FeatureBase::emplace<FeatureApriltagPose>(C1, pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation);
+    auto f1 = FeatureBase::emplace<FeatureApriltagPose>(C1, pose_default_, cov_pose_, tag_id_, 0.1, corners_vec_, use_rotation, decision_margin, rep_err1, rep_err2);
 
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);
@@ -439,7 +443,7 @@ TEST_F(ProcessorTrackerLandmarkApriltag_class, emplaceFactorProj)
 {
     // dummy pose, not used in the factor, only for some part of the processor
     Vector7d pose_dummy = Vector7d::Zero(); 
-    auto f1 = FeatureBase::emplace<FeatureApriltagProj>(C1, Vector8d::Zero(), Matrix8d::Identity(), tag_id_, 0.1, pose_dummy, use_rotation);
+    auto f1 = FeatureBase::emplace<FeatureApriltagProj>(C1, Vector8d::Zero(), Matrix8d::Identity(), tag_id_, 0.1, pose_dummy, use_rotation, decision_margin, rep_err1, rep_err2);
 
     LandmarkBasePtr lmk = prc_apr->emplaceLandmark(f1);
     LandmarkApriltagPtr lmk_april = std::static_pointer_cast<LandmarkApriltag>(lmk);

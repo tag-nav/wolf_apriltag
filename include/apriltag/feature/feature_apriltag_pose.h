@@ -48,11 +48,13 @@ class FeatureApriltagPose : public FeatureApriltag
                         double _tag_width,
                         const Vector8d & _corners_vec,
                         bool _use_rotation,
+                        double _detection_margin,
+                        double _reprojection_error_best, 
+                        double _reprojection_error_second, 
                         UncertaintyType _uncertainty_type = UNCERTAINTY_IS_INFO);
         ~FeatureApriltagPose() override;
 
         Eigen::VectorXd getPosePnp() const override;
-
 };
 
 inline FeatureApriltagPose::FeatureApriltagPose(
@@ -62,8 +64,11 @@ inline FeatureApriltagPose::FeatureApriltagPose(
                                  double _tag_width,
                                  const Vector8d & _corners_vec,
                                  bool _use_rotation,
+                                 double _detection_margin,
+                                 double _reprojection_error_best, 
+                                 double _reprojection_error_second, 
                                  UncertaintyType _uncertainty_type) :
-    FeatureApriltag("FeatureApriltagPose", _measurement, _meas_info, _tag_id, _tag_width, _corners_vec, _use_rotation, _uncertainty_type)
+    FeatureApriltag("FeatureApriltagPose", _measurement, _meas_info, _tag_id, _tag_width, _corners_vec, _use_rotation, _detection_margin, _reprojection_error_best, _reprojection_error_second, _uncertainty_type)
 {
 }
 
