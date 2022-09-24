@@ -77,8 +77,12 @@ class FeatureApriltag : public FeatureBase
          **/
         double getTagWidth() const;
 
+        double getDetectionMargin() const;
+        double getReprojectionErrorBest() const;
+        double getReprojectionErrorSecond() const;
+        
 
-    private:
+      private:
         int tag_id_;
         double tag_width_;
         std::vector<cv::Point2d> tag_corners_;
@@ -142,7 +146,20 @@ inline bool FeatureApriltag::getUseRotation() const
     return use_rotation_;
 }
 
+inline double FeatureApriltag::getDetectionMargin() const
+{
+    return detection_margin_;
+}
 
+inline double FeatureApriltag::getReprojectionErrorBest() const
+{
+    return reprojection_error_best_;
+}
+
+inline double FeatureApriltag::getReprojectionErrorSecond() const
+{
+    return reprojection_error_second_;
+}
 
 } // namespace wolf
 
