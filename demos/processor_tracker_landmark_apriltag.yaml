@@ -26,7 +26,9 @@ noise:
     std_z :           0.1 # m 
     std_rpy_degrees : 5   # degrees
     std_pix:          20    # pixel error
-    
+
+use_proj_factor: false
+
 vote:
     voting active:              true
     min_time_vote:              0 # s
@@ -34,8 +36,6 @@ vote:
     min_features_for_keyframe:  12
     nb_vote_for_every_first:    50
 
-reestimate_last_frame: true   # for a better prior on the new keyframe: use only if no motion processor
-add_3d_cstr: true             # add 3D constraints between the KF so that they do not jump when using apriltag only
 max_new_features: -1
 apply_loss_function: true
 

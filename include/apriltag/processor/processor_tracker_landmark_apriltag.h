@@ -24,10 +24,13 @@
 
 // Wolf apriltag includes
 #include "apriltag/feature/feature_apriltag.h"
+#include "apriltag/feature/feature_apriltag_proj.h"
+#include "apriltag/feature/feature_apriltag_pose.h"
 #include "apriltag/landmark/landmark_apriltag.h"
+#include "apriltag/factor/factor_apriltag_proj.h"
 
 // IPPE (copy from https://github.com/tobycollins/IPPE)
-#include "ippe.h"
+#include "ippe.h"  /// use opencv solvePNP with square option instead
 
 // Wolf vision
 #include <vision/math/pinhole_tools.h>
@@ -36,24 +39,25 @@
 
 // Wolf core
 #include <core/math/rotations.h>
-#include <core/state_block/state_quaternion.h>  /// REMOVE?
+// #include <core/state_block/state_quaternion.h>  /// REMOVE?
 #include <core/factor/factor_relative_pose_3d_with_extrinsics.h>
 #include <core/processor/processor_tracker_landmark.h>
+#include <core/processor/motion_provider.h>
 
 // apriltag detection Michigan library
-#include <apriltag/apriltag.h>
-#include <apriltag/common/homography.h>
-#include <apriltag/common/zarray.h>
-#include <apriltag/tag16h5.h>
-#include <apriltag/tag25h9.h>
-#include <apriltag/tag36h11.h>
-#include <apriltag/tagCircle21h7.h>
-#include <apriltag/tagCircle49h12.h>
-#include <apriltag/tagCustom48h12.h>
-#include <apriltag/tagStandard41h12.h>
-#include <apriltag/tagStandard52h13.h>
-#include "apriltag/common/homography.h"
-#include "apriltag/common/zarray.h"
+#include <apriltag.h>
+#include <common/homography.h>
+#include <common/zarray.h>
+#include <tag16h5.h>
+#include <tag25h9.h>
+#include <tag36h11.h>
+#include <tagCircle21h7.h>
+#include <tagCircle49h12.h>
+#include <tagCustom48h12.h>
+#include <tagStandard41h12.h>
+#include <tagStandard52h13.h>
+#include <common/homography.h>
+#include <common/zarray.h>
 
 // opencv
 // OpenCV
@@ -69,7 +73,7 @@ namespace wolf
 
 WOLF_STRUCT_PTR_TYPEDEFS(ParamsProcessorTrackerLandmarkApriltag);
 
-struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLandmark
+struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLandmark, public ParamsMotionProvider
 {
     //tag parameters
     std::string tag_family_;
@@ -86,17 +90,20 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
     bool refine_edges_;
 
     double std_pix_;
+    
+    bool use_proj_factor_;
+
     double min_time_span_;
     double max_time_span_;
     int nb_vote_for_every_first_;
-    bool add_3d_cstr_;
+    double april_min_decision_margin_;
     double ippe_min_ratio_;
     double ippe_max_rep_error_;
 
-    bool reestimate_last_frame_;
     ParamsProcessorTrackerLandmarkApriltag() = default;
     ParamsProcessorTrackerLandmarkApriltag(std::string _unique_name, const ParamsServer& _server):
-        ParamsProcessorTrackerLandmark(_unique_name, _server)
+        ParamsProcessorTrackerLandmark(_unique_name, _server),
+        ParamsMotionProvider(_unique_name, _server)
     {
         tag_family_                 = _server.getParam<std::string>(prefix + _unique_name            + "/tag_family");
         tag_width_default_          = _server.getParam<double>(prefix + _unique_name                 + "/tag_width_default");
@@ -107,17 +114,17 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         debug_                      = _server.getParam<bool>(prefix + _unique_name                   + "/debug");
         refine_edges_               = _server.getParam<bool>(prefix + _unique_name                   + "/refine_edges");
         std_pix_                    = _server.getParam<double>(prefix + _unique_name                 + "/std_pix");
+        use_proj_factor_            = _server.getParam<bool>(prefix + _unique_name                   + "/use_proj_factor");
         min_time_span_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/min_time_span");
         max_time_span_              = _server.getParam<double>(prefix + _unique_name                 + "/keyframe_vote/max_time_span");
         nb_vote_for_every_first_    = _server.getParam<int>(prefix + _unique_name                    + "/keyframe_vote/nb_vote_for_every_first");
-        add_3d_cstr_                = _server.getParam<bool>(prefix + _unique_name                   + "/add_3d_cstr");
+        april_min_decision_margin_  = _server.getParam<double>(prefix + _unique_name                 + "/april_min_decision_margin");
         ippe_min_ratio_             = _server.getParam<double>(prefix + _unique_name                 + "/ippe_min_ratio");
         ippe_max_rep_error_         = _server.getParam<double>(prefix + _unique_name                 + "/ippe_max_rep_error");
-        reestimate_last_frame_      = _server.getParam<bool>(prefix + _unique_name                   + "/reestimate_last_frame");
     }
     std::string print() const override
     {
-        return ParamsProcessorTrackerLandmark::print()                           + "\n"
+        return ParamsProcessorTrackerLandmark::print()                                  + "\n"
         + "tag_family_: "               + tag_family_                                   + "\n"
         + "tag_width_default_: "        + std::to_string(tag_width_default_)            + "\n"
         + "tag_widths_: "               + converter<std::string>::convert(tag_widths_)  + "\n"
@@ -127,13 +134,13 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
         + "debug_: "                    + std::to_string(debug_)                        + "\n"
         + "refine_edges_: "             + std::to_string(refine_edges_)                 + "\n"
         + "std_pix_: "                  + std::to_string(std_pix_)                      + "\n"
+        + "use_proj_factor_: "          + std::to_string(use_proj_factor_)              + "\n"
         + "min_time_span_: "            + std::to_string(min_time_span_)                + "\n"
         + "max_time_span_: "            + std::to_string(max_time_span_)                + "\n"
         + "nb_vote_for_every_first_: "  + std::to_string(nb_vote_for_every_first_)      + "\n"
-        + "add_3d_cstr_: "              + std::to_string(add_3d_cstr_)                  + "\n"
+        + "april_min_decision_margin_: "+ std::to_string(april_min_decision_margin_)    + "\n"
         + "ippe_min_ratio_: "           + std::to_string(ippe_min_ratio_)               + "\n"
-        + "ippe_max_rep_error_: "       + std::to_string(ippe_max_rep_error_)           + "\n"
-        + "reestimate_last_frame_: "    + std::to_string(reestimate_last_frame_)        + "\n";
+        + "ippe_max_rep_error_: "       + std::to_string(ippe_max_rep_error_)           + "\n";
     }
 };
 
@@ -141,7 +148,7 @@ struct ParamsProcessorTrackerLandmarkApriltag : public ParamsProcessorTrackerLan
 
 WOLF_PTR_TYPEDEFS(ProcessorTrackerLandmarkApriltag);
 
-class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
+class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark, public MotionProvider
 {
     public:
 
@@ -208,7 +215,13 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
 
         void configure(SensorBasePtr _sensor) override;
 
-        void reestimateLastFrame();
+        ////////////////////////////////////////////////
+        // MotionProvider virtual methods implementation
+        TimeStamp       getTimeStamp() const override;
+        VectorComposite getState(const StateStructure& _structure = "") const override;
+        VectorComposite getState(const TimeStamp& _ts, const StateStructure& _structure = "") const override;
+        ////////////////////////////////////////////////
+
 
     public:
         double getTagWidth(int _id) const;
@@ -251,11 +264,12 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         apriltag_detector_t* detector_;
         apriltag_family_t* tag_family_;
         double std_pix_;                    ///< pixel error to be propagated to a camera to tag transformation covariance
+        bool use_proj_factor_;
+        double april_min_decision_margin_;
         double ippe_min_ratio_;
         double ippe_max_rep_error_;
         Matrix3d K_;
         cv::Mat_<double> cv_K_;
-        bool reestimate_last_frame_;
         int n_reset_;
 
     protected:
@@ -269,7 +283,6 @@ class ProcessorTrackerLandmarkApriltag : public ProcessorTrackerLandmark
         double          max_time_span_;
         unsigned int    min_features_for_keyframe_;
         int             nb_vote_for_every_first_;
-        bool            add_3d_cstr_;
         int             nb_vote_;
 
     public:

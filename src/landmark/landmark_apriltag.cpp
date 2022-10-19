@@ -19,20 +19,25 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 //--------LICENSE_END--------
+
+// Wolf apriltag
 #include "apriltag/landmark/landmark_apriltag.h"
-#include "core/common/factory.h"
-#include "core/math/rotations.h"
-#include "core/yaml/yaml_conversion.h"
+
+// Wolf core
+#include <core/common/factory.h>
+#include <core/math/rotations.h>
+#include <core/yaml/yaml_conversion.h>
+#include <core/state_block/state_block_derived.h>
+#include <core/state_block/state_quaternion.h>
 
 namespace wolf {
 
 LandmarkApriltag::LandmarkApriltag(Eigen::Vector7d& pose, const int& _tagid, const double& _tag_width) :
-	LandmarkBase("LandmarkApriltag", std::make_shared<StateBlock>(pose.head(3)), std::make_shared<StateQuaternion>(pose.tail(4))),
+	LandmarkBase("LandmarkApriltag", std::make_shared<StatePoint3d>(pose.head(3)), std::make_shared<StateQuaternion>(pose.tail(4))),
 	tag_id_(_tagid),
 	tag_width_(_tag_width)
 {
   	setDescriptor(Eigen::VectorXd::Constant(1,_tagid)); //change tagid to int ? do not use descriptor vector ?
-    setId(_tagid); // overwrite lmk ID to match tag_id.
 }
 
 LandmarkApriltag::~LandmarkApriltag()
@@ -57,7 +62,6 @@ int LandmarkApriltag::getTagId() const
 LandmarkBasePtr LandmarkApriltag::create(const YAML::Node& _lmk_node)
 {
     // Parse YAML node with lmk info and data
-    unsigned int    id                      = _lmk_node["id"]                   .as<unsigned int>();
     unsigned int    tag_id                  = _lmk_node["tag id"]               .as<unsigned int>();
     double          tag_width               = _lmk_node["tag width"]            .as<double>();
     Eigen::Vector3d pos                     = _lmk_node["position"]             .as<Eigen::Vector3d>();
@@ -78,13 +82,16 @@ LandmarkBasePtr LandmarkApriltag::create(const YAML::Node& _lmk_node)
     }
     bool            ori_fixed               = _lmk_node["orientation fixed"]    .as<bool>();
 
+    bool            transformable           = _lmk_node["transformable"]        .as<bool>();
+
     Eigen::Vector7d pose; pose << pos, vquat;
 
     // Create a new landmark
     LandmarkApriltagPtr lmk_ptr = std::make_shared<LandmarkApriltag>(pose, tag_id, tag_width);
-    lmk_ptr->setId(id);
     lmk_ptr->getP()->setFixed(pos_fixed);
     lmk_ptr->getO()->setFixed(ori_fixed);
+    lmk_ptr->getP()->setTransformable(transformable);
+    lmk_ptr->getO()->setTransformable(transformable);
 
     return lmk_ptr;
 

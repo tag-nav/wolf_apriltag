@@ -131,7 +131,7 @@ stages:
   - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_TESTS=ON ..
   - make -j$(nproc)
   - ./../bin/gtest_processor_tracker_landmark_apriltag
-  - ctest -j$(nproc)
+  - ctest -j$(nproc) --output-on-failure
   - make install
   - ldconfig
 

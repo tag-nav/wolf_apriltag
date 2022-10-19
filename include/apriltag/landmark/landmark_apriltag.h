@@ -26,8 +26,6 @@
 //Wolf includes
 #include "core/landmark/landmark_base.h"
 
-#include "core/state_block/state_quaternion.h"
-
 // Std includes
 
 

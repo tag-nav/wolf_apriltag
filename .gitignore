@@ -35,7 +35,6 @@ demos/map_apriltag_save.yaml
 
 \.vscode/
 
-apriltag.found
-apriltagw.found
 Testing/Temporary/LastTest.log
 Testing/Temporary/CTestCostData.txt
+.clang-format
