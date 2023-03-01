@@ -204,9 +204,9 @@ build_and_test:bionic:
     - key: yamlschemacpp-bionic
       paths:
       - ci_deps/yaml_schema_cpp/
-    - key: visionutils-bionic
-      paths:
-      - ci_deps/vision_utils/
+    #- key: visionutils-bionic
+    #  paths:
+    #  - ci_deps/vision_utils/
     - key: vision-bionic
       paths:
       - ci_deps/vision/
@@ -235,9 +235,9 @@ build_and_test:focal:
     - key: yamlschemacpp-focal
       paths:
       - ci_deps/yaml_schema_cpp/
-    - key: visionutils-focal
-      paths:
-      - ci_deps/vision_utils/
+    #- key: visionutils-focal
+    #  paths:
+    #  - ci_deps/vision_utils/
     - key: vision-focal
       paths:
       - ci_deps/vision/
