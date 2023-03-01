@@ -89,7 +89,7 @@ class ProcessorTrackerLandmarkApriltag_class : public testing::Test{
     public:
         void SetUp() override
         {
-            wolf_root = _WOLF_APRILTAG_ROOT_DIR;
+            wolf_root = _WOLF_APRILTAG_CODE_DIR;
 
             // configure wolf problem
             problem = Problem::create("PO", 3);

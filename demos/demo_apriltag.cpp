@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
     WOLF_INFO( "==================== processor apriltag test ======================" )
 
-    std::string wolf_root = _WOLF_ROOT_DIR;
+    std::string wolf_root = _WOLF_CODE_DIR;
     // Wolf problem
     ProblemPtr problem              = Problem::create("PO", 3);
     ceres::Solver::Options options;

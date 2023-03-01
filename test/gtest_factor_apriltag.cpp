@@ -107,7 +107,7 @@ class FactorApriltag_class : public testing::Test{
 
         void SetUp() override
         {
-            std::string wolf_root = _WOLF_APRILTAG_ROOT_DIR;
+            std::string wolf_root = _WOLF_APRILTAG_CODE_DIR;
 
             // configuration
 

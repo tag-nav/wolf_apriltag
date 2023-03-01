@@ -44,7 +44,7 @@ class LandmarkApriltag_class : public testing::Test{
     public:
         void SetUp() override
         {
-            wolf_root = _WOLF_APRILTAG_ROOT_DIR;
+            wolf_root = _WOLF_APRILTAG_CODE_DIR;
             problem = Problem::create("PO", 3);
         }
     public:
