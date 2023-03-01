@@ -10,6 +10,12 @@ stages:
   - echo $WOLF_APRILTAG_BRANCH
 
 .preliminaries_template: &preliminaries_definition
+  ## OVERRIDE VARIABLES
+  - export WOLF_CORE_BRANCH="454-implementation-of-new-nodes-creation"
+
+  ## PRINT VARIABLES
+  - *print_variables_definition
+
   ## Install ssh-agent if not already installed, it is required by Docker.
   ## (change apt-get to yum if you use an RPM-based image)
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
@@ -43,20 +49,28 @@ stages:
   - git config --global user.name "${CI_USERNAME}"
   - git checkout -b $CI_NEW_BRANCH # temporary branch
 
+  # download license script
+  - if [ -f /ci_deps/license_manager.sh ]; then
+  -   echo "File license_manager.sh already exists."
+  - else
+  -   echo "Downloading file license_manager.sh..."
+  -   wget -P /ci_deps  https://gitlab.iri.upc.edu/mobile_robotics/wolf_projects/wolf_lib/wolf/-/raw/devel/wolf_scripts/license_manager.sh
+  - fi
+
   # license headers
   - export CURRENT_YEAR=$( date +'%Y' )
   - echo "current year:" ${CURRENT_YEAR}
   - if [ -f license_header_${CURRENT_YEAR}.txt ]; then
       # add license headers to new files
   -   echo "File license_header_${CURRENT_YEAR}.txt already exists. License headers are assumed to be updated. Adding headers to new files..."
-  -   ./ci_deps/wolf/wolf_scripts/license_manager.sh --add --path=. --license-header=license_header_${CURRENT_YEAR}.txt --exclude=ci_deps
+  -   source /ci_deps/license_manager.sh --add --path=. --license-header=license_header_${CURRENT_YEAR}.txt --exclude=ci_deps
   - else
       # update license headers of all files
   -   export PREV_YEAR=$(( CURRENT_YEAR-1 ))
   -   echo "Creating new file license_header_${CURRENT_YEAR}.txt..."
   -   git mv license_header_${PREV_YEAR}.txt license_header_${CURRENT_YEAR}.txt
   -   sed -i "s/${PREV_YEAR}/${PREV_YEAR},${CURRENT_YEAR}/g" license_header_${CURRENT_YEAR}.txt
-  -   ./ci_deps/wolf/wolf_scripts/license_manager.sh --update --path=. --license-header=license_header_${CURRENT_YEAR}.txt --exclude=ci_deps
+  -   source /ci_deps/license_manager.sh --update --path=. --license-header=license_header_${CURRENT_YEAR}.txt --exclude=ci_deps
   - fi
 
   # push changes (if any)
@@ -66,6 +80,24 @@ stages:
   - else
   -   echo "No changes, nothing to commit!"
   - fi
+
+.install_yamlschemacpp_template: &install_yamlschemacpp_definition
+  - cd ${CI_PROJECT_DIR}/ci_deps
+  - if [ -d yaml-schema-cpp ]; then
+  -   echo "directory yaml-schema-cpp exists"
+  -   cd yaml-schema-cpp
+  -   git checkout main
+  -   git pull
+  - else
+  -   git clone -b main ssh://git@gitlab.iri.upc.edu:2202/labrobotica/algorithms/yaml-schema-cpp.git
+  -   cd yaml-schema-cpp
+  - fi
+  - mkdir -pv build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=release -DBUILD_TESTS=OFF ..
+  - make -j$(nproc)
+  - make install
+  - ldconfig
 
 .install_wolf_template: &install_wolf_definition
   - cd ${CI_PROJECT_DIR}/ci_deps
@@ -156,14 +188,8 @@ stages:
 license_headers:
   stage: license
   image: labrobotica/wolf_vision_deps:20.04
-  cache:
-    - key: wolf-focal
-      paths:
-      - ci_deps/wolf/
   before_script:
-    - *print_variables_definition
     - *preliminaries_definition
-    - *install_wolf_definition
   script:
     - *license_header_definition
 
@@ -175,6 +201,9 @@ build_and_test:bionic:
     - key: wolf-bionic
       paths:
       - ci_deps/wolf/
+    - key: yamlschemacpp-bionic
+      paths:
+      - ci_deps/yaml_schema_cpp/
     - key: visionutils-bionic
       paths:
       - ci_deps/vision_utils/
@@ -185,8 +214,8 @@ build_and_test:bionic:
       paths:
       - ci_deps/apriltaglib/
   before_script:
-    - *print_variables_definition
     - *preliminaries_definition
+    - *install_yamlschemacpp_definition
     - *install_wolf_definition
     - *install_visionutils_definition
     - *install_wolfvision_definition
@@ -203,6 +232,9 @@ build_and_test:focal:
     - key: wolf-focal
       paths:
       - ci_deps/wolf/
+    - key: yamlschemacpp-focal
+      paths:
+      - ci_deps/yaml_schema_cpp/
     - key: visionutils-focal
       paths:
       - ci_deps/vision_utils/
@@ -213,8 +245,8 @@ build_and_test:focal:
       paths:
       - ci_deps/apriltaglib/
   before_script:
-    - *print_variables_definition
     - *preliminaries_definition
+    - *install_yamlschemacpp_definition
     - *install_wolf_definition
     - *install_visionutils_definition
     - *install_wolfvision_definition
