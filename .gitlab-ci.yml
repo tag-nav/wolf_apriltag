@@ -1,3 +1,6 @@
+include:
+  - 'https://gitlab.iri.upc.edu/mobile_robotics/wolf_projects/wolf_lib/wolf/-/raw/$WOLF_CORE_BRANCH/.license_template_ci.yml'
+
 stages:
   - license
   - build_and_test
