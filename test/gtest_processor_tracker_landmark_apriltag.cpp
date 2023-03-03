@@ -1,10 +1,10 @@
-//--------LICENSE_START--------
-//
-// Copyright (C) 2020,2021,2022,2023 Institut de Robòtica i Informàtica Industrial, CSIC-UPC.
-// Authors: Joan Solà Ortega (jsola@iri.upc.edu)
+// WOLF - Copyright (C) 2020,2021,2022,2023
+// Institut de Robòtica i Informàtica Industrial, CSIC-UPC.
+// Authors: Joan Solà Ortega (jsola@iri.upc.edu) and
+// Joan Vallvé Navarro (jvallve@iri.upc.edu)
 // All rights reserved.
 //
-// This file is part of WOLF
+// This file is part of WOLF: http://www.iri.upc.edu/wolf
 // WOLF is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -17,10 +17,10 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//--------LICENSE_END--------
+
 #include <core/utils/utils_gtest.h>
 
+#include "apriltag/common/apriltag.h"
 #include "core/common/wolf.h"
 #include "core/utils/logging.h"
 #include "core/capture/capture_pose.h"
@@ -29,11 +29,10 @@
 #include "apriltag/processor/processor_tracker_landmark_apriltag.h"
 #include "apriltag/feature/feature_apriltag.h"
 #include "apriltag/landmark/landmark_apriltag.h"
-#include "apriltag/internal/config.h"
+
 using namespace Eigen;
 using namespace wolf;
 using std::static_pointer_cast;
-
 
 ////////////////////////////////////////////////////////////////
 /*
