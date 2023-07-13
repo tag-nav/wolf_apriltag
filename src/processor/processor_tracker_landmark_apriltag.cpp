@@ -60,6 +60,8 @@ ProcessorTrackerLandmarkApriltag::ProcessorTrackerLandmarkApriltag( ParamsProces
         tag_family_ = tagCircle49h12_create();
     else if (famname == "tagCustom48h12")
         tag_family_ = tagCustom48h12_create();
+    else if (famname == "tagCustom52h12")
+        tag_family_ = tagCustom52h12_create();
     else if (famname == "tagStandard41h12")
         tag_family_ = tagStandard41h12_create();
     else if (famname == "tagStandard52h13")
@@ -94,6 +96,8 @@ ProcessorTrackerLandmarkApriltag::~ProcessorTrackerLandmarkApriltag()
         tagCircle49h12_destroy(tag_family_);
     else if (famname == "tagCustom48h12")
         tagCustom48h12_destroy(tag_family_);
+    else if (famname == "tagCustom52h12")
+        tagCustom52h12_destroy(tag_family_);
     else if (famname == "tagStandard41h12")
         tagStandard41h12_destroy(tag_family_);
     else if (famname == "tagStandard52h13")

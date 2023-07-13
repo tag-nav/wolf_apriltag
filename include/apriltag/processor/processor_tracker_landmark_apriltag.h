@@ -54,6 +54,7 @@
 #include <tagCircle21h7.h>
 #include <tagCircle49h12.h>
 #include <tagCustom48h12.h>
+#include <tagCustom52h12.h>
 #include <tagStandard41h12.h>
 #include <tagStandard52h13.h>
 #include <common/homography.h>
